@@ -1,0 +1,27 @@
+{
+  "_note": "Breaker-gated loads the electrical owner reads. Not a full EPDC. Panel identity is sourced. Millimetre stations are not in this file and must not be invented.",
+  "loads": [
+    {
+      "id": "smoke_detn_flt_dk",
+      "breaker_id": "CbMnaSmokeDetnFltDk",
+      "channel": "elec.load.smoke_detn_flt_dk.powered",
+      "breaker_channel": "ctl.elec.cb.mna_smoke_detn_flt_dk",
+      "bus": "a",
+      "panel": "O14",
+      "nomenclature": "MNA SMOKE DETN L/R FLT DK",
+      "confidence": "described",
+      "source": "USA006019 Rev. A (2008-12-16) §3.3.4.2 Panel O14: cb MNA SMOKE DETN L/R FLT DK applies power to the left and right flight deck smoke detectors."
+    },
+    {
+      "id": "annun_fwd_aca_1",
+      "breaker_id": "CbMnaAnnunFwdAca1",
+      "channel": "elec.load.annun_fwd_aca_1.powered",
+      "breaker_channel": "ctl.elec.cb.mna_annun_fwd_aca_1",
+      "bus": "a",
+      "panel": "O14",
+      "nomenclature": "MNA ANNUN FWD ACA 1",
+      "confidence": "described",
+      "source": "USA006019 Rev. A (2008-12-16) §3.3.4.2 Panel O14: cb MNA ANNUN FWD ACA 1 supplies power to the ACA 1 electronics and annunciator lights."
+    }
+  ]
+}

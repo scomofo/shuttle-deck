@@ -54,6 +54,7 @@ Gates:
 - orbiter reference area is the sourced 2690 ft²
 - procedure runner rejects `set_channel` onto `dyn.*` and `set_control` onto a momentary
 - panel R1 FC1/MN A: the switch springs back, the contactor latch does not, and restore does not reclose it
+- panel O14 smoke-detector breaker drops that load and not Main A; the placement row has no invented millimetres
 - pad → SRB sep → MECO → ET sep is a data procedure
 - presenter inverts the world from the bus and never writes `dyn.*`
 

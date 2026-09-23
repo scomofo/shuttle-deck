@@ -10,6 +10,7 @@ import launch from "../assets/data/missions/sts_template/procedures/launch_inser
 import fuel from "../assets/data/missions/sts_template/procedures/fuel_cell_protect.json" with { type: "json" };
 import invalid from "../assets/data/missions/sts_template/procedures/invalid_set_channel.json" with { type: "json" };
 import fcBus from "../assets/data/missions/sts_template/procedures/fc_main_bus.json" with { type: "json" };
+import smoke from "../assets/data/missions/sts_template/procedures/smoke_breaker.json" with { type: "json" };
 
 function reset() {
   clock.reset(0);
@@ -83,6 +84,50 @@ function test_contactor_latch_survives_restore() {
   assert(bus.get_value("elec.talkback.fc1_mn_a") === "OFF", "a sprung-back switch must not reclose after restore");
 }
 
+function test_smoke_breaker_kills_the_load_not_the_bus() {
+  reset();
+  const rt = new SimRuntime();
+  const runner = new ProcedureRunner(rt);
+  assert(runner.run(smoke as Procedure), runner.failures.join("\n"));
+  assert(bus.get_value("elec.bus.mn_a.powered") === true, "tied MN A is back");
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === true, "closed breaker on a live bus powers the load");
+}
+
+function test_pulled_breaker_survives_restore() {
+  reset();
+  const rt = new SimRuntime();
+  rt.start("prelaunch");
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === true, "load starts powered");
+  rt.controls.pull_breaker("CbMnaSmokeDetnFltDk");
+  clock.advance(0.06);
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === false, "pulled breaker drops the load");
+  assert(bus.get_value("elec.bus.mn_a.powered") === true, "MN A stays up");
+  assert(bus.get_value("elec.load.annun_fwd_aca_1.powered") === true, "the other O14 load stays up");
+  const snap = rt.snapshot();
+  rt.controls.push_breaker("CbMnaSmokeDetnFltDk");
+  clock.advance(0.06);
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === true, "pushed breaker restores the load");
+  assert(rt.restore(snap), rt.last_checkpoint_error);
+  assert(bus.get_value("ctl.elec.cb.mna_smoke_detn_flt_dk") === false, "restore returns the pulled breaker");
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === false, "the load stays dead across restore");
+  clock.advance(0.06);
+  assert(bus.get_value("elec.load.smoke_detn_flt_dk.powered") === false, "a restored open breaker must not reclose itself");
+}
+
+function test_breaker_rejects_set_control() {
+  reset();
+  const rt = new SimRuntime();
+  const runner = new ProcedureRunner(rt);
+  const bad = {
+    ...(smoke as Procedure),
+    id: "STS-SYNTH-BREAKER",
+    fidelity: "synthetic" as const,
+    steps: [{ action: "set_control", target: "CbMnaSmokeDetnFltDk", value: false }],
+  };
+  const errs = runner.validate(bad);
+  assert(errs.some((e) => e.includes("pull_breaker")), `got ${errs}`);
+}
+
 function test_momentary_rejects_set_control() {
   reset();
   const rt = new SimRuntime();
@@ -112,6 +157,9 @@ const tests = [
   test_launch_insertion,
   test_fc_main_bus_chain,
   test_contactor_latch_survives_restore,
+  test_smoke_breaker_kills_the_load_not_the_bus,
+  test_pulled_breaker_survives_restore,
+  test_breaker_rejects_set_control,
   test_momentary_rejects_set_control,
   test_wrong_mission_rejected,
 ];

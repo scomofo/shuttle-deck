@@ -15,6 +15,8 @@ export const ACTIONS = [
   "set_control",
   "press_control",
   "pull_control",
+  "pull_breaker",
+  "push_breaker",
   "set_hand_controller",
   "advance_time",
   "wait_until",
@@ -67,7 +69,7 @@ export class ProcedureRunner {
         if (!ACTIONS.includes(step.action as (typeof ACTIONS)[number])) {
           errs.push(`step ${i}: unknown action ${step.action}`);
         }
-        if (["set_control", "press_control", "pull_control"].includes(String(step.action))) {
+        if (["set_control", "press_control", "pull_control", "pull_breaker", "push_breaker"].includes(String(step.action))) {
           if (!this.runtime.controls.has(String(step.target ?? ""))) {
             errs.push(`step ${i}: unknown control id '${step.target}'`);
           }
@@ -76,6 +78,15 @@ export class ProcedureRunner {
           const control = this.runtime.controls.get(String(step.target ?? ""));
           if (control?.kind === "momentary") {
             errs.push(`step ${i}: momentary ${control.id} must be press_control, not set_control`);
+          }
+          if (control?.kind === "breaker") {
+            errs.push(`step ${i}: breaker ${control.id} must be pull_breaker or push_breaker, not set_control`);
+          }
+        }
+        if (step.action === "pull_breaker" || step.action === "push_breaker") {
+          const control = this.runtime.controls.get(String(step.target ?? ""));
+          if (control && control.kind !== "breaker") {
+            errs.push(`step ${i}: ${control.id} is not a breaker`);
           }
         }
         if (step.action === "press_control") {
@@ -135,6 +146,12 @@ export class ProcedureRunner {
     switch (step.action) {
       case "set_control":
         this.runtime.controls.set(String(step.target), step.value as BusValue);
+        break;
+      case "pull_breaker":
+        this.runtime.controls.pull_breaker(String(step.target));
+        break;
+      case "push_breaker":
+        this.runtime.controls.push_breaker(String(step.target));
         break;
       case "press_control":
       case "pull_control":

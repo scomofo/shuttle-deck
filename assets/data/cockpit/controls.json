@@ -70,6 +70,22 @@
       "spec_id": "R1_MN_BUS_TIE_C",
       "confidence": "described"
     },
+    {
+      "id": "CbMnaSmokeDetnFltDk",
+      "channel": "ctl.elec.cb.mna_smoke_detn_flt_dk",
+      "kind": "breaker",
+      "panel": "O14",
+      "spec_id": "O14_MNA_SMOKE_DETN_LR_FLT_DK",
+      "confidence": "described"
+    },
+    {
+      "id": "CbMnaAnnunFwdAca1",
+      "channel": "ctl.elec.cb.mna_annun_fwd_aca_1",
+      "kind": "breaker",
+      "panel": "O14",
+      "spec_id": "O14_MNA_ANNUN_FWD_ACA_1",
+      "confidence": "described"
+    },
     { "id": "EtSep", "channel": "seq.cmd.et_sep", "kind": "button" },
     { "id": "Deorbit", "channel": "seq.cmd.deorbit", "kind": "button" },
     { "id": "Gear", "channel": "ctl.gear", "kind": "switch", "on": true, "off": false },

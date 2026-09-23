@@ -1,0 +1,3 @@
+id,panel,kind,channel,nx_mm,ny_mm,confidence,source
+CbMnaSmokeDetnFltDk,O14,breaker,ctl.elec.cb.mna_smoke_detn_flt_dk,,,described,USA006019 Rev. A §3.3.4.2 Panel O14
+CbMnaAnnunFwdAca1,O14,breaker,ctl.elec.cb.mna_annun_fwd_aca_1,,,described,USA006019 Rev. A §3.3.4.2 Panel O14

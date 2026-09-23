@@ -18,8 +18,11 @@
  */
 
 import { bus } from "../core/bus.ts";
+import topology from "../../assets/data/spacecraft/electrical.json" with { type: "json" };
 
 type BusId = "a" | "b" | "c";
+
+export type LoadDef = (typeof topology.loads)[number];
 
 export class Electrical {
   cells = [true, true, true];
@@ -52,6 +55,12 @@ export class Electrical {
     for (const id of ["a", "b", "c"] as const) {
       bus.set_value(`elec.bus.mn_${id}.powered`, this.bus_powered[id]);
       bus.set_value(`elec.bus.mn_${id}.volts`, this.bus_powered[id] ? this.main_volts : 0);
+    }
+    for (const load of topology.loads) {
+      const closed = this.breaker_closed(load.breaker_channel);
+      const powered = closed && this.bus_powered[load.bus as BusId];
+      bus.set_value(load.channel, powered);
+      bus.set_value(`elec.breaker.${load.id}.closed`, closed);
     }
   }
 
@@ -112,6 +121,11 @@ export class Electrical {
 
   private fc_online(i: number): boolean {
     return this.cells[i] && this.fc_commanded(i);
+  }
+
+  private breaker_closed(channel: string): boolean {
+    const v = bus.get_value(channel, true);
+    return v !== false && v !== 0 && v !== "OFF";
   }
 
   private recompute(): void {

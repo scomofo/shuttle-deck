@@ -1,0 +1,48 @@
+{
+  "id": "STS-ELEC-CB-SMOKE-001",
+  "mission": "sts_template",
+  "phase": "prelaunch",
+  "start": "prelaunch",
+  "fidelity": "functional",
+  "confidence": "described",
+  "_note": "The manual states what the closed breaker applies power to. Opening it removes that load only. Panel station in millimetres is not claimed. Contactor transit is still one fixed step.",
+  "sources": [
+    {
+      "id": "USA006019",
+      "locator": "Caution and Warning, USA006019 Rev. A, 16 Dec 2008, §3.3.4.2 Panel O14. cb MNA SMOKE DETN L/R FLT DK applies power to the left and right flight deck smoke detectors. cb MNA ANNUN FWD ACA 1 supplies power to the ACA 1 electronics and annunciator lights."
+    }
+  ],
+  "preconditions": [
+    { "expect": "phase", "equals": "prelaunch" },
+    { "expect": "channel", "target": "ctl.elec.cb.mna_smoke_detn_flt_dk", "is_true": true },
+    { "expect": "channel", "target": "elec.load.smoke_detn_flt_dk.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.load.annun_fwd_aca_1.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true }
+  ],
+  "steps": [
+    { "action": "pull_breaker", "target": "CbMnaSmokeDetnFltDk" },
+    { "expect": "channel", "target": "elec.load.smoke_detn_flt_dk.powered", "is_true": false, "within_s": 0.1 },
+    { "expect": "channel", "target": "elec.breaker.smoke_detn_flt_dk.closed", "is_true": false },
+    { "expect": "channel", "target": "elec.load.annun_fwd_aca_1.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true },
+
+    { "action": "push_breaker", "target": "CbMnaSmokeDetnFltDk" },
+    { "expect": "channel", "target": "elec.load.smoke_detn_flt_dk.powered", "is_true": true, "within_s": 0.1 },
+
+    { "action": "press_control", "target": "Fc1MnA", "value": "OFF", "hold_s": 0.25 },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false },
+    { "expect": "channel", "target": "elec.load.smoke_detn_flt_dk.powered", "is_true": false },
+    { "expect": "channel", "target": "elec.load.annun_fwd_aca_1.powered", "is_true": false },
+    { "expect": "channel", "target": "elec.breaker.smoke_detn_flt_dk.closed", "is_true": true },
+    { "expect": "channel", "target": "elec.breaker.annun_fwd_aca_1.closed", "is_true": true },
+    { "expect": "channel", "target": "elec.bus.mn_b.powered", "is_true": true },
+
+    { "action": "press_control", "target": "MnBusTieA", "value": "ON", "hold_s": 0.25 },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false },
+
+    { "action": "press_control", "target": "MnBusTieB", "value": "ON", "hold_s": 0.25 },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.load.smoke_detn_flt_dk.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.load.annun_fwd_aca_1.powered", "is_true": true }
+  ]
+}

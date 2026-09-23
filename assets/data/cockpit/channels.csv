@@ -14,6 +14,8 @@ ctl.elec.fc3_mn_c,controls,enum,panel R1 FC3/MN C momentary ON OFF CENTER
 ctl.elec.mn_bus_tie_a,controls,enum,panel R1 MN BUS TIE A momentary
 ctl.elec.mn_bus_tie_b,controls,enum,panel R1 MN BUS TIE B momentary
 ctl.elec.mn_bus_tie_c,controls,enum,panel R1 MN BUS TIE C momentary
+ctl.elec.cb.mna_smoke_detn_flt_dk,controls,bool,panel O14 breaker closed=true
+ctl.elec.cb.mna_annun_fwd_aca_1,controls,bool,panel O14 breaker closed=true
 seq.cmd.et_sep,controls,bool,ET sep command
 seq.cmd.deorbit,controls,bool,deorbit command
 seq.config,sequencer,enum,stack|orbit|entry
@@ -41,6 +43,10 @@ elec.bus.mn_c.powered,electrical,bool,
 elec.bus.mn_a.volts,electrical,V,
 elec.bus.mn_b.volts,electrical,V,
 elec.bus.mn_c.volts,electrical,V,
+elec.load.smoke_detn_flt_dk.powered,electrical,bool,panel O14 breaker and MN A
+elec.load.annun_fwd_aca_1.powered,electrical,bool,panel O14 breaker and MN A
+elec.breaker.smoke_detn_flt_dk.closed,electrical,bool,
+elec.breaker.annun_fwd_aca_1.closed,electrical,bool,
 prop.force_body_n,propulsion,N,body +X
 prop.torque_body_nm,guidance,N.m,
 prop.thrust_n,propulsion,N,

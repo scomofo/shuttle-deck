@@ -16,4 +16,5 @@ Current inventory:
 | STS-LAUNCH-INSERTION-001 | structural | pad → SRB sep → MECO → crew ET sep → orbit |
 | STS-ELEC-PROTECT-001 | functional | three fuel cells off kills the main bus |
 | STS-ELEC-FC-MNA-001 | functional | panel R1 FC1/MN A momentary switch latches the contactor; talkback is not the switch; one tie does not repower MN A; both ties do; opening the tie drops it again |
+| STS-ELEC-CB-SMOKE-001 | functional | panel O14 smoke-detector breaker kills that load only; ACA 1 annunciators and MN A stay up; a dead MN A kills both loads even with the breakers pushed |
 | STS-SYNTH-REJECT-001 | schema | a procedure cannot write `dyn.*` |
