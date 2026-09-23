@@ -140,7 +140,19 @@ or HUD needle angles. Restore is paused: clock → mission → dynamics →
 systems → controls, then every owner `publish_state()` / `tick(0)` before
 the clock runs again.
 
-## 8. What this is not
+## 8. Procedures
+
+`src/mission/procedures.ts` is Gemini's procedure runner. Definitions live
+in `assets/data/missions/sts_template/procedures/`. See
+`docs/MISSION_PROCEDURE_TESTING.md`.
+
+## 9. Presentation
+
+`src/presentation/presenter.ts` reads `dyn.r_eci_m` and publishes only
+`present.*`. The cabin stays at the origin; the world vector is the inverse
+of ECI position. Mutating the presenter must not change dynamics.
+
+## 10. What this is not
 
 This is not a single `ShuttleRuntime` class that owns pitch, phase, HUD and
 meshes. That was the first pass. It violated every ownership row in Gemini
