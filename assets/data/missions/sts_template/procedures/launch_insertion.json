@@ -1,0 +1,35 @@
+{
+  "id": "STS-LAUNCH-INSERTION-001",
+  "mission": "sts_template",
+  "phase": "prelaunch",
+  "start": "prelaunch",
+  "fidelity": "structural",
+  "sources": [
+    {
+      "id": "STS-1-INSERT",
+      "locator": "STS-1 insertion used as a software handoff target: ~246 x 246 km, 40.3 deg. Ascent shape is scripted, same rule as Gemini Titan II."
+    }
+  ],
+  "_note": "Pad through MECO on the scripted profile, then crew ET sep. Timing of SRB sep / MECO is the template profile, not a transcribed AS-101 MET sheet.",
+  "preconditions": [
+    { "expect": "phase", "equals": "prelaunch" }
+  ],
+  "steps": [
+    { "action": "set_control", "target": "FuelCell1", "value": true },
+    { "action": "set_control", "target": "FuelCell2", "value": true },
+    { "action": "set_control", "target": "FuelCell3", "value": true },
+    { "expect": "channel", "target": "elec.main_bus.powered", "is_true": true, "within_s": 0.1 },
+    { "action": "inject_mission_event", "event": "liftoff" },
+    { "expect": "phase", "equals": "ascent" },
+    { "action": "wait_until", "target": "mission.event.srb_sep", "is_true": true, "timeout_s": 140 },
+    { "expect": "channel", "target": "dyn.alt_m", "between": [40000, 60000] },
+    { "action": "wait_until", "expect": "phase", "equals": "insertion", "timeout_s": 420 },
+    { "expect": "channel", "target": "mission.event.meco", "is_true": true },
+    { "expect": "channel", "target": "dyn.alt_m", "between": [100000, 130000] },
+    { "expect": "channel", "target": "dyn.speed_mps", "between": [7000, 8000] },
+    { "expect": "channel", "target": "mission.event.et_sep", "is_true": false },
+    { "action": "press_control", "target": "EtSep", "hold_s": 0.25 },
+    { "action": "wait_until", "expect": "phase", "equals": "orbit", "timeout_s": 2 },
+    { "expect": "channel", "target": "mission.event.et_sep", "is_true": true }
+  ]
+}

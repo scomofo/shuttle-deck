@@ -1,0 +1,59 @@
+channel,owner,si_unit,notes
+time.get_s,clock,s,GET
+ctl.hand.roll,controls,1,RHC roll -1..1
+ctl.hand.pitch,controls,1,RHC pitch -1..1
+ctl.hand.yaw,controls,1,RHC yaw -1..1
+ctl.oms.burn,controls,bool,OMS command
+ctl.gear,controls,bool,landing gear command
+ctl.elec.fuel_cell_1,controls,bool,fuel cell 1 enable
+ctl.elec.fuel_cell_2,controls,bool,fuel cell 2 enable
+ctl.elec.fuel_cell_3,controls,bool,fuel cell 3 enable
+seq.cmd.et_sep,controls,bool,ET sep command
+seq.cmd.deorbit,controls,bool,deorbit command
+seq.config,sequencer,enum,stack|orbit|entry
+seq.next_event_get_s,sequencer,s,
+mission.phase,sequencer,enum,
+mission.phase_get_s,sequencer,s,
+mission.event.liftoff,sequencer,bool,latched
+mission.event.srb_sep,sequencer,bool,latched
+mission.event.meco,sequencer,bool,latched
+mission.event.et_sep,sequencer,bool,latched
+elec.main_bus.volts,electrical,V,
+elec.main_bus.powered,electrical,bool,
+elec.source.fuel_cell_1.on,electrical,bool,
+elec.source.fuel_cell_2.on,electrical,bool,
+elec.source.fuel_cell_3.on,electrical,bool,
+prop.force_body_n,propulsion,N,body +X
+prop.torque_body_nm,guidance,N.m,
+prop.thrust_n,propulsion,N,
+prop.srb.qty_kg,propulsion,kg,
+prop.oms.qty_kg,propulsion,kg,
+prop.rcs.qty_kg,propulsion,kg,
+prop.srb.attached,propulsion,bool,
+prop.et.attached,propulsion,bool,
+guid.bank_deg,guidance,deg,
+guid.rate.roll,dynamics,deg/s,
+guid.rate.pitch,dynamics,deg/s,
+guid.rate.yaw,dynamics,deg/s,
+dyn.r_eci_m,dynamics,m,
+dyn.v_eci_mps,dynamics,m/s,
+dyn.q_body_from_eci,dynamics,1,
+dyn.alt_m,dynamics,m,
+dyn.speed_mps,dynamics,m/s,
+dyn.mass_kg,dynamics,kg,
+dyn.accel_g,dynamics,g,
+dyn.landed,dynamics,bool,
+dyn.lat_deg,dynamics,deg,
+dyn.lon_deg,dynamics,deg,
+aero.q_dyn_pa,dynamics,Pa,
+aero.heating_proxy,dynamics,1,
+aero.alpha_deg,dynamics,deg,
+aero.lift_to_drag,dynamics,1,
+aero.blackout,dynamics,bool,
+aero.plasma,dynamics,1,
+sys.coast_ok,dynamics,bool,
+sys.controls_locked,clock,bool,
+ecs.cabin.kpa,ecs,kPa,
+ecs.cabin.ok,ecs,bool,
+present.world_r_cabin_m,presenter,m,never fed back
+present.earth_distance_m,presenter,m,never fed back

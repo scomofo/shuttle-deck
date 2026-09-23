@@ -1,0 +1,47 @@
+{
+  "_note": "Orbiter reference geometry is sourced. The Mach/alpha force table is a coarse schedule so Dynamics can publish Gemini-shaped aero.* channels. Rows tagged estimated are not a Rockwell databook transcription.",
+  "sources": [
+    {
+      "id": "NTRS-19740012442",
+      "locator": "NASA TM X-2508 / DMS baseline: Sw = 2690 ft2, MAC = 474.8 in, span = 936.68 in",
+      "url": "https://ntrs.nasa.gov/citations/19740012442"
+    },
+    {
+      "id": "NTRS-19830024569",
+      "locator": "SSV Orbiter 5 configuration baseline figure: Sw = 2690 ft2, MAC = 474.81 in, span = 936.68 in",
+      "url": "https://ntrs.nasa.gov/citations/19830024569"
+    },
+    {
+      "id": "NTRS-19790013835",
+      "locator": "Aerodynamic design of the space shuttle orbiter: ATP hypersonic L/D 1.3 at 34 deg alpha; max subsonic L/D 5.7. Pre-final ATP shape, used only as a published L/D anchor.",
+      "url": "https://ntrs.nasa.gov/citations/19790013835"
+    },
+    {
+      "id": "NTRS-19850008580",
+      "locator": "Space Shuttle Technical Conference part 1: hypersonic design alpha 25-50 deg; wing area 2690 ft2; vertical tail 413.25 ft2",
+      "url": "https://ntrs.nasa.gov/citations/19850008580"
+    }
+  ],
+  "reference_area_m2": 249.909,
+  "reference_area_ft2": 2690,
+  "reference_span_m": 23.7917,
+  "mac_m": 12.0602,
+  "vertical_tail_area_m2": 38.392,
+  "entry_interface_alt_m": 121920.0,
+  "atmosphere_top_m": 120000.0,
+  "blackout_heating_proxy": 12000.0,
+  "plasma_heating_proxy": 8000.0,
+  "_proxy_note": "heating proxy = sqrt(rho) * v^3 * 1e-9. Thresholds [estimated] for comm blackout / plasma presentation. Same form as Gemini aero.json.",
+  "hypersonic_alpha_design_deg": [25, 50],
+  "table": [
+    { "mach": 0.6, "alpha_deg": 10, "cl": 0.45, "cd": 0.08, "tag": "estimated", "note": "subsonic approach; ATP max L/D 5.7 is an upper bound, not this row" },
+    { "mach": 0.6, "alpha_deg": 15, "cl": 0.62, "cd": 0.14, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 10, "cl": 0.28, "cd": 0.16, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 20, "cl": 0.40, "cd": 0.24, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 25, "cl": 0.55, "cd": 0.38, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 40, "cl": 0.72, "cd": 0.58, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 34, "cl": 0.70, "cd": 0.54, "tag": "sourced-anchor", "note": "ATP published L/D 1.3 at 34 deg; cl/cd split [estimated] to match that ratio" },
+    { "mach": 10.0, "alpha_deg": 40, "cl": 0.78, "cd": 0.68, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 40, "cl": 0.80, "cd": 0.73, "tag": "estimated", "note": "typical entry alpha ~40 deg; L/D ~1.1" }
+  ]
+}
