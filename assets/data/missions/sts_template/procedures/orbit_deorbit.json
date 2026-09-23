@@ -1,0 +1,27 @@
+{
+  "id": "STS-ORBIT-DEORBIT-001",
+  "mission": "sts_template",
+  "phase": "orbit",
+  "start": "orbit",
+  "fidelity": "functional",
+  "sources": [
+    {
+      "id": "OMS-AJ10",
+      "locator": "Two AJ10-190 OMS engines, 26.7 kN each, Isp 313 s vacuum. Deorbit is a retrograde OMS burn that drops periapsis below entry interface (400 kft / 121.92 km)."
+    }
+  ],
+  "_note": "Functional DAP + OMS causality from an orbit start. Burn duration is a software target (~90-120 m/s), not a transcribed MET deorbit TIG.",
+  "preconditions": [
+    { "expect": "phase", "equals": "orbit" }
+  ],
+  "steps": [
+    { "expect": "channel", "target": "dyn.periapsis_alt_m", "between": [230000, 260000] },
+    { "action": "set_control", "target": "DapRetro", "value": true },
+    { "action": "set_control", "target": "OmsBurn", "value": true },
+    { "action": "wait_until", "target": "dyn.periapsis_alt_m", "lt": 110000, "timeout_s": 280 },
+    { "action": "set_control", "target": "OmsBurn", "value": false },
+    { "expect": "channel", "target": "dyn.periapsis_alt_m", "lt": 110000 },
+    { "action": "press_control", "target": "Deorbit", "hold_s": 0.25 },
+    { "expect": "phase", "equals": "deorbit", "within_s": 0.1 }
+  ]
+}

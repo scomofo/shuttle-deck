@@ -4,6 +4,6 @@
   "type": "module",
   "description": "Space Shuttle trainer on the Gemini Capsule architecture.",
   "scripts": {
-    "test": "node --experimental-strip-types tests/architecture.test.ts && node --experimental-strip-types tests/aero.test.ts && node --experimental-strip-types tests/presentation.test.ts && node --experimental-strip-types tests/procedures.test.ts"
+    "test": "node --experimental-strip-types tests/architecture.test.ts && node --experimental-strip-types tests/aero.test.ts && node --experimental-strip-types tests/presentation.test.ts && node --experimental-strip-types tests/oms.test.ts && node --experimental-strip-types tests/procedures.test.ts"
   }
 }
