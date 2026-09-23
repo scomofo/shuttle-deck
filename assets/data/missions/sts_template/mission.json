@@ -1,0 +1,78 @@
+{
+  "id": "sts_template",
+  "name": "Shuttle template",
+  "data_version": 1,
+  "liftoff_utc": "1981-04-12T12:00:03Z",
+  "liftoff_jd": 2444707.000034722,
+  "insertion": {
+    "get_s": 514.0,
+    "perigee_km": 246.0,
+    "apogee_km": 246.0,
+    "inclination_deg": 40.3,
+    "_note": "Rounded STS-1 insertion numbers for the software handoff test, not a mission-report row."
+  },
+  "phases": {
+    "_note": "Phase transitions are transactions (Gemini ARCHITECTURE.md §10.2). Ascent is a scripted profile until MECO, then the propagator owns the state.",
+    "prelaunch": {
+      "next": "ascent",
+      "on": { "event": "liftoff" },
+      "config": "stack"
+    },
+    "ascent": {
+      "next": "insertion",
+      "on": { "get_s": 514.0 },
+      "config": "stack",
+      "events": {
+        "srb_sep": 124.0,
+        "meco": 514.0
+      }
+    },
+    "insertion": {
+      "next": "orbit",
+      "on": { "event": "et_sep" },
+      "config": "stack",
+      "events_on_control": {
+        "et_sep": "seq.cmd.et_sep"
+      },
+      "_note": "Same pattern as Gemini insertion: SECO/MECO hands a continuous state to the propagator in launch/stack configuration; crew ET sep changes config to orbit."
+    },
+    "orbit": {
+      "next": "deorbit",
+      "on": { "control": "seq.cmd.deorbit", "equals": 1 },
+      "config": "orbit"
+    },
+    "deorbit": {
+      "next": "entry",
+      "on": { "channel": "dyn.alt_m", "lt": 121920.0 },
+      "config": "orbit"
+    },
+    "entry": {
+      "next": "taem",
+      "on": { "channel": "dyn.alt_m", "lt": 25000.0 },
+      "config": "entry",
+      "one_shot": ["entry_interface"]
+    },
+    "taem": {
+      "next": "approach",
+      "on": { "channel": "dyn.alt_m", "lt": 3000.0 },
+      "config": "entry"
+    },
+    "approach": {
+      "next": "rollout",
+      "on": { "event": "weight_on_wheels" },
+      "config": "entry",
+      "events_on_control": {
+        "gear": "ctl.gear"
+      }
+    },
+    "rollout": {
+      "next": "wheel_stop",
+      "on": { "channel": "dyn.speed_mps", "lt": 1.0 },
+      "config": "entry"
+    },
+    "wheel_stop": {
+      "config": "entry",
+      "one_shot": ["wheel_stop"]
+    }
+  }
+}
