@@ -1,0 +1,30 @@
+{
+  "_note": "Stack / orbit / entry masses used by Dynamics.set_configuration. Liftoff stack is a public STS-1 round. Orbit and entry are [estimated] operating masses, not a payload-specific weigh sheet.",
+  "sources": [
+    {
+      "id": "STS-1-FACTS",
+      "locator": "STS-1 liftoff mass commonly published as 4.5 million lb / 2.04e6 kg (rounded here to 2_040_000 kg)"
+    }
+  ],
+  "g0": 9.80665,
+  "configurations": {
+    "stack": {
+      "mass_kg": 2040000,
+      "tag": "sourced-rounded",
+      "inertia_kgm2": [2.5e8, 1.1e9, 1.1e9],
+      "note": "orbiter + ET + two SRB at SRB ignition"
+    },
+    "orbit": {
+      "mass_kg": 104000,
+      "tag": "estimated",
+      "inertia_kgm2": [1.07e6, 7.9e6, 8.2e6],
+      "note": "orbiter after ET sep, mid-mission propellant"
+    },
+    "entry": {
+      "mass_kg": 85000,
+      "tag": "estimated",
+      "inertia_kgm2": [9.5e5, 7.1e6, 7.4e6],
+      "note": "orbiter after OMS deorbit, gear up"
+    }
+  }
+}

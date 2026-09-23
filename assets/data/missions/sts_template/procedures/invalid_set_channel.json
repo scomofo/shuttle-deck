@@ -1,0 +1,13 @@
+{
+  "id": "STS-SYNTH-REJECT-001",
+  "mission": "sts_template",
+  "phase": "prelaunch",
+  "start": "prelaunch",
+  "fidelity": "structural",
+  "sources": [],
+  "_note": "Negative schema test. set_channel onto dyn.* must fail validation — procedures cannot write the truth they then assert.",
+  "preconditions": [],
+  "steps": [
+    { "action": "set_channel", "target": "dyn.alt_m", "value": 1 }
+  ]
+}

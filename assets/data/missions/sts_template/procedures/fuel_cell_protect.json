@@ -1,0 +1,25 @@
+{
+  "id": "STS-ELEC-PROTECT-001",
+  "mission": "sts_template",
+  "phase": "prelaunch",
+  "start": "prelaunch",
+  "fidelity": "functional",
+  "sources": [
+    {
+      "id": "SHUTTLE-FC",
+      "locator": "Three fuel cells feed the main DC bus. Taking all three offline drops essential bus voltage. Simulator topology, not a transcribed malfunction procedure."
+    }
+  ],
+  "preconditions": [
+    { "expect": "phase", "equals": "prelaunch" }
+  ],
+  "steps": [
+    { "expect": "channel", "target": "elec.main_bus.powered", "is_true": true },
+    { "action": "set_control", "target": "FuelCell1", "value": false },
+    { "action": "set_control", "target": "FuelCell2", "value": false },
+    { "action": "set_control", "target": "FuelCell3", "value": false },
+    { "expect": "channel", "target": "elec.main_bus.powered", "is_true": false, "within_s": 0.1 },
+    { "action": "set_control", "target": "FuelCell1", "value": true },
+    { "expect": "channel", "target": "elec.main_bus.powered", "is_true": true, "within_s": 0.1 }
+  ]
+}

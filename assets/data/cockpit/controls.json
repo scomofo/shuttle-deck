@@ -1,0 +1,13 @@
+{
+  "_note": "Public control IDs for the procedure runner. No Godot nodes. Each id writes one command channel the same way a cabin switch would.",
+  "controls": [
+    { "id": "FuelCell1", "channel": "ctl.elec.fuel_cell_1", "kind": "switch", "on": true, "off": false },
+    { "id": "FuelCell2", "channel": "ctl.elec.fuel_cell_2", "kind": "switch", "on": true, "off": false },
+    { "id": "FuelCell3", "channel": "ctl.elec.fuel_cell_3", "kind": "switch", "on": true, "off": false },
+    { "id": "EtSep", "channel": "seq.cmd.et_sep", "kind": "button" },
+    { "id": "Deorbit", "channel": "seq.cmd.deorbit", "kind": "button" },
+    { "id": "Gear", "channel": "ctl.gear", "kind": "switch", "on": true, "off": false },
+    { "id": "OmsBurn", "channel": "ctl.oms.burn", "kind": "switch", "on": true, "off": false },
+    { "id": "Rhc", "channel": "ctl.hand", "kind": "hand" }
+  ]
+}
