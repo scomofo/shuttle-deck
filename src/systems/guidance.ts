@@ -29,6 +29,7 @@ export class Guidance {
   restore(d: { bank_deg: number; auto: boolean }): void {
     this.bank_deg = d.bank_deg;
     this.auto = d.auto;
+    this.tick(0);
   }
 }
 

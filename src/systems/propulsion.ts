@@ -58,5 +58,6 @@ export class Propulsion {
 
   restore(d: ReturnType<Propulsion["snapshot"]>): void {
     Object.assign(this, d);
+    this.tick(0);
   }
 }

@@ -5,9 +5,12 @@
 
 import { bus } from "./bus.ts";
 import { clock, Stage } from "./clock.ts";
+import { Controls } from "../controls/registry.ts";
 import { Dynamics } from "../dynamics/dynamics.ts";
 import { Mission, type MissionData } from "../mission/mission.ts";
 import { MissionSequencer } from "../mission/sequencer.ts";
+import { Presenter } from "../presentation/presenter.ts";
+import { Ecs } from "../systems/ecs.ts";
 import { Electrical } from "../systems/electrical.ts";
 import { Guidance } from "../systems/guidance.ts";
 import { Propulsion } from "../systems/propulsion.ts";
@@ -19,10 +22,13 @@ export class SimRuntime {
   mission: Mission;
   dynamics: Dynamics;
   sequencer: MissionSequencer;
+  controls: Controls;
+  presenter: Presenter;
   systems: {
     electrical: Electrical;
     propulsion: Propulsion;
     guidance: Guidance;
+    ecs: Ecs;
   };
   last_checkpoint_error = "";
 
@@ -30,10 +36,13 @@ export class SimRuntime {
     this.mission = new Mission(data);
     this.dynamics = new Dynamics();
     this.sequencer = new MissionSequencer(this.mission, this.dynamics);
+    this.controls = new Controls();
+    this.presenter = new Presenter();
     this.systems = {
       electrical: new Electrical(),
       propulsion: new Propulsion(),
       guidance: new Guidance(),
+      ecs: new Ecs(),
     };
     this.bind();
   }
@@ -44,13 +53,16 @@ export class SimRuntime {
     clock.add_ticker((dt) => this.systems.guidance.tick(dt), Stage.POWER_GUIDANCE);
     clock.add_ticker((dt) => this.systems.propulsion.tick(dt), Stage.SYSTEMS);
     clock.add_ticker((dt) => this.dynamics.tick(dt), Stage.DYNAMICS);
+    clock.add_ticker((dt) => this.systems.ecs.tick(dt), Stage.DEPENDENT);
   }
 
   start(phase = "prelaunch"): void {
     bus.reset_values_only();
     this.sequencer.start(phase);
     this.systems.electrical.publish_state();
+    this.systems.ecs.publish_state();
     this.dynamics.publish();
+    this.presenter.sync();
   }
 
   snapshot() {
@@ -65,6 +77,7 @@ export class SimRuntime {
         electrical: this.systems.electrical.snapshot(),
         propulsion: this.systems.propulsion.snapshot(),
         guidance: this.systems.guidance.snapshot(),
+        ecs: this.systems.ecs.snapshot(),
       },
     };
   }
@@ -87,10 +100,13 @@ export class SimRuntime {
     this.systems.electrical.restore(d.systems.electrical);
     this.systems.propulsion.restore(d.systems.propulsion);
     this.systems.guidance.restore(d.systems.guidance);
+    this.systems.ecs.restore(d.systems.ecs);
     this.systems.electrical.tick(0);
     this.systems.propulsion.tick(0);
     this.systems.guidance.tick(0);
+    this.systems.ecs.tick(0);
     this.dynamics.publish();
+    this.presenter.sync();
     clock.paused = was;
     return true;
   }
