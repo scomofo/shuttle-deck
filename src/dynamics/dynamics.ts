@@ -9,6 +9,7 @@
 import { bus } from "../core/bus.ts";
 import { clock } from "../core/clock.ts";
 import { add, Frames, len, mul, type Vec3, v3 } from "../core/frames.ts";
+import mass_table from "../../assets/data/spacecraft/mass_properties.json" with { type: "json" };
 import { Aero } from "./aero.ts";
 import { Attitude, type Quat } from "./attitude.ts";
 import { Orbit } from "./orbit.ts";
@@ -16,9 +17,9 @@ import { Orbit } from "./orbit.ts";
 export type ConfigName = "stack" | "orbit" | "entry";
 
 const MASS: Record<ConfigName, number> = {
-  stack: 2_040_000,
-  orbit: 104_000,
-  entry: 85_000,
+  stack: mass_table.configurations.stack.mass_kg,
+  orbit: mass_table.configurations.orbit.mass_kg,
+  entry: mass_table.configurations.entry.mass_kg,
 };
 
 export class Dynamics {
@@ -140,8 +141,10 @@ export class Dynamics {
   publish(): void {
     const r = this.orbit.r;
     const v = this.orbit.v;
+    const q = this.attitude.q;
     bus.set_value("dyn.r_eci_m", [r.x, r.y, r.z]);
     bus.set_value("dyn.v_eci_mps", [v.x, v.y, v.z]);
+    bus.set_value("dyn.q_body_from_eci", [q.x, q.y, q.z, q.w]);
     bus.set_value("dyn.alt_m", this.orbit.altitude());
     bus.set_value("dyn.speed_mps", len(v));
     bus.set_value("dyn.mass_kg", this.mass);
