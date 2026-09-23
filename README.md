@@ -40,7 +40,7 @@ discipline as Gemini's datum sheet.
 ## Test
 
 ```
-node --experimental-strip-types tests/architecture.test.ts
+npm test
 ```
 
 Gates:
@@ -51,9 +51,14 @@ Gates:
 - ascent is `driven`; insertion releases the propagator
 - snapshot restore does not refire SRB sep
 - electrical truth lives in the system, not in a leftover bus write
+- orbiter reference area is the sourced 2690 ft²
+- procedure runner rejects `set_channel` onto `dyn.*`
+- pad → SRB sep → MECO → ET sep is a data procedure
+- presenter inverts the world from the bus and never writes `dyn.*`
 
 ## Status
 
-Core + sequencer + systems skeleton. No Godot cabin and no WebGL layer
-yet — those are presentation and must subscribe to the bus after the
-owners exist. Do not put pitch, phase and meshes back into one class.
+Core, sequencer, systems, sourced aero geometry, procedure runner,
+cabin-fixed presenter. No Godot cabin and no WebGL layer yet — those
+subscribe to the bus after the owners exist. Do not put pitch, phase
+and meshes back into one class.
