@@ -1,7 +1,11 @@
 # Shuttle Deck
 
-A Space Shuttle simulation that uses the **same runtime contract** as
-[scomofo/gemini-capsule](https://github.com/scomofo/gemini-capsule).
+Standalone Space Shuttle trainer. Own repo, own tree, own clock.
+
+It uses the **same runtime contract** as
+[scomofo/gemini-capsule](https://github.com/scomofo/gemini-capsule)
+but it is not a fork, not a Godot add-on, and not a folder inside
+that project. Clone this repo by itself.
 
 Gemini Capsule is Godot 4.4 / OpenXR / Gemini IV. This repo is not a
 skin of that cabin and it is not a single arcade class with shuttle
