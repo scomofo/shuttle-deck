@@ -1,0 +1,9 @@
+{
+  "name": "shuttle-deck",
+  "private": true,
+  "type": "module",
+  "description": "Space Shuttle trainer on the Gemini Capsule architecture.",
+  "scripts": {
+    "test": "node --experimental-strip-types --test-reporter=spec tests/architecture.test.ts"
+  }
+}
