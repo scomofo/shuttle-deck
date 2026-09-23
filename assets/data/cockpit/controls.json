@@ -1,9 +1,75 @@
 {
-  "_note": "Public control IDs for the procedure runner. No Godot nodes. Each id writes one command channel the same way a cabin switch would.",
+  "_note": "Public control IDs for the procedure runner. No Godot nodes. Each id writes one command channel the same way a cabin switch would. Momentary switches spring back to CENTER; they do not own the device they command.",
   "controls": [
     { "id": "FuelCell1", "channel": "ctl.elec.fuel_cell_1", "kind": "switch", "on": true, "off": false },
     { "id": "FuelCell2", "channel": "ctl.elec.fuel_cell_2", "kind": "switch", "on": true, "off": false },
     { "id": "FuelCell3", "channel": "ctl.elec.fuel_cell_3", "kind": "switch", "on": true, "off": false },
+    {
+      "id": "Fc1MnA",
+      "channel": "ctl.elec.fc1_mn_a",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_FC1_MN_A",
+      "confidence": "described"
+    },
+    {
+      "id": "Fc2MnB",
+      "channel": "ctl.elec.fc2_mn_b",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_FC2_MN_B",
+      "confidence": "described"
+    },
+    {
+      "id": "Fc3MnC",
+      "channel": "ctl.elec.fc3_mn_c",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_FC3_MN_C",
+      "confidence": "described"
+    },
+    {
+      "id": "MnBusTieA",
+      "channel": "ctl.elec.mn_bus_tie_a",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_MN_BUS_TIE_A",
+      "confidence": "described"
+    },
+    {
+      "id": "MnBusTieB",
+      "channel": "ctl.elec.mn_bus_tie_b",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_MN_BUS_TIE_B",
+      "confidence": "described"
+    },
+    {
+      "id": "MnBusTieC",
+      "channel": "ctl.elec.mn_bus_tie_c",
+      "kind": "momentary",
+      "panel": "R1",
+      "on": "ON",
+      "off": "OFF",
+      "center": "CENTER",
+      "spec_id": "R1_MN_BUS_TIE_C",
+      "confidence": "described"
+    },
     { "id": "EtSep", "channel": "seq.cmd.et_sep", "kind": "button" },
     { "id": "Deorbit", "channel": "seq.cmd.deorbit", "kind": "button" },
     { "id": "Gear", "channel": "ctl.gear", "kind": "switch", "on": true, "off": false },

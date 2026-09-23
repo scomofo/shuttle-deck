@@ -8,6 +8,12 @@ ctl.gear,controls,bool,landing gear command
 ctl.elec.fuel_cell_1,controls,bool,fuel cell 1 enable
 ctl.elec.fuel_cell_2,controls,bool,fuel cell 2 enable
 ctl.elec.fuel_cell_3,controls,bool,fuel cell 3 enable
+ctl.elec.fc1_mn_a,controls,enum,panel R1 FC1/MN A momentary ON OFF CENTER
+ctl.elec.fc2_mn_b,controls,enum,panel R1 FC2/MN B momentary ON OFF CENTER
+ctl.elec.fc3_mn_c,controls,enum,panel R1 FC3/MN C momentary ON OFF CENTER
+ctl.elec.mn_bus_tie_a,controls,enum,panel R1 MN BUS TIE A momentary
+ctl.elec.mn_bus_tie_b,controls,enum,panel R1 MN BUS TIE B momentary
+ctl.elec.mn_bus_tie_c,controls,enum,panel R1 MN BUS TIE C momentary
 seq.cmd.et_sep,controls,bool,ET sep command
 seq.cmd.deorbit,controls,bool,deorbit command
 seq.config,sequencer,enum,stack|orbit|entry
@@ -23,6 +29,18 @@ elec.main_bus.powered,electrical,bool,
 elec.source.fuel_cell_1.on,electrical,bool,
 elec.source.fuel_cell_2.on,electrical,bool,
 elec.source.fuel_cell_3.on,electrical,bool,
+elec.talkback.fc1_mn_a,electrical,enum,contactor position not switch position
+elec.talkback.fc2_mn_b,electrical,enum,
+elec.talkback.fc3_mn_c,electrical,enum,
+elec.talkback.mn_bus_tie_a,electrical,enum,
+elec.talkback.mn_bus_tie_b,electrical,enum,
+elec.talkback.mn_bus_tie_c,electrical,enum,
+elec.bus.mn_a.powered,electrical,bool,
+elec.bus.mn_b.powered,electrical,bool,
+elec.bus.mn_c.powered,electrical,bool,
+elec.bus.mn_a.volts,electrical,V,
+elec.bus.mn_b.volts,electrical,V,
+elec.bus.mn_c.volts,electrical,V,
 prop.force_body_n,propulsion,N,body +X
 prop.torque_body_nm,guidance,N.m,
 prop.thrust_n,propulsion,N,

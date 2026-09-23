@@ -1,0 +1,58 @@
+{
+  "id": "STS-ELEC-FC-MNA-001",
+  "mission": "sts_template",
+  "phase": "prelaunch",
+  "start": "prelaunch",
+  "fidelity": "functional",
+  "confidence": "described",
+  "_note": "Crew causality from the EPS training manual, not a transcribed flight checklist. Contactor motion and barberpole are not modeled: the talkback changes in the same fixed step the switch is held. Only the dedicated FC-to-main-bus contactors are in this slice.",
+  "sources": [
+    {
+      "id": "USA005437",
+      "locator": "Electrical Power System Training Manual, Rev. A, 20 Oct 2006, §4.6.1.1 Main Buses. FC/MAIN BUS switches are momentary. Hold ON until the talkback indicates ON; that closes the power contactor between the fuel cell and its main bus. MN BUS TIE switches operate the same way onto the tie bus. Controls connect each main bus to its dedicated fuel cell."
+    },
+    {
+      "id": "USA007587",
+      "locator": "Shuttle Crew Operations Manual, USA007587 Rev. A, §2.8 EPS. Both MN BUS TIE switches must be ON to connect two main buses. Talkbacks indicate ON when the buses are tied and OFF when the tie is opened."
+    }
+  ],
+  "preconditions": [
+    { "expect": "phase", "equals": "prelaunch" },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "ON" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.bus.mn_b.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.talkback.mn_bus_tie_a", "equals": "OFF" }
+  ],
+  "steps": [
+    { "action": "press_control", "target": "Fc1MnA", "value": "OFF", "hold_s": 0.25 },
+    { "expect": "channel", "target": "ctl.elec.fc1_mn_a", "equals": "CENTER" },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "OFF" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false },
+    { "expect": "channel", "target": "elec.bus.mn_b.powered", "is_true": true },
+
+    { "action": "press_control", "target": "Fc1MnA", "value": "ON", "hold_s": 0.25 },
+    { "expect": "channel", "target": "ctl.elec.fc1_mn_a", "equals": "CENTER" },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "ON" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true },
+
+    { "action": "set_control", "target": "FuelCell1", "value": false },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false, "within_s": 0.1 },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "ON" },
+    { "expect": "channel", "target": "elec.bus.mn_b.powered", "is_true": true },
+
+    { "action": "press_control", "target": "MnBusTieA", "value": "ON", "hold_s": 0.25 },
+    { "expect": "channel", "target": "elec.talkback.mn_bus_tie_a", "equals": "ON" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false },
+
+    { "action": "press_control", "target": "MnBusTieB", "value": "ON", "hold_s": 0.25 },
+    { "expect": "channel", "target": "ctl.elec.mn_bus_tie_b", "equals": "CENTER" },
+    { "expect": "channel", "target": "elec.talkback.mn_bus_tie_b", "equals": "ON" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": true },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "ON" },
+
+    { "action": "press_control", "target": "MnBusTieA", "value": "OFF", "hold_s": 0.25 },
+    { "expect": "channel", "target": "elec.talkback.mn_bus_tie_a", "equals": "OFF" },
+    { "expect": "channel", "target": "elec.bus.mn_a.powered", "is_true": false },
+    { "expect": "channel", "target": "elec.talkback.fc1_mn_a", "equals": "ON" }
+  ]
+}

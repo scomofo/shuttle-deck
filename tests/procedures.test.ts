@@ -9,6 +9,7 @@ import { ProcedureRunner, type Procedure } from "../src/mission/procedures.ts";
 import launch from "../assets/data/missions/sts_template/procedures/launch_insertion.json" with { type: "json" };
 import fuel from "../assets/data/missions/sts_template/procedures/fuel_cell_protect.json" with { type: "json" };
 import invalid from "../assets/data/missions/sts_template/procedures/invalid_set_channel.json" with { type: "json" };
+import fcBus from "../assets/data/missions/sts_template/procedures/fc_main_bus.json" with { type: "json" };
 
 function reset() {
   clock.reset(0);
@@ -52,6 +53,50 @@ function test_launch_insertion() {
   assert(rt.sequencer.fired.et_sep !== undefined, "ET sep latched");
 }
 
+function test_fc_main_bus_chain() {
+  reset();
+  const rt = new SimRuntime();
+  const runner = new ProcedureRunner(rt);
+  assert(runner.run(fcBus as Procedure), runner.failures.join("\n"));
+  assert(bus.get_value("elec.talkback.fc1_mn_a") === "ON", "talkback stays the contactor, not the dead bus");
+  assert(bus.get_value("elec.bus.mn_a.powered") === false, "opening the only tie drops MN A");
+  assert(bus.get_value("ctl.elec.fc1_mn_a") === "CENTER", "switch must have sprung back");
+}
+
+function test_contactor_latch_survives_restore() {
+  reset();
+  const rt = new SimRuntime();
+  rt.start("prelaunch");
+  rt.controls.press("Fc1MnA", "OFF");
+  clock.advance(0.06);
+  rt.controls.release("Fc1MnA");
+  assert(bus.get_value("elec.talkback.fc1_mn_a") === "OFF", "held OFF opens the contactor");
+  assert(bus.get_value("ctl.elec.fc1_mn_a") === "CENTER", "release is not the contactor");
+  const snap = rt.snapshot();
+  rt.controls.press("Fc1MnA", "ON");
+  clock.advance(0.06);
+  rt.controls.release("Fc1MnA");
+  assert(bus.get_value("elec.talkback.fc1_mn_a") === "ON", "held ON recloses");
+  assert(rt.restore(snap), rt.last_checkpoint_error);
+  assert(bus.get_value("elec.talkback.fc1_mn_a") === "OFF", "restore returns the latch, not the later switch");
+  clock.advance(0.06);
+  assert(bus.get_value("elec.talkback.fc1_mn_a") === "OFF", "a sprung-back switch must not reclose after restore");
+}
+
+function test_momentary_rejects_set_control() {
+  reset();
+  const rt = new SimRuntime();
+  const runner = new ProcedureRunner(rt);
+  const bad = {
+    ...(fuel as Procedure),
+    id: "STS-SYNTH-MOMENTARY",
+    fidelity: "synthetic" as const,
+    steps: [{ action: "set_control", target: "Fc1MnA", value: "OFF" }],
+  };
+  const errs = runner.validate(bad);
+  assert(errs.some((e) => e.includes("press_control")), `got ${errs}`);
+}
+
 function test_wrong_mission_rejected() {
   reset();
   const rt = new SimRuntime();
@@ -65,6 +110,9 @@ const tests = [
   test_set_channel_cannot_write_dynamics,
   test_fuel_cell_protect,
   test_launch_insertion,
+  test_fc_main_bus_chain,
+  test_contactor_latch_survives_restore,
+  test_momentary_rejects_set_control,
   test_wrong_mission_rejected,
 ];
 

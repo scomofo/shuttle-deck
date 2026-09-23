@@ -72,6 +72,18 @@ export class ProcedureRunner {
             errs.push(`step ${i}: unknown control id '${step.target}'`);
           }
         }
+        if (step.action === "set_control") {
+          const control = this.runtime.controls.get(String(step.target ?? ""));
+          if (control?.kind === "momentary") {
+            errs.push(`step ${i}: momentary ${control.id} must be press_control, not set_control`);
+          }
+        }
+        if (step.action === "press_control") {
+          const control = this.runtime.controls.get(String(step.target ?? ""));
+          if (control?.kind === "momentary" && step.value !== "ON" && step.value !== "OFF") {
+            errs.push(`step ${i}: momentary ${control.id} needs value ON or OFF`);
+          }
+        }
         if (["press_control", "pull_control"].includes(String(step.action))) {
           const hold = Number(step.hold_s ?? 0.25);
           if (!Number.isFinite(hold) || hold < FIXED_DT) {
@@ -126,7 +138,7 @@ export class ProcedureRunner {
         break;
       case "press_control":
       case "pull_control":
-        this.runtime.controls.press(String(step.target));
+        this.runtime.controls.press(String(step.target), step.value as BusValue);
         clock.advance(Number(step.hold_s ?? 0.25));
         this.runtime.controls.release(String(step.target));
         break;

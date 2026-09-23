@@ -52,7 +52,8 @@ Gates:
 - snapshot restore does not refire SRB sep
 - electrical truth lives in the system, not in a leftover bus write
 - orbiter reference area is the sourced 2690 ft²
-- procedure runner rejects `set_channel` onto `dyn.*`
+- procedure runner rejects `set_channel` onto `dyn.*` and `set_control` onto a momentary
+- panel R1 FC1/MN A: the switch springs back, the contactor latch does not, and restore does not reclose it
 - pad → SRB sep → MECO → ET sep is a data procedure
 - presenter inverts the world from the bus and never writes `dyn.*`
 
