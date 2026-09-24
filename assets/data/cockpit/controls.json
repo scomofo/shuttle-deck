@@ -90,6 +90,7 @@
     { "id": "Deorbit", "channel": "seq.cmd.deorbit", "kind": "button" },
     { "id": "Gear", "channel": "ctl.gear", "kind": "switch", "on": true, "off": false },
     { "id": "OmsBurn", "channel": "ctl.oms.burn", "kind": "switch", "on": true, "off": false },
+    { "id": "DapRetro", "channel": "ctl.dap.mode", "kind": "switch", "on": "retrograde", "off": "manual" },
     { "id": "Rhc", "channel": "ctl.hand", "kind": "hand" }
   ]
 }

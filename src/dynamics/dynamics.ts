@@ -150,6 +150,10 @@ export class Dynamics {
     bus.set_value("dyn.mass_kg", this.mass);
     bus.set_value("dyn.accel_g", this.accel_g);
     bus.set_value("dyn.landed", this.landed);
+    if (this.has_state()) {
+      const rp = this.orbit.periapsis_alt_m();
+      if (Number.isFinite(rp)) bus.set_value("dyn.periapsis_alt_m", rp);
+    }
     bus.set_value("sys.coast_ok", this.coast_ok());
     bus.set_value("aero.q_dyn_pa", this.last_aero.q_dyn);
     bus.set_value("aero.heating_proxy", this.last_aero.heating);

@@ -7,6 +7,9 @@ import { add, mul, type Vec3, v3 } from "../core/frames.ts";
 
 export type Quat = { x: number; y: number; z: number; w: number };
 
+/** Orbiter principal inertia, kg·m². Single owner: Attitude and Guidance share it. [estimated] */
+export const ORBITER_INERTIA = { x: 1.07e6, y: 7.9e6, z: 8.2e6 };
+
 export function qid(): Quat {
   return { x: 0, y: 0, z: 0, w: 1 };
 }
@@ -48,11 +51,15 @@ export function q_body_x_along(dir_eci: Vec3): Quat {
   return qnorm({ x: axis.x, y: axis.y, z: axis.z, w });
 }
 
+export function qconj(q: Quat): Quat {
+  return { x: -q.x, y: -q.y, z: -q.z, w: q.w };
+}
+
 function cross3(a: Vec3, b: Vec3): Vec3 {
   return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
 }
 
-function qmul(a: Quat, b: Quat): Quat {
+export function qmul(a: Quat, b: Quat): Quat {
   return {
     x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
     y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
@@ -84,7 +91,7 @@ function spinAbout(pi: Vec3, axis: Axis, theta: number): Vec3 {
 export class Attitude {
   q: Quat = qid();
   omega: Vec3 = v3();
-  inertia: Vec3 = { x: 1.07e6, y: 7.9e6, z: 8.2e6 };
+  inertia: Vec3 = { ...ORBITER_INERTIA };
 
   /**
    * Lie–Poisson step for a diagonal inertia. The free rotation is a Strang

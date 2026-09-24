@@ -3,7 +3,7 @@
  * src/dynamics/orbit.gd — same state, same constants, same step contract.
  */
 
-import { add, dot, len, mul, type Vec3, v3, J2, MU, RE } from "../core/frames.ts";
+import { add, cross, dot, len, mul, sub, type Vec3, v3, J2, MU, RE } from "../core/frames.ts";
 
 export class Orbit {
   r: Vec3 = v3();
@@ -12,6 +12,20 @@ export class Orbit {
 
   altitude(): number {
     return len(this.r) - RE;
+  }
+
+  /** Osculating periapsis altitude from the eccentricity vector. NaN without state. */
+  periapsis_alt_m(): number {
+    const r1 = len(this.r);
+    const v2 = dot(this.v, this.v);
+    if (r1 < 1 || v2 <= 0) return NaN;
+    const h = cross(this.r, this.v);
+    const evec = sub(mul(cross(this.v, h), 1 / MU), mul(this.r, 1 / r1));
+    const e = len(evec);
+    const energy = v2 / 2 - MU / r1;
+    if (energy >= 0) return NaN; // parabolic / hyperbolic: no closed periapsis
+    const a = -MU / (2 * energy);
+    return a * (1 - e) - RE;
   }
 
   set_circular(alt_m: number, incl_rad = 0.4936, raan = 0): void {

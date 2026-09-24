@@ -11,6 +11,7 @@ import fuel from "../assets/data/missions/sts_template/procedures/fuel_cell_prot
 import invalid from "../assets/data/missions/sts_template/procedures/invalid_set_channel.json" with { type: "json" };
 import fcBus from "../assets/data/missions/sts_template/procedures/fc_main_bus.json" with { type: "json" };
 import smoke from "../assets/data/missions/sts_template/procedures/smoke_breaker.json" with { type: "json" };
+import deorbit from "../assets/data/missions/sts_template/procedures/orbit_deorbit.json" with { type: "json" };
 
 function reset() {
   clock.reset(0);
@@ -151,6 +152,15 @@ function test_wrong_mission_rejected() {
   assert(errs.some((e) => e.includes("gemini_4")), `got ${errs}`);
 }
 
+function test_orbit_deorbit_procedure() {
+  reset();
+  const rt = new SimRuntime();
+  const runner = new ProcedureRunner(rt);
+  assert(runner.run(deorbit as Procedure), runner.failures.join("\n"));
+  assert(rt.sequencer.phase === "deorbit", `phase ${rt.sequencer.phase}`);
+  assert(Number(bus.get_value("dyn.periapsis_alt_m", 0)) < 110_000, "OMS burn dropped periapsis");
+}
+
 const tests = [
   test_set_channel_cannot_write_dynamics,
   test_fuel_cell_protect,
@@ -162,6 +172,7 @@ const tests = [
   test_breaker_rejects_set_control,
   test_momentary_rejects_set_control,
   test_wrong_mission_rejected,
+  test_orbit_deorbit_procedure,
 ];
 
 let failed = 0;
