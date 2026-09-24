@@ -63,6 +63,13 @@ Its 5200-by-90 browser-model footprint and surrounding terrain remain
 illustrative, not a surveyed landing site. Polygon offsets keep the thin
 pavement layers visible above terrain at long camera distances.
 
+## Orbiter proportions
+
+The next geometry pass adjusts span/length from NASA's three-view drawing,
+refines the nose/window belt, and replaces ellipsoid OMS pods with tapered
+fairings. See [ORBITER_GEOMETRY.md](ORBITER_GEOMETRY.md) for exact sources,
+estimated details, and before/after review renders.
+
 ## Validation and limits
 
 `npm run build` includes strict TypeScript checking. Desktop browser checks

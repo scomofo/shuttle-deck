@@ -6,14 +6,17 @@ import { useSurfaceMaterial } from "./materials";
 import { Exhaust } from "./exhaust";
 
 // Visual reconstruction in the simulator's existing local coordinates: +Z is the
-// nose and the wheel contact plane is Y=-2.4. These are estimated proportions,
-// not a dimensionally calibrated orbiter model or collision geometry.
+// nose and the wheel contact plane is Y=-2.4. NASA three-view overall dimensions
+// constrain span/length; section contours remain estimates. See ORBITER_GEOMETRY.md.
+// Model nose 14.3 to engine lip -11.78 gives 26.08 units over NASA's 37.24 m.
+export const ORBITER_SPAN_SCALE = (23.79 / 37.24 * 26.08) / 21.98;
 const sections = [
   [-10.5, 1.85, 1.25, -0.85], [-8.6, 2.3, 1.7, -1.05],
   [-5, 2.25, 1.8, -1.12], [0, 2.2, 1.85, -1.12],
-  [4.7, 2.14, 1.95, -1.08], [6.6, 2.02, 2.3, -1.02],
-  [8, 1.84, 2.1, -0.95], [9.4, 1.52, 1.48, -0.83],
-  [11.3, 1.07, 0.69, -0.68], [13, 0.6, 0.1, -0.53],
+  [4.7, 2.14, 1.95, -1.08], [6.3, 2.08, 2.0, -1.06],
+  [7.5, 1.99, 2.0, -1.02], [8.65, 1.89, 1.93, -0.94],
+  [9.65, 1.72, 1.55, -0.85], [11.3, 1.23, 0.52, -0.69],
+  [13, 0.79, 0.14, -0.5], [13.85, 0.35, -0.08, -0.4],
   [14.2, 0.08, -0.23, -0.34], [14.3, 0.002, -0.29, -0.3],
 ];
 
@@ -114,6 +117,41 @@ function windowGeometry(a0: number, a1: number, z0: number, z1: number, lift: nu
   return geo;
 }
 
+// Trapezoidal outlines are sampled onto the skin to avoid glazing/skin
+// intersections. Pane outlines remain estimates from NASA's structural view.
+function cockpitPane(corners: number[][], inset: number, lift: number) {
+  const center = corners.reduce((a,p)=>[a[0]+p[0]/4,a[1]+p[1]/4],[0,0]);
+  const pts=corners.map(p=>p.map((v,i)=>THREE.MathUtils.lerp(v,center[i],inset)));
+  const positions:number[]=[],uvs:number[]=[],indices:number[]=[];
+  const steps=8;
+  for(let r=0;r<=steps;r++)for(let c=0;c<=steps;c++){
+    const u=c/steps,v=r/steps;
+    const at=(i:number)=>THREE.MathUtils.lerp(THREE.MathUtils.lerp(pts[0][i],pts[1][i],u),THREE.MathUtils.lerp(pts[3][i],pts[2][i],u),v);
+    positions.push(...skinPoint(at(1),at(0),lift));uvs.push(u,v);
+    if(r<steps&&c<steps){const k=r*(steps+1)+c;indices.push(k,k+1,k+steps+1,k+steps+1,k+1,k+steps+2);}
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute("uv",new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+
+function omsPodGeometry() {
+  // Broad aft shoulder, a short flat nozzle face and tapered forward fairing.
+  // Unlike an ellipsoid, the pod retains volume around the aft RCS cluster.
+  const stations = [[-10.8,0.69,0.65],[-10.3,0.98,0.88],[-9.1,1.04,0.91],[-7.5,0.89,0.80],[-6.3,0.60,0.60],[-5.5,0.10,0.16]];
+  const vertices:number[]=[], uvs:number[]=[], indices:number[]=[];
+  const sides=32;
+  stations.forEach(([z,w,h],r)=>{
+    for(let j=0;j<=sides;j++) {
+      const a=j/sides*Math.PI*2;
+      vertices.push(Math.cos(a)*w, Math.sin(a)*h,z);
+      uvs.push(j/sides*2,r/(stations.length-1)*3);
+      if(r<stations.length-1&&j<sides){const k=r*(sides+1)+j;indices.push(k,k+1,k+sides+1,k+sides+1,k+1,k+sides+2);}
+    }
+  });
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));
+  g.setAttribute("uv",new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+
 function tubeBetween(start: THREE.Vector3, end: THREE.Vector3, radius: number) {
   return new THREE.TubeGeometry(new THREE.LineCurve3(start, end), 1, radius, 8, false);
 }
@@ -125,7 +163,7 @@ function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: n
   ], 32), []);
   useEffect(() => () => bell.dispose(), [bell]);
   return (
-    <group position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]} scale={size}>
+    <group position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]} scale={[size / ORBITER_SPAN_SCALE, size, size]}>
       <mesh geometry={bell} castShadow>
         <meshStandardMaterial color="#62666a" metalness={0.84} roughness={0.42} side={THREE.DoubleSide} />
       </mesh>
@@ -144,7 +182,7 @@ function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: n
 function LandingGear({ x, z, radius }: { x: number; z: number; radius: number }) {
   const y = -2.4 + radius;
   return (
-    <group position={[x, 0, z]}>
+    <group position={[x, 0, z]} scale={[1 / ORBITER_SPAN_SCALE, 1, 1]}>
       <mesh position={[0, (-0.75 + y) / 2, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.12, -0.75 - y, 12]} />
         <meshStandardMaterial color="#c2c5c5" metalness={0.85} roughness={0.25} />
@@ -202,10 +240,15 @@ export function Orbiter() {
   const gear = useRef<THREE.Group>(null);
   const blanket = useSurfaceMaterial("blanket"), tile = useSurfaceMaterial("tile"), foam = useSurfaceMaterial("foam", [6, 10]);
   const geometry = useMemo(() => {
-    const windows = [
-      [0.18, 0.65, 6.4, 7.8], [0.72, 1.06, 7.25, 8.7], [1.14, 1.49, 7.8, 9.05],
-      [1.65, 2.0, 7.8, 9.05], [2.08, 2.42, 7.25, 8.7], [2.49, 2.96, 6.4, 7.8],
-    ].map(([a, b, z0, z1]) => ({ frame: windowGeometry(a - 0.035, b + 0.035, z0 - 0.1, z1 + 0.1, 0.025), glass: windowGeometry(a, b, z0, z1, 0.045) }));
+    const rightPanes = [
+      [[1.50,10.85],[1.05,10.60],[1.03,9.17],[1.50,9.05]],
+      [[0.97,10.47],[0.55,9.95],[0.54,8.70],[0.95,9.13]],
+      [[0.47,9.75],[0.14,8.95],[0.17,7.78],[0.47,8.59]],
+    ];
+    const windows = [-1,1].flatMap(side=>rightPanes.map(pane=>{
+      const corners=pane.map(([angle,z])=>[side<0?Math.PI-angle:angle,z]);
+      return {frame:cockpitPane(corners,0,0.025),glass:cockpitPane(corners,0.13,0.045)};
+    }));
     const tankProfile = new THREE.SplineCurve([
       new THREE.Vector2(0, -17.1), new THREE.Vector2(2.2, -16.3), new THREE.Vector2(3.3, -14.2),
       new THREE.Vector2(3.3, 10.8), new THREE.Vector2(3.0, 13.8), new THREE.Vector2(1.8, 18), new THREE.Vector2(0, 21.5),
@@ -213,7 +256,7 @@ export function Orbiter() {
     return {
       doorL: windowGeometry(Math.PI / 2 + 0.006, Math.PI * 5 / 6 + 0.02, -6.91, 4.51, 0.025, 24).translate(1.92, -1.16, 1.2),
       doorR: windowGeometry(Math.PI / 6 - 0.02, Math.PI / 2 - 0.006, -6.91, 4.51, 0.025, 24).translate(-1.92, -1.16, 1.2),
-      body: fuselageGeometry(), leftWing: sweptWing(-1), rightWing: sweptWing(1), fin: finGeometry(), windows,
+      pod: omsPodGeometry(), body: fuselageGeometry(), leftWing: sweptWing(-1), rightWing: sweptWing(1), fin: finGeometry(), windows,
       tank: new THREE.LatheGeometry(tankProfile, 48),
       wingEdges: [-1, 1].map((side) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
         new THREE.Vector3(side * 1.68, -0.46, 6.5), new THREE.Vector3(side * 3.4, -0.46, 0.25), new THREE.Vector3(side * 10.9, -0.46, -6.5),
@@ -222,7 +265,7 @@ export function Orbiter() {
     };
   }, []);
   useEffect(() => () => {
-    geometry.doorL.dispose(); geometry.doorR.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
+    geometry.pod.dispose(); geometry.doorL.dispose(); geometry.doorR.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
     geometry.wingEdges.forEach((g) => g.dispose());
     geometry.windows.forEach(({ frame, glass }) => { frame.dispose(); glass.dispose(); });
   }, [geometry]);
@@ -250,14 +293,15 @@ export function Orbiter() {
 
   return (
     <group>
+    <group name="orbiter-airframe" scale={[ORBITER_SPAN_SCALE, 1, 1]}>
       <mesh geometry={geometry.body} castShadow receiveShadow>
         <meshStandardMaterial attach="material-0" {...blanket} color="#e4e2db" />
         <meshStandardMaterial attach="material-1" {...tile} />
       </mesh>
       {geometry.windows.map(({ frame, glass }, i) => (
         <group key={i}>
-          <mesh geometry={frame}><meshStandardMaterial color="#191e22" roughness={0.78} /></mesh>
-          <mesh geometry={glass}><meshPhysicalMaterial color="#273d48" roughness={0.13} metalness={0.34} clearcoat={1} clearcoatRoughness={0.1} /></mesh>
+          <mesh geometry={frame}><meshStandardMaterial color="#191e22" roughness={0.78} side={THREE.DoubleSide} /></mesh>
+          <mesh geometry={glass}><meshPhysicalMaterial color="#273d48" roughness={0.13} metalness={0.34} clearcoat={1} clearcoatRoughness={0.1} side={THREE.DoubleSide} /></mesh>
         </group>
       ))}
       {[geometry.leftWing, geometry.rightWing].map((wing, i) => (
@@ -279,8 +323,8 @@ export function Orbiter() {
       <mesh geometry={geometry.fin} castShadow><meshStandardMaterial {...blanket} color="#deded6" /></mesh>
       <mesh geometry={geometry.rudderSeam}><meshStandardMaterial color="#424446" roughness={0.8} /></mesh>
       {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * 2.22, 0.95, -8.7]} scale={[0.92, 0.82, 2.35]} castShadow>
-          <sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial {...blanket} color="#d5d4cc" />
+        <mesh key={side} geometry={geometry.pod} position={[side * 2.36, 1.04, 0]} castShadow>
+          <meshStandardMaterial {...blanket} color="#d5d4cc" />
         </mesh>
       ))}
       <mesh position={[0, 0.1, -10.49]} rotation={[0, Math.PI, 0]} scale={[1, 0.58, 1]}>
@@ -301,13 +345,13 @@ export function Orbiter() {
           <boxGeometry args={[3.7, 0.1, 0.12]} /><meshStandardMaterial color="#858b8b" metalness={0.65} roughness={0.45} />
         </mesh>
       ))}
-      <group ref={bayL} position={[-1.92, 1.16, -1.2]}>
+      <group name="bay-left" ref={bayL} position={[-1.92, 1.16, -1.2]}>
         <mesh geometry={geometry.doorL} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
       </group>
-      <group ref={bayR} position={[1.92, 1.16, -1.2]}>
+      <group name="bay-right" ref={bayR} position={[1.92, 1.16, -1.2]}>
         <mesh geometry={geometry.doorR} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
       </group>
-      <group ref={gear} visible={false}>
+      <group name="landing-gear" ref={gear} visible={false}>
         <LandingGear x={0} z={8.25} radius={0.4} />
         <LandingGear x={-3.25} z={-5.25} radius={0.55} /><LandingGear x={3.25} z={-5.25} radius={0.55} />
       </group>
@@ -315,12 +359,13 @@ export function Orbiter() {
         <Exhaust key={i} kind="main" position={[x, y, -11.78]} radius={2.1} length={10} />
       ))}
       {[-1, 1].map((side) => <group key={side}>
-        <EngineBell x={side * 2.22} y={0.95} z={-10.8} size={0.52} />
-        <Exhaust kind="oms" position={[side * 2.22, 0.95, -11.52]} radius={1.1} length={4.5} />
+        <EngineBell x={side * 2.36} y={1.04} z={-10.8} size={0.52} />
+        <Exhaust kind="oms" position={[side * 2.36, 1.04, -11.52]} radius={1.1} length={4.5} />
       </group>)}
-      <group ref={srbL} position={[-6.2, -4.2, -2]}><Booster /></group>
-      <group ref={srbR} position={[6.2, -4.2, -2]}><Booster /></group>
-      <group ref={et} position={[0, -6.4, -1]}>
+    </group>
+      <group name="booster-left" ref={srbL} position={[-6.2, -4.2, -2]}><Booster /></group>
+      <group name="booster-right" ref={srbR} position={[6.2, -4.2, -2]}><Booster /></group>
+      <group name="external-tank" ref={et} position={[0, -6.4, -1]}>
         <mesh geometry={geometry.tank} rotation={[Math.PI / 2, 0, 0]} castShadow><meshStandardMaterial {...foam} bumpScale={0.004} /></mesh>
         <mesh position={[0, 0, 7.4]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[3.355, 3.355, 3.1, 48]} /><meshStandardMaterial {...foam} color="#d9b894" bumpScale={0.004} /></mesh>
         {[-12, 5.83, 8.98, 11].map((z) => (
