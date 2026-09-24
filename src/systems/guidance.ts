@@ -5,8 +5,8 @@
  */
 
 import { bus } from "../core/bus.ts";
-import { len, mul, type Vec3 } from "../core/frames.ts";
-import { q_body_x_along, type Quat } from "../dynamics/attitude.ts";
+import { len, mul, type Vec3, v3 } from "../core/frames.ts";
+import { ORBITER_INERTIA, q_body_x_along, qconj, qmul, type Quat } from "../dynamics/attitude.ts";
 
 export type DapMode = "manual" | "lvlh" | "retrograde" | "entry";
 
@@ -45,7 +45,40 @@ export class Guidance {
     bus.set_value("guid.att_hold", this.att_hold);
     bus.set_value("guid.q_cmd", [this.q_cmd.x, this.q_cmd.y, this.q_cmd.z, this.q_cmd.w]);
     bus.set_value("guid.bank_deg", this.bank_deg);
-    bus.set_value("prop.torque_body_nm", [roll * 4e5, pitch * 6e5, yaw * 3e5]);
+    const torque = this.att_hold ? this.hold_torque() : { x: roll * 4e5, y: pitch * 6e5, z: yaw * 3e5 };
+    bus.set_value("prop.torque_body_nm", [torque.x, torque.y, torque.z]);
+  }
+
+  /**
+   * PD servo toward guid.q_cmd. When the DAP owns attitude the hand
+   * controller is ignored. Gains are [estimated]; the DAP is a stand-in,
+   * not the historical phase plane.
+   */
+  private hold_torque(): Vec3 {
+    const qv = bus.get_value("dyn.q_body_from_eci") as number[] | null;
+    if (!qv || qv.length !== 4) return v3();
+    const q = { x: qv[0], y: qv[1], z: qv[2], w: qv[3] };
+    // Error rotation from the current body frame to the commanded one,
+    // expressed in body axes: q_err = q^-1 * q_cmd.
+    let qe = qmul(qconj(q), this.q_cmd);
+    if (qe.w < 0) qe = { x: -qe.x, y: -qe.y, z: -qe.z, w: -qe.w };
+    const w = Math.min(1, Math.max(-1, qe.w));
+    const angle = 2 * Math.acos(w);
+    const s = Math.sqrt(Math.max(0, 1 - w * w));
+    const axis = s > 1e-6 ? { x: qe.x / s, y: qe.y / s, z: qe.z / s } : { x: 0, y: 0, z: 0 };
+    const om = {
+      x: (Number(bus.get_value("guid.rate.roll", 0)) * Math.PI) / 180,
+      y: (Number(bus.get_value("guid.rate.pitch", 0)) * Math.PI) / 180,
+      z: (Number(bus.get_value("guid.rate.yaw", 0)) * Math.PI) / 180,
+    };
+    const KP = 0.05;
+    const KD = 0.45;
+    const TMAX = 8e5;
+    return {
+      x: clamp(ORBITER_INERTIA.x * (KP * angle * axis.x - KD * om.x), -TMAX, TMAX),
+      y: clamp(ORBITER_INERTIA.y * (KP * angle * axis.y - KD * om.y), -TMAX, TMAX),
+      z: clamp(ORBITER_INERTIA.z * (KP * angle * axis.z - KD * om.z), -TMAX, TMAX),
+    };
   }
 
   snapshot() {
