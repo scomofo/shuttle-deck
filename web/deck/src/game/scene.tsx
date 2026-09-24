@@ -4,6 +4,7 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { Orbiter } from "@/game/orbiter";
+import { terrainMaterial } from "./ground-materials";
 import { Runway } from "./runway";
 import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
@@ -104,6 +105,8 @@ function World() {
   const [map, cloudsMap] = useEarthMaps();
   const starField = useRef<THREE.Group>(null);
   const fieldMap = useFieldMap();
+  const fieldMaterial = useMemo(() => terrainMaterial(fieldMap), [fieldMap]);
+  useEffect(() => () => fieldMaterial.dispose(), [fieldMaterial]);
   const space = useMemo(() => new THREE.Color("#07090d"), []);
   const sky = useMemo(() => new THREE.Color().setRGB(0.60, 0.70, 0.77), []);
   const haze = useMemo(() => new THREE.Fog(sky, 2200, 26000), [sky]);
@@ -254,13 +257,13 @@ function World() {
       <group ref={ground}>
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[80000, 80000]} />
-          <meshStandardMaterial map={fieldMap} roughness={1} />
+          <primitive object={fieldMaterial} attach="material" />
         </mesh>
         <mesh ref={blob} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.35, 0]}>
           <circleGeometry args={[22, 28]} />
           <meshBasicMaterial color="#06140f" transparent opacity={0} depthWrite={false} />
         </mesh>
-        <Runway />
+        <Runway terrainMap={fieldMap} />
         {Array.from({ length: 8 }, (_, i) => {
           const t = ((i + 1) / 9) * Math.PI;
           const x = HAC.cx - Math.sin(t) * HAC.r;

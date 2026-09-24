@@ -171,6 +171,12 @@ function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: n
         <circleGeometry args={[0.33, 24]} />
         <meshStandardMaterial color="#101214" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
+      {[ [0.5, 0.6], [0.72, 1.02] ].map(([radius, along]) => (
+        <mesh key={along} position={[0, along, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[radius, 0.014, 6, 32]} />
+          <meshStandardMaterial color="#888e90" metalness={0.78} roughness={0.44} />
+        </mesh>
+      ))}
       <mesh position={[0, 1.38, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.85, 0.036, 8, 32]} />
         <meshStandardMaterial color="#a1a4a5" metalness={0.88} roughness={0.3} />
@@ -256,6 +262,11 @@ export function Orbiter() {
     return {
       doorL: windowGeometry(Math.PI / 2 + 0.006, Math.PI * 5 / 6 + 0.02, -6.91, 4.51, 0.025, 24).translate(1.92, -1.16, 1.2),
       doorR: windowGeometry(Math.PI / 6 - 0.02, Math.PI / 2 - 0.006, -6.91, 4.51, 0.025, 24).translate(-1.92, -1.16, 1.2),
+      // Four radiator panels on each door; fitted to our existing estimated bay.
+      radiatorsL: Array.from({ length: 4 }, (_, i) => windowGeometry(Math.PI / 2 + 0.08, Math.PI * 5 / 6 - 0.07,
+        -6.72 + i * 2.8, -4.05 + i * 2.8, -0.025, 16).translate(1.92, -1.16, 1.2)),
+      radiatorsR: Array.from({ length: 4 }, (_, i) => windowGeometry(Math.PI / 6 + 0.07, Math.PI / 2 - 0.08,
+        -6.72 + i * 2.8, -4.05 + i * 2.8, -0.025, 16).translate(-1.92, -1.16, 1.2)),
       pod: omsPodGeometry(), body: fuselageGeometry(), leftWing: sweptWing(-1), rightWing: sweptWing(1), fin: finGeometry(), windows,
       tank: new THREE.LatheGeometry(tankProfile, 48),
       wingEdges: [-1, 1].map((side) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
@@ -266,6 +277,7 @@ export function Orbiter() {
   }, []);
   useEffect(() => () => {
     geometry.pod.dispose(); geometry.doorL.dispose(); geometry.doorR.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
+    [...geometry.radiatorsL, ...geometry.radiatorsR].forEach(g => g.dispose());
     geometry.wingEdges.forEach((g) => g.dispose());
     geometry.windows.forEach(({ frame, glass }) => { frame.dispose(); glass.dispose(); });
   }, [geometry]);
@@ -346,9 +358,15 @@ export function Orbiter() {
         </mesh>
       ))}
       <group name="bay-left" ref={bayL} position={[-1.92, 1.16, -1.2]}>
+        {geometry.radiatorsL.map((g,i) => <mesh key={i} name={`port-radiator-${i}`} geometry={g}>
+          <meshStandardMaterial color="#d9ddd9" metalness={0.28} roughness={0.38} side={THREE.DoubleSide} />
+        </mesh>)}
         <mesh geometry={geometry.doorL} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
       </group>
       <group name="bay-right" ref={bayR} position={[1.92, 1.16, -1.2]}>
+        {geometry.radiatorsR.map((g,i) => <mesh key={i} name={`starboard-radiator-${i}`} geometry={g}>
+          <meshStandardMaterial color="#d9ddd9" metalness={0.28} roughness={0.38} side={THREE.DoubleSide} />
+        </mesh>)}
         <mesh geometry={geometry.doorR} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
       </group>
       <group name="landing-gear" ref={gear} visible={false}>

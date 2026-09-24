@@ -104,3 +104,29 @@ Next visual work should use sourced orbiter dimensions/UVs and a calibrated
 cockpit, replace the illustrative runway and repeated terrain with a sourced landing-site model, and add a true
 height/roughness texture set. The 2K Earth maps improve geography but do not
 provide close-range orbital ground detail. Exhaust remains a shader approximation.
+
+## Approach and exterior detail follow-ups
+
+The terrain material blends the existing aerial image at two scales, with a
+rotated close-range sample that fades toward the broad view with distance.
+The runway verge now uses texture repeats matched to its long, narrow footprint.
+Concrete has subtle deterministic slab variation and fine aggregate; subpixel
+grain fades to avoid high-frequency aliasing. These are code-native shader
+changes using existing assets. The site remains illustrative and is not a
+surveyed Kennedy landing facility. Review: [approach](review/runway.jpg).
+
+Each payload door now carries four separate smooth radiator surfaces. The count
+and inside-door placement follow NASA's
+[STS-115 radiator investigation](https://ntrs.nasa.gov/citations/20070038939)
+and [Shuttle overview](https://www.nasa.gov/reference/the-space-shuttle/).
+Panel curvature, finish and size are fitted estimates for this model. The forward
+radiators do not independently deploy; they follow the existing door hinge.
+Engine bells also have subtle circumferential hardware bands, an artistic
+geometry detail. The approved tile image is unchanged.
+
+Review: [open bay](review/payload-radiators.jpg) and
+[closed bay](review/payload-closed.jpg). Browser checks counted eight attached
+panels, verified opening and closure, and rendered the approach shaders without
+browser errors. Production build/TypeScript and the existing exhaust-state tests
+pass. These checks do not establish thermal-system behavior or historical
+geometric accuracy.

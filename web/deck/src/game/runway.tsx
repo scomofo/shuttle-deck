@@ -2,6 +2,8 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useSurfaceMaterial } from "./materials";
 
+import { pavementMaterial } from "./ground-materials";
+
 type Strip = [number, number, number, number]; // x, z, length, width
 
 /** Painted geometry remains crisp at grazing angles; coordinates retain the flight model's runway. */
@@ -45,8 +47,14 @@ function RunwayLights() {
   return <primitive object={lamps} />;
 }
 
-export function Runway() {
+export function Runway({ terrainMap }: { terrainMap: THREE.Texture }) {
   const pavement = useSurfaceMaterial("panel", [80, 2]);
+  const vergeMap = useMemo(() => {
+    const map = terrainMap.clone(); map.repeat.set(28, 1.1); map.needsUpdate = true; return map;
+  }, [terrainMap]);
+  useEffect(() => () => vergeMap.dispose(), [vergeMap]);
+  const concrete = useMemo(() => pavementMaterial(pavement.bumpMap), [pavement.bumpMap]);
+  useEffect(() => () => concrete.dispose(), [concrete]);
   const detail = useMemo(() => {
     const paint: Strip[] = [[2200, -42, 5160, 0.8], [2200, 42, 5160, 0.8]];
     for (let x = -240; x < 4630; x += 60) paint.push([x, 0, 30, 0.9]);
@@ -68,11 +76,11 @@ export function Runway() {
   }, []);
   return <group name="runway">
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.12, 0]} receiveShadow>
-      <planeGeometry args={[5600, 220]} /><meshStandardMaterial color="#5a6053" roughness={1} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+      <planeGeometry args={[5600, 220]} /><meshStandardMaterial color="#c3c7aa" map={vergeMap} roughness={1} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
     </mesh>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.22, 0]} receiveShadow>
       <planeGeometry args={[5200, 90]} />
-      <meshStandardMaterial color="#777b76" roughness={0.95} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} bumpMap={pavement.bumpMap} bumpScale={0.018} />
+      <primitive object={concrete} attach="material" />
     </mesh>
     <Strips strips={detail.joints} color="#42463f" y={0.226} opacity={0.28} />
     <Strips strips={detail.paint} color="#e5e2d5" y={0.23} />
