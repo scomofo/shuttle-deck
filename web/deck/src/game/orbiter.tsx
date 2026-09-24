@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { sim } from "@/sim/runtime";
 import { useSurfaceMaterial } from "./materials";
+import { Exhaust } from "./exhaust";
 
 // Visual reconstruction in the simulator's existing local coordinates: +Z is the
 // nose and the wheel contact plane is Y=-2.4. These are estimated proportions,
@@ -117,14 +118,14 @@ function tubeBetween(start: THREE.Vector3, end: THREE.Vector3, radius: number) {
   return new THREE.TubeGeometry(new THREE.LineCurve3(start, end), 1, radius, 8, false);
 }
 
-function EngineBell({ x, y, size = 1 }: { x: number; y: number; size?: number }) {
+function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: number; size?: number }) {
   const bell = useMemo(() => new THREE.LatheGeometry([
     new THREE.Vector2(0.3, 0), new THREE.Vector2(0.34, 0.22),
     new THREE.Vector2(0.5, 0.6), new THREE.Vector2(0.72, 1.02), new THREE.Vector2(0.85, 1.38),
   ], 32), []);
   useEffect(() => () => bell.dispose(), [bell]);
   return (
-    <group position={[x, y, -10.4]} rotation={[-Math.PI / 2, 0, 0]} scale={size}>
+    <group position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]} scale={size}>
       <mesh geometry={bell} castShadow>
         <meshStandardMaterial color="#62666a" metalness={0.84} roughness={0.42} side={THREE.DoubleSide} />
       </mesh>
@@ -168,7 +169,7 @@ function LandingGear({ x, z, radius }: { x: number; z: number; radius: number })
   );
 }
 
-function Booster({ plume }: { plume: RefObject<THREE.Group | null> }) {
+function Booster() {
   const panel = useSurfaceMaterial("panel");
   return (
     <>
@@ -190,16 +191,7 @@ function Booster({ plume }: { plume: RefObject<THREE.Group | null> }) {
         <cylinderGeometry args={[1.0, 1.4, 1.6, 32, 1, true]} />
         <meshStandardMaterial color="#777b7d" metalness={0.7} roughness={0.45} side={THREE.DoubleSide} />
       </mesh>
-      <group ref={plume} position={[0, 0, -14.2]} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
-        <mesh position={[0, 4, 0]}>
-          <coneGeometry args={[1.15, 8, 24]} />
-          <meshBasicMaterial color="#ffd5ab" transparent opacity={0.75} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </mesh>
-        <mesh position={[0, 1.4, 0]}>
-          <coneGeometry args={[0.85, 2.8, 24]} />
-          <meshBasicMaterial color="#fff9e1" transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} />
-        </mesh>
-      </group>
+      <Exhaust kind="booster" position={[0, 0, -14.2]} radius={3.4} length={19} />
     </>
   );
 }
@@ -207,7 +199,6 @@ function Booster({ plume }: { plume: RefObject<THREE.Group | null> }) {
 export function Orbiter() {
   const bayL = useRef<THREE.Group>(null), bayR = useRef<THREE.Group>(null);
   const srbL = useRef<THREE.Group>(null), srbR = useRef<THREE.Group>(null), et = useRef<THREE.Group>(null);
-  const plume = useRef<THREE.Group>(null), srbPlumeL = useRef<THREE.Group>(null), srbPlumeR = useRef<THREE.Group>(null);
   const gear = useRef<THREE.Group>(null);
   const blanket = useSurfaceMaterial("blanket"), tile = useSurfaceMaterial("tile"), foam = useSurfaceMaterial("foam", [6, 10]);
   const geometry = useMemo(() => {
@@ -236,8 +227,7 @@ export function Orbiter() {
     geometry.windows.forEach(({ frame, glass }) => { frame.dispose(); glass.dispose(); });
   }, [geometry]);
 
-  useFrame(({ clock }, delta) => {
-    const flicker = 0.85 + Math.sin(clock.elapsedTime * 37) * 0.15;
+  useFrame((_, delta) => {
     const doorAngle = sim.doorsOpen ? 1.7 : 0;
     if (bayL.current) bayL.current.rotation.z = THREE.MathUtils.damp(bayL.current.rotation.z, doorAngle, 3, delta);
     if (bayR.current) bayR.current.rotation.z = THREE.MathUtils.damp(bayR.current.rotation.z, -doorAngle, 3, delta);
@@ -255,10 +245,6 @@ export function Orbiter() {
       et.current.visible = sim.etAttached || (sim.mode === "launch" && sim.etSepAge > 0 && age < 14);
       et.current.position.set(0, -6.4 - age * 2.1, -1 - age * 4);
     }
-    const p = sim.plume * flicker;
-    if (plume.current) { plume.current.visible = p > 0.05; plume.current.scale.z = 0.3 + p * 1.8; }
-    const booster = sim.srbAttached ? p : 0;
-    for (const ref of [srbPlumeL, srbPlumeR]) if (ref.current) { ref.current.visible = booster > 0.05; ref.current.scale.y = 0.7 + booster * 0.8; }
     if (gear.current) gear.current.visible = sim.gear || sim.phase === "rollout" || sim.phase === "landed";
   });
 
@@ -325,16 +311,15 @@ export function Orbiter() {
         <LandingGear x={0} z={8.25} radius={0.4} />
         <LandingGear x={-3.25} z={-5.25} radius={0.55} /><LandingGear x={3.25} z={-5.25} radius={0.55} />
       </group>
-      <group ref={plume} position={[0, 0, -11.78]} visible={false}>
-        {[[0, 0.7], [-0.95, -0.55], [0.95, -0.55]].map(([x, y], i) => (
-          <group key={i} position={[x, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <mesh position={[0, 2.7, 0]}><coneGeometry args={[0.76, 5.4, 24]} /><meshBasicMaterial color="#8db8fa" transparent opacity={0.25} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>
-            <mesh position={[0, 1.8, 0]}><coneGeometry args={[0.48, 3.6, 24]} /><meshBasicMaterial color="#ffddb1" transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>
-          </group>
-        ))}
-      </group>
-      <group ref={srbL} position={[-6.2, -4.2, -2]}><Booster plume={srbPlumeL} /></group>
-      <group ref={srbR} position={[6.2, -4.2, -2]}><Booster plume={srbPlumeR} /></group>
+      {[[0, 0.7], [-0.95, -0.55], [0.95, -0.55]].map(([x, y], i) => (
+        <Exhaust key={i} kind="main" position={[x, y, -11.78]} radius={2.1} length={10} />
+      ))}
+      {[-1, 1].map((side) => <group key={side}>
+        <EngineBell x={side * 2.22} y={0.95} z={-10.8} size={0.52} />
+        <Exhaust kind="oms" position={[side * 2.22, 0.95, -11.52]} radius={1.1} length={4.5} />
+      </group>)}
+      <group ref={srbL} position={[-6.2, -4.2, -2]}><Booster /></group>
+      <group ref={srbR} position={[6.2, -4.2, -2]}><Booster /></group>
       <group ref={et} position={[0, -6.4, -1]}>
         <mesh geometry={geometry.tank} rotation={[Math.PI / 2, 0, 0]} castShadow><meshStandardMaterial {...foam} bumpScale={0.004} /></mesh>
         <mesh position={[0, 0, 7.4]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[3.355, 3.355, 3.1, 48]} /><meshStandardMaterial {...foam} color="#d9b894" bumpScale={0.004} /></mesh>

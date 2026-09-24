@@ -45,6 +45,24 @@ shaded relief; clouds are a static composite, not current weather.
 - The new exterior retains bay doors, separation, gear and plume state from the existing browser model.
 - Asset failures have a reload screen; loading does not leave a silent empty canvas.
 
+## Exhaust and runway follow-up
+
+Soft additive exhaust sheets replace solid cones, with distinct main-engine,
+booster and OMS effects. Orbital burns use the two OMS nozzles; main-engine
+and booster effects are limited to attached ascent hardware. Open bay doors
+and depleted OMS propellant suppress orbital exhaust, matching browser thrust
+constraints. Mission time drives shimmer, so pause also freezes the effect.
+NASA describes the OMS pods and orbital role in
+[Preparations for STS-1](https://www.nasa.gov/history/40-years-ago-preparations-continue-for-sts-1/).
+Plume color, extent and shock detail remain artistic shader approximations,
+not a fluid simulation or measured vacuum exhaust model.
+
+The runway now has instanced threshold, centerline, aiming-point and touchdown
+markings, pavement joints, rubber deposits and smaller edge/approach lights.
+Its 5200-by-90 browser-model footprint and surrounding terrain remain
+illustrative, not a surveyed landing site. Polygon offsets keep the thin
+pavement layers visible above terrain at long camera distances.
+
 ## Validation and limits
 
 `npm run build` includes strict TypeScript checking. Desktop browser checks
@@ -54,7 +72,14 @@ and panel descriptions remain accessible. Normal flows produced no browser
 errors or failed asset requests. An intentionally blocked tile asset produced
 the reload screen and recovered after unblocking.
 
-Review captures: [orbit](review/orbit.jpg) and [cockpit](review/cockpit.jpg).
+Run `npm --prefix web/deck test` for exhaust-state regression checks covering
+ascent separation, orbital burns, blocked burns and non-powered phases.
+The follow-up also passed the production build and browser rendering checks
+for launch, orbit, runway approach and cockpit with no browser errors.
+
+Review captures: [orbit](review/orbit.jpg), [cockpit](review/cockpit.jpg),
+[launch exhaust](review/launch-exhaust.jpg) and [runway](review/runway.jpg).
+These are paused, controlled visual states, not end-to-end flight evidence.
 
 The root simulation tests have an existing failure in
 `test_oms_retrograde_drops_periapsis` (`start periapsis 0`), reproduced before
@@ -64,4 +89,4 @@ pass leaves the core simulation and its tests unchanged.
 Next visual work should use sourced orbiter dimensions/UVs and a calibrated
 cockpit, replace the illustrative runway and repeated terrain with a sourced landing-site model, and add a true
 height/roughness texture set. The 2K Earth maps improve geography but do not
-provide close-range orbital ground detail. Current plumes remain stylized.
+provide close-range orbital ground detail. Exhaust remains a shader approximation.

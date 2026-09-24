@@ -4,6 +4,7 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { Orbiter } from "@/game/orbiter";
+import { Runway } from "./runway";
 import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
 import terrainUrl from "@/assets/visuals/terrain-color.webp";
@@ -73,47 +74,6 @@ const skyFragment = `
     #include <colorspace_fragment>
   }`;
 
-function runwayTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 2048;
-  canvas.height = 256;
-  const g = canvas.getContext("2d");
-  if (!g) return new THREE.Texture();
-  g.fillStyle = "#4a4e55";
-  g.fillRect(0, 0, 2048, 256);
-  for (let i = 0; i < 1800; i++) {
-    const shade = 40 + Math.floor(Math.random() * 28);
-    g.fillStyle = `rgba(${shade},${shade},${shade + 4},0.18)`;
-    g.fillRect(Math.random() * 2048, Math.random() * 256, 3, 2);
-  }
-  g.strokeStyle = "#f4f0e6";
-  g.lineWidth = 6;
-  g.beginPath();
-  g.moveTo(40, 22);
-  g.lineTo(2008, 22);
-  g.moveTo(40, 234);
-  g.lineTo(2008, 234);
-  g.stroke();
-  g.lineWidth = 5;
-  g.beginPath();
-  for (let x = 80; x < 1980; x += 64) {
-    g.moveTo(x, 128);
-    g.lineTo(x + 34, 128);
-  }
-  g.stroke();
-  g.lineWidth = 10;
-  for (let i = 0; i < 8; i++) {
-    g.strokeRect(70 + i * 28, 48, 10, 160);
-  }
-  g.fillStyle = "#f4f0e6";
-  g.fillRect(24, 36, 18, 184);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  tex.wrapS = THREE.ClampToEdgeWrapping;
-  return tex;
-}
-
 /** Illustrative aerial wetland material; not a surveyed map of the landing site. */
 function useFieldMap() {
   const source = useLoader(THREE.TextureLoader, terrainUrl);
@@ -143,12 +103,10 @@ function World() {
   const { camera, scene } = useThree();
   const [map, cloudsMap] = useEarthMaps();
   const starField = useRef<THREE.Group>(null);
-  const runwayMap = useMemo(() => runwayTexture(), []);
   const fieldMap = useFieldMap();
   const space = useMemo(() => new THREE.Color("#07090d"), []);
-  const sky = useMemo(() => new THREE.Color("#c5d6e2"), []);
+  const sky = useMemo(() => new THREE.Color().setRGB(0.60, 0.70, 0.77), []);
   const haze = useMemo(() => new THREE.Fog(sky, 2200, 26000), [sky]);
-  useEffect(() => () => runwayMap.dispose(), [runwayMap]);
 
   useFrame((_, delta) => {
     const wall = Math.min(delta, 0.05);
@@ -293,20 +251,7 @@ function World() {
           <circleGeometry args={[22, 28]} />
           <meshBasicMaterial color="#06140f" transparent opacity={0} depthWrite={false} />
         </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.15, 0]}>
-          <planeGeometry args={[5600, 220]} />
-          <meshStandardMaterial color="#2c3136" roughness={0.95} />
-        </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.22, 0]} receiveShadow>
-          <planeGeometry args={[5200, 90]} />
-          <meshStandardMaterial map={runwayMap} roughness={0.86} />
-        </mesh>
-        {Array.from({ length: 28 }, (_, i) => (
-          <mesh key={i} position={[-400 - i * 180, 2, 0]}>
-            <sphereGeometry args={[3.5, 8, 8]} />
-            <meshBasicMaterial color="#ffd9a0" />
-          </mesh>
-        ))}
+        <Runway />
         {Array.from({ length: 8 }, (_, i) => {
           const t = ((i + 1) / 9) * Math.PI;
           const x = HAC.cx - Math.sin(t) * HAC.r;
@@ -329,16 +274,16 @@ function World() {
             </group>
           );
         })}
-        <group position={[-200, 8, 70]}>
+        <group position={[-200, 1.3, 65]}>
           {[0, 1, 2, 3].map((i) => (
             <mesh
               key={i}
               ref={(el) => {
                 if (el) papi.current[i] = el;
               }}
-              position={[0, 0, i * 16]}
+              position={[0, 0, i * 7]}
             >
-              <boxGeometry args={[5, 3.2, 7]} />
+              <boxGeometry args={[1.6, 0.8, 2]} />
               <meshBasicMaterial color="#ff5a4a" />
             </mesh>
           ))}
