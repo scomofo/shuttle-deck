@@ -6,6 +6,7 @@ import { CabinInterior } from "@/game/cabin";
 import { Orbiter } from "@/game/orbiter";
 import { terrainMaterial } from "./ground-materials";
 import { useReflectionEnvironment } from "./reflections";
+import { earthSurfaceMaterial } from "./earth-material";
 import { Runway } from "./runway";
 import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
@@ -28,6 +29,7 @@ function useEarthMaps() {
   const maps = useMemo(() => sources.map((source, i) => {
     const texture = source.clone();
     texture.colorSpace = i === 0 ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
     texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
     texture.needsUpdate = true;
     return texture;
@@ -105,6 +107,8 @@ function World() {
   const papi = useRef<THREE.Mesh[]>([]);
   const { camera, scene } = useThree();
   const [map, cloudsMap] = useEarthMaps();
+  const earthSurface = useMemo(() => earthSurfaceMaterial(map, cloudsMap), [map, cloudsMap]);
+  useEffect(() => () => earthSurface.material.dispose(), [earthSurface]);
   const starField = useRef<THREE.Group>(null);
   const fieldMap = useFieldMap();
   const fieldMaterial = useMemo(() => terrainMaterial(fieldMap), [fieldMap]);
@@ -155,7 +159,11 @@ function World() {
       const spin = sim.running ? -sim.x / 6_371_000 : performance.now() * 0.00004;
       earth.current.rotation.y = spin;
     }
-    if (clouds.current && sim.running) clouds.current.rotation.y = -sim.x / 6_000_000 * 1.15;
+    if (clouds.current) {
+      const drift = sim.running ? -sim.x / 6_000_000 * 1.15 : 0;
+      clouds.current.rotation.y = drift;
+      earthSurface.cloudLongitude.value = drift / (2 * Math.PI);
+    }
 
     if (ground.current) {
       ground.current.visible = terminal;
@@ -242,11 +250,12 @@ function World() {
       <group ref={earth} rotation={[0, 0, 1.08]} rotation-order="ZYX">
         <mesh>
           <sphereGeometry args={[180, 96, 64]} />
-          <meshStandardMaterial map={map} roughness={0.95} metalness={0} />
+          <primitive object={earthSurface.material} attach="material" />
         </mesh>
         <mesh ref={clouds} scale={1.004}>
           <sphereGeometry args={[180, 96, 64]} />
-          <meshStandardMaterial color="#ffffff" alphaMap={cloudsMap} transparent opacity={0.86} roughness={1} depthWrite={false} />
+          <meshStandardMaterial color="#ffffff" alphaMap={cloudsMap} bumpMap={cloudsMap} bumpScale={0.35}
+            transparent opacity={0.86} roughness={1} envMapIntensity={0} depthWrite={false} />
         </mesh>
         <mesh scale={1.012}>
           <sphereGeometry args={[180, 96, 64]} />

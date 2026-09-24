@@ -154,3 +154,19 @@ This branch also carries the wing seams and landing-gear details committed after
 the prior visual PR was merged. The newly merged root package manifest needed
 a duplicate test entry removed and its missing comma repaired, preserving the
 attitude test command.
+
+## Earth depth follow-up
+
+The existing NASA cloud composite now also supplies subtle cloud-shell bump
+relief and approximate surface occlusion. Occlusion follows the shell's
+independent longitude; wrapping is explicit at the dateline and latitude
+sampling is clamped at the poles. A small fixed UV displacement suggests cloud
+height but is not a sun-projected shadow calculation. Sun-facing grazing angles
+receive restrained blue aerial haze, complementing the outer atmospheric rim.
+The globe and cloud shell do not receive the orbiter's environment reflection
+probe, avoiding an artificial Earth reflection on Earth itself.
+
+This uses the existing 2K imagery without new downloads. It improves lighting
+depth, not geographic resolution, cloud accuracy, or orbital scale. Cloud
+relief and haze strengths are artistic estimates. Review:
+[orbit](review/earth-depth-orbit.jpg) and [entry](review/earth-depth-entry.jpg).
