@@ -1,8 +1,14 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Stars } from "@react-three/drei";
-import { useMemo, useRef } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { Stars, useProgress } from "@react-three/drei";
+import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
+import { Orbiter } from "@/game/orbiter";
+import { terrainMaterial } from "./ground-materials";
+import { Runway } from "./runway";
+import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
+import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
+import terrainUrl from "@/assets/visuals/terrain-color.webp";
 import { syncAudio } from "@/game/audio";
 import { bodyBasis, HAC, sim } from "@/sim/runtime";
 
@@ -14,291 +20,76 @@ const _cam = new THREE.Vector3();
 const _look = new THREE.Vector3();
 const _fwd = new THREE.Vector3();
 
-function earthTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 512;
-  const g = canvas.getContext("2d");
-  if (!g) return new THREE.Texture();
-  const ocean = g.createLinearGradient(0, 0, 0, 512);
-  ocean.addColorStop(0, "#16365f");
-  ocean.addColorStop(0.45, "#1f6d86");
-  ocean.addColorStop(1, "#16365f");
-  g.fillStyle = ocean;
-  g.fillRect(0, 0, 1024, 512);
-  for (let i = 0; i < 36; i++) {
-    g.fillStyle = i % 4 === 0 ? "#c6b48a" : "#2d6a48";
-    g.beginPath();
-    g.ellipse(
-      Math.random() * 1024,
-      50 + Math.random() * 410,
-      30 + Math.random() * 130,
-      16 + Math.random() * 48,
-      Math.random() * 3,
-      0,
-      Math.PI * 2,
-    );
-    g.fill();
-  }
-  g.fillStyle = "#e7eef2";
-  g.fillRect(0, 0, 1024, 26);
-  g.fillRect(0, 486, 1024, 26);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  return tex;
+/** Local NASA observation composites; no network dependency at runtime. */
+function useEarthMaps() {
+  const sources = useLoader(THREE.TextureLoader, [earthUrl, cloudsUrl]);
+  const { gl } = useThree();
+  const maps = useMemo(() => sources.map((source, i) => {
+    const texture = source.clone();
+    texture.colorSpace = i === 0 ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    texture.needsUpdate = true;
+    return texture;
+  }), [sources, gl]);
+  useEffect(() => () => maps.forEach((map) => map.dispose()), [maps]);
+  return maps;
 }
 
-function cloudTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const g = canvas.getContext("2d");
-  if (!g) return new THREE.Texture();
-  g.clearRect(0, 0, 512, 256);
-  for (let i = 0; i < 40; i++) {
-    g.fillStyle = `rgba(255,255,255,${0.15 + Math.random() * 0.35})`;
-    g.beginPath();
-    g.ellipse(Math.random() * 512, Math.random() * 256, 20 + Math.random() * 70, 8 + Math.random() * 16, 0, 0, Math.PI * 2);
-    g.fill();
-  }
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
+// A thin limb glow, not a solid blue sphere. Presentation scale remains illustrative.
+const limbVertex = `
+  varying vec3 vNormalWorld;
+  varying vec3 vPositionWorld;
+  void main() {
+    vec4 world = modelMatrix * vec4(position, 1.0);
+    vPositionWorld = world.xyz;
+    vNormalWorld = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * world;
+  }`;
+const limbFragment = `
+  varying vec3 vNormalWorld;
+  varying vec3 vPositionWorld;
+  void main() {
+    vec3 n = normalize(vNormalWorld);
+    vec3 eye = normalize(cameraPosition - vPositionWorld);
+    float rim = pow(1.0 - abs(dot(n, eye)), 3.0);
+    float day = smoothstep(-0.25, 0.65, dot(n, normalize(vec3(40.0, 24.0, -30.0))));
+    gl_FragColor = vec4(0.12, 0.38, 0.76, rim * day * 0.34);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }`;
+const skyVertex = `
+  varying vec3 vDirection;
+  void main() {
+    vDirection = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }`;
+const skyFragment = `
+  varying vec3 vDirection;
+  void main() {
+    vec3 direction = normalize(vDirection);
+    float elevation = max(direction.y, 0.0);
+    vec3 color = mix(vec3(0.60, 0.70, 0.77), vec3(0.085, 0.25, 0.46), pow(elevation, 0.4));
+    float sun = pow(max(dot(direction, normalize(vec3(40.0, 24.0, -30.0))), 0.0), 180.0);
+    gl_FragColor = vec4(color + vec3(1.0, 0.79, 0.51) * sun * 0.22, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }`;
 
-function runwayTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 2048;
-  canvas.height = 256;
-  const g = canvas.getContext("2d");
-  if (!g) return new THREE.Texture();
-  g.fillStyle = "#4a4e55";
-  g.fillRect(0, 0, 2048, 256);
-  for (let i = 0; i < 1800; i++) {
-    const shade = 40 + Math.floor(Math.random() * 28);
-    g.fillStyle = `rgba(${shade},${shade},${shade + 4},0.18)`;
-    g.fillRect(Math.random() * 2048, Math.random() * 256, 3, 2);
-  }
-  g.strokeStyle = "#f4f0e6";
-  g.lineWidth = 6;
-  g.beginPath();
-  g.moveTo(40, 22);
-  g.lineTo(2008, 22);
-  g.moveTo(40, 234);
-  g.lineTo(2008, 234);
-  g.stroke();
-  g.lineWidth = 5;
-  g.beginPath();
-  for (let x = 80; x < 1980; x += 64) {
-    g.moveTo(x, 128);
-    g.lineTo(x + 34, 128);
-  }
-  g.stroke();
-  g.lineWidth = 10;
-  for (let i = 0; i < 8; i++) {
-    g.strokeRect(70 + i * 28, 48, 10, 160);
-  }
-  g.fillStyle = "#f4f0e6";
-  g.fillRect(24, 36, 18, 184);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  tex.wrapS = THREE.ClampToEdgeWrapping;
-  return tex;
-}
-
-function fieldTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1024;
-  const g = canvas.getContext("2d");
-  if (!g) return new THREE.Texture();
-  const base = g.createLinearGradient(0, 0, 1024, 1024);
-  base.addColorStop(0, "#1a4a44");
-  base.addColorStop(0.45, "#24584c");
-  base.addColorStop(1, "#163e3c");
-  g.fillStyle = base;
-  g.fillRect(0, 0, 1024, 1024);
-  g.fillStyle = "#1c6e86";
-  g.beginPath();
-  g.ellipse(180, 820, 260, 90, -0.4, 0, Math.PI * 2);
-  g.fill();
-  for (let i = 0; i < 48; i++) {
-    g.fillStyle = i % 5 === 0 ? "#c6b48a" : i % 2 === 0 ? "#1d5a40" : "#2f6d52";
-    g.beginPath();
-    g.ellipse(
-      Math.random() * 1024,
-      Math.random() * 1024,
-      18 + Math.random() * 70,
-      10 + Math.random() * 28,
-      Math.random() * 2,
-      0,
-      Math.PI * 2,
-    );
-    g.fill();
-  }
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(10, 10);
-  tex.anisotropy = 8;
-  return tex;
-}
-
-function deltaWing() {
-  const shape = new THREE.Shape();
-  shape.moveTo(0.4, 4.6);
-  shape.lineTo(11.6, -0.2);
-  shape.lineTo(10.6, -4.4);
-  shape.lineTo(0.55, -6.8);
-  shape.closePath();
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.16, bevelEnabled: false, steps: 1 });
-  geo.rotateX(Math.PI / 2);
-  geo.translate(0, 0.3, 0);
-  geo.computeVertexNormals();
-  return geo;
-}
-
-function Orbiter() {
-  const bay = useRef<THREE.Group>(null);
-  const srbL = useRef<THREE.Group>(null);
-  const srbR = useRef<THREE.Group>(null);
-  const et = useRef<THREE.Group>(null);
-  const plume = useRef<THREE.Mesh>(null);
-  const srbPlumeL = useRef<THREE.Mesh>(null);
-  const srbPlumeR = useRef<THREE.Mesh>(null);
-  const gear = useRef<THREE.Group>(null);
-  const wing = useMemo(() => deltaWing(), []);
-  const tile = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: "#e4dfd3", roughness: 0.55, metalness: 0.06, side: THREE.DoubleSide }),
-    [],
-  );
-
-  useFrame(({ clock }) => {
-    const flicker = 0.85 + Math.sin(clock.elapsedTime * 37) * 0.15;
-    if (bay.current) bay.current.rotation.z = sim.doorsOpen ? 1.15 : 0;
-    if (srbL.current && srbR.current) {
-      const age = sim.srbAttached ? 0 : Math.min(sim.srbSepAge, 12);
-      const flyingOff = sim.srbSepAge > 0 && age < 12;
-      srbL.current.visible = sim.srbAttached || flyingOff;
-      srbR.current.visible = srbL.current.visible;
-      srbL.current.position.set(-6.2 - age * 3.2, -4.2 - age * 2.4, -2);
-      srbR.current.position.set(6.2 + age * 3.2, -4.2 - age * 2.4, -2);
-    }
-    if (et.current) {
-      const age = sim.etAttached ? 0 : Math.min(sim.etSepAge, 14);
-      et.current.visible = sim.etAttached || (sim.etSepAge > 0 && age < 14);
-      et.current.position.set(0, -6.4 - age * 2.1, -1 - age * 4);
-    }
-    const p = sim.plume * flicker;
-    if (plume.current) {
-      plume.current.visible = p > 0.05;
-      plume.current.scale.set(1, 1 + p * 6, 1);
-    }
-    const booster = sim.srbAttached ? p : 0;
-    if (srbPlumeL.current) srbPlumeL.current.visible = booster > 0.05;
-    if (srbPlumeR.current) srbPlumeR.current.visible = booster > 0.05;
-    if (gear.current) gear.current.visible = sim.gear || sim.phase === "rollout" || sim.phase === "landed";
-  });
-
-  return (
-    <group>
-      <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[2.15, 2.35, 18, 16]} />
-        <meshStandardMaterial color="#e7e2d6" roughness={0.55} metalness={0.08} />
-      </mesh>
-      <mesh position={[0, -1.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[2.2, 2.4, 16, 16]} />
-        <meshStandardMaterial color="#16181c" roughness={0.72} />
-      </mesh>
-      <mesh position={[0, 0.35, 11.2]} rotation={[Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[2.15, 7.2, 16]} />
-        <meshStandardMaterial color="#1a1c20" roughness={0.5} />
-      </mesh>
-      <mesh position={[0, 1.5, 6.2]}>
-        <boxGeometry args={[2.2, 1.1, 3.4]} />
-        <meshStandardMaterial color="#d9d4c8" roughness={0.45} />
-      </mesh>
-      <mesh position={[0, 1.72, 7.1]}>
-        <boxGeometry args={[1.5, 0.35, 1.2]} />
-        <meshStandardMaterial color="#9fd0ff" emissive="#6aa4d4" emissiveIntensity={0.35} />
-      </mesh>
-      <mesh position={[0, 0.15, -1.2]} geometry={wing} material={tile} />
-      <mesh position={[0, 0.15, -1.2]} geometry={wing} material={tile} scale={[-1, 1, 1]} />
-      <mesh position={[0, -0.2, 0.6]}>
-        <boxGeometry args={[3.6, 0.18, 9]} />
-        <meshStandardMaterial color="#111318" roughness={0.7} />
-      </mesh>
-      <mesh position={[0, 2.4, -8.6]}>
-        <boxGeometry args={[0.35, 6.2, 4.2]} />
-        <meshStandardMaterial color="#e7e2d6" />
-      </mesh>
-      <mesh position={[-2.3, 0.4, -9]}>
-        <boxGeometry args={[2.2, 1.6, 3.2]} />
-        <meshStandardMaterial color="#ece7db" />
-      </mesh>
-      <mesh position={[2.3, 0.4, -9]}>
-        <boxGeometry args={[2.2, 1.6, 3.2]} />
-        <meshStandardMaterial color="#ece7db" />
-      </mesh>
-      <group ref={bay} position={[1.15, 2.15, -1]}>
-        <mesh position={[0.7, 0, 0]}>
-          <boxGeometry args={[1.3, 0.12, 8]} />
-          <meshStandardMaterial color="#f3eee4" />
-        </mesh>
-      </group>
-      <group ref={gear} position={[0, -2.3, 1]}>
-        <mesh position={[0, -0.8, 0]}>
-          <boxGeometry args={[0.35, 1.6, 0.35]} />
-          <meshStandardMaterial color="#222" />
-        </mesh>
-        <mesh position={[-3.2, -0.7, -1]}>
-          <boxGeometry args={[0.3, 1.4, 0.3]} />
-          <meshStandardMaterial color="#222" />
-        </mesh>
-        <mesh position={[3.2, -0.7, -1]}>
-          <boxGeometry args={[0.3, 1.4, 0.3]} />
-          <meshStandardMaterial color="#222" />
-        </mesh>
-      </group>
-      <mesh ref={plume} position={[0, 0, -12.5]} rotation={[Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[1.3, 7, 12]} />
-        <meshBasicMaterial color="#ffb15a" transparent opacity={0.85} />
-      </mesh>
-      <group ref={srbL}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[1.15, 1.15, 28, 12]} />
-          <meshStandardMaterial color="#f4f1ea" />
-        </mesh>
-        <mesh ref={srbPlumeL} position={[0, 0, -16]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[1.4, 8, 10]} />
-          <meshBasicMaterial color="#ffd2a0" transparent opacity={0.8} />
-        </mesh>
-      </group>
-      <group ref={srbR}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[1.15, 1.15, 28, 12]} />
-          <meshStandardMaterial color="#f4f1ea" />
-        </mesh>
-        <mesh ref={srbPlumeR} position={[0, 0, -16]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[1.4, 8, 10]} />
-          <meshBasicMaterial color="#ffd2a0" transparent opacity={0.8} />
-        </mesh>
-      </group>
-      <group ref={et}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[3.3, 3.3, 32, 18]} />
-          <meshStandardMaterial color="#d4763a" roughness={0.48} />
-        </mesh>
-        <mesh position={[0, 0, 18]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[3.3, 8, 18]} />
-          <meshStandardMaterial color="#e08a45" />
-        </mesh>
-      </group>
-    </group>
-  );
+/** Illustrative aerial wetland material; not a surveyed map of the landing site. */
+function useFieldMap() {
+  const source = useLoader(THREE.TextureLoader, terrainUrl);
+  const { gl } = useThree();
+  const map = useMemo(() => {
+    const texture = source.clone();
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(16, 16);
+    texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    texture.needsUpdate = true;
+    return texture;
+  }, [source, gl]);
+  useEffect(() => () => map.dispose(), [map]);
+  return map;
 }
 
 function World() {
@@ -311,13 +102,14 @@ function World() {
   const blob = useRef<THREE.Mesh>(null);
   const papi = useRef<THREE.Mesh[]>([]);
   const { camera, scene } = useThree();
-  const map = useMemo(() => earthTexture(), []);
-  const cloudsMap = useMemo(() => cloudTexture(), []);
-  const runwayMap = useMemo(() => runwayTexture(), []);
-  const fieldMap = useMemo(() => fieldTexture(), []);
+  const [map, cloudsMap] = useEarthMaps();
+  const starField = useRef<THREE.Group>(null);
+  const fieldMap = useFieldMap();
+  const fieldMaterial = useMemo(() => terrainMaterial(fieldMap), [fieldMap]);
+  useEffect(() => () => fieldMaterial.dispose(), [fieldMaterial]);
   const space = useMemo(() => new THREE.Color("#07090d"), []);
-  const sky = useMemo(() => new THREE.Color("#c5d6e2"), []);
-  const haze = useMemo(() => new THREE.Fog(sky, 900, 16000), [sky]);
+  const sky = useMemo(() => new THREE.Color().setRGB(0.60, 0.70, 0.77), []);
+  const haze = useMemo(() => new THREE.Fog(sky, 2200, 26000), [sky]);
 
   useFrame((_, delta) => {
     const wall = Math.min(delta, 0.05);
@@ -380,6 +172,7 @@ function World() {
     scene.background = terminal ? sky : space;
     scene.fog = terminal ? haze : null;
     if (skyDome.current) skyDome.current.visible = terminal;
+    if (starField.current) starField.current.visible = !terminal;
     if (blob.current) {
       blob.current.position.set(sim.x, 0.5, sim.z);
       const mat = blob.current.material as THREE.MeshBasicMaterial;
@@ -393,7 +186,7 @@ function World() {
 
     _fwd.set(-Math.sin(sim.yaw), 0, -Math.cos(sim.yaw));
     if (sim.view === "cockpit") {
-      _cam.copy(_nose).multiplyScalar(8 * scale).addScaledVector(_dorsal, 2.4 * scale);
+      _cam.copy(_nose).multiplyScalar(8 * scale).addScaledVector(_dorsal, 2.4 * scale).addScaledVector(_right, -0.45 * scale);
       _look.copy(_cam).add(_nose);
     } else if (sim.view === "tower") {
       _cam.set(terminal ? -40 : 10, terminal ? 18 : 8, terminal ? 30 : 24);
@@ -416,59 +209,61 @@ function World() {
       _cam.x += Math.sin(performance.now() * 0.05) * shake * 0.4;
       _cam.y += Math.cos(performance.now() * 0.07) * shake * 0.25;
     }
-    camera.position.lerp(_cam, 1 - Math.exp(-6 * wall));
-    camera.up.set(0, 1, 0);
+    if (sim.view === "cockpit") {
+      // A seated eye must follow body roll. Snapping removes the sideways look
+      // transient produced by interpolating toward a target only one unit away.
+      camera.position.copy(_cam);
+      camera.up.copy(_dorsal);
+      // Estimated 7-degree downward sightline keeps the touchdown area above the glare shield.
+      _look.copy(camera.position).add(_nose).addScaledVector(_dorsal, -Math.tan(7 * Math.PI / 180));
+    } else {
+      camera.position.lerp(_cam, 1 - Math.exp(-6 * wall));
+      camera.up.set(0, 1, 0);
+    }
     camera.lookAt(_look);
   });
 
   return (
     <>
-      <hemisphereLight args={["#d7e6f2", "#3a332c", 0.85]} />
-      <ambientLight intensity={0.45} />
-      <directionalLight position={[40, 24, -30]} intensity={2.4} color="#fff6ea" />
-      <directionalLight position={[-30, 10, 20]} intensity={0.6} color="#9ec4ea" />
-      <Stars radius={800} depth={40} count={800} factor={3} fade speed={0.2} />
-      <group ref={earth}>
+      <hemisphereLight args={["#d7e6f2", "#2d3940", 0.45]} />
+      <ambientLight intensity={0.10} />
+      <directionalLight position={[40, 24, -30]} intensity={3.0} color="#fff7ec" castShadow
+        shadow-mapSize={[2048, 2048]} shadow-camera-left={-50} shadow-camera-right={50}
+        shadow-camera-top={50} shadow-camera-bottom={-50} shadow-camera-far={160}
+        shadow-normalBias={0.035} shadow-bias={-0.0001} />
+      <directionalLight position={[-30, -10, 20]} intensity={0.28} color="#9bbbd5" />
+      <group ref={starField}>
+        <Stars radius={800} depth={40} count={400} factor={1.25} saturation={0} fade speed={0} />
+      </group>
+      {/* Fixed viewing latitude avoids looking straight into the equirectangular pole. */}
+      <group ref={earth} rotation={[0, 0, 1.08]} rotation-order="ZYX">
         <mesh>
-          <sphereGeometry args={[180, 48, 32]} />
-          <meshPhongMaterial map={map} specular="#224455" shininess={8} />
+          <sphereGeometry args={[180, 96, 64]} />
+          <meshStandardMaterial map={map} roughness={0.95} metalness={0} />
         </mesh>
-        <mesh ref={clouds} scale={1.02}>
-          <sphereGeometry args={[180, 32, 24]} />
-          <meshBasicMaterial map={cloudsMap} transparent opacity={0.35} depthWrite={false} />
+        <mesh ref={clouds} scale={1.004}>
+          <sphereGeometry args={[180, 96, 64]} />
+          <meshStandardMaterial color="#ffffff" alphaMap={cloudsMap} transparent opacity={0.86} roughness={1} depthWrite={false} />
         </mesh>
-        <mesh scale={1.06}>
-          <sphereGeometry args={[180, 32, 24]} />
-          <meshBasicMaterial color="#7eb6e6" transparent opacity={0.12} side={THREE.BackSide} />
+        <mesh scale={1.012}>
+          <sphereGeometry args={[180, 96, 64]} />
+          <shaderMaterial vertexShader={limbVertex} fragmentShader={limbFragment} transparent depthWrite={false} side={THREE.BackSide} blending={THREE.AdditiveBlending} />
         </mesh>
       </group>
       <mesh ref={skyDome} visible={false}>
         <sphereGeometry args={[12000, 28, 16]} />
-        <meshBasicMaterial color="#c5d6e2" side={THREE.BackSide} />
+        <shaderMaterial vertexShader={skyVertex} fragmentShader={skyFragment} side={THREE.BackSide} depthWrite={false} />
       </mesh>
       <group ref={ground}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[80000, 80000]} />
-          <meshStandardMaterial map={fieldMap} roughness={1} />
+          <primitive object={fieldMaterial} attach="material" />
         </mesh>
         <mesh ref={blob} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.35, 0]}>
           <circleGeometry args={[22, 28]} />
           <meshBasicMaterial color="#06140f" transparent opacity={0} depthWrite={false} />
         </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.15, 0]}>
-          <planeGeometry args={[5600, 220]} />
-          <meshStandardMaterial color="#2c3136" roughness={0.95} />
-        </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.22, 0]}>
-          <planeGeometry args={[5200, 90]} />
-          <meshStandardMaterial map={runwayMap} roughness={0.86} />
-        </mesh>
-        {Array.from({ length: 28 }, (_, i) => (
-          <mesh key={i} position={[-400 - i * 180, 2, 0]}>
-            <sphereGeometry args={[3.5, 8, 8]} />
-            <meshBasicMaterial color="#ffd9a0" />
-          </mesh>
-        ))}
+        <Runway terrainMap={fieldMap} />
         {Array.from({ length: 8 }, (_, i) => {
           const t = ((i + 1) / 9) * Math.PI;
           const x = HAC.cx - Math.sin(t) * HAC.r;
@@ -491,16 +286,16 @@ function World() {
             </group>
           );
         })}
-        <group position={[-200, 8, 70]}>
+        <group position={[-200, 1.3, 65]}>
           {[0, 1, 2, 3].map((i) => (
             <mesh
               key={i}
               ref={(el) => {
                 if (el) papi.current[i] = el;
               }}
-              position={[0, 0, i * 16]}
+              position={[0, 0, i * 7]}
             >
-              <boxGeometry args={[5, 3.2, 7]} />
+              <boxGeometry args={[1.6, 0.8, 2]} />
               <meshBasicMaterial color="#ff5a4a" />
             </mesh>
           ))}
@@ -517,12 +312,36 @@ function World() {
   );
 }
 
+class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (this.state.failed) return <div role="alert" style={{ position: "absolute", inset: 0, display: "grid", placeContent: "center", zIndex: 20, background: "#10141b", color: "#e7e2d6" }}>
+      <p>The flight deck could not load its visual assets.</p>
+      <button onClick={() => window.location.reload()}>Reload flight deck</button>
+    </div>;
+    return this.props.children;
+  }
+}
+
+function AssetLoading() {
+  const { active } = useProgress();
+  if (!active) return null;
+  return <div role="status" style={{ position: "absolute", top: "6rem", left: "50%", transform: "translateX(-50%)", color: "#e7e2d6", zIndex: 5, pointerEvents: "none" }}>Loading flight deck…</div>;
+}
+
 export function FlightScene() {
   return (
-    <Canvas camera={{ position: [0, 8, -24], fov: 48, near: 0.1, far: 4000 }} dpr={[1, 1.25]}>
-      <World />
-      <CabinInterior />
-    </Canvas>
+    <SceneBoundary>
+      <Canvas className="flight-viewport" camera={{ position: [0, 8, -24], fov: 48, near: 0.1, far: 4000 }} dpr={[1, 1.5]} shadows={{ type: THREE.PCFShadowMap }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}>
+        <Suspense fallback={null}>
+          <World />
+          <CabinInterior />
+        </Suspense>
+      </Canvas>
+      <AssetLoading />
+    </SceneBoundary>
   );
 }
 

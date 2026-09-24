@@ -34,3 +34,18 @@ The runtime in `src/sim/runtime.ts` here is a flat browser model so the
 deck can be flown. Shuttle truth still lives in the repo root: bus,
 clock, dynamics, systems, sequencer. Wiring this deck to those channels
 is later work.
+
+## Run and verify
+
+```sh
+npm ci
+npm run dev
+npm run build
+```
+
+Run these from this folder. The Vite build uses local assets and a relative
+base URL, so it can be served from a subdirectory. `npm run typecheck` runs
+TypeScript on the browser presentation and its existing browser model.
+
+See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
+choices, and the boundary between this visual pass and a calibrated model.
