@@ -130,3 +130,43 @@ panels, verified opening and closure, and rendered the approach shaders without
 browser errors. Production build/TypeScript and the existing exhaust-state tests
 pass. These checks do not establish thermal-system behavior or historical
 geometric accuracy.
+
+## Environment reflection pass
+
+Metal and glass now receive restrained, roughness-filtered environment lighting.
+Two procedural linear-radiance probes represent an atmospheric sky/ground
+hemisphere and dark space with broad Earth bounce. They are baked once per
+renderer with PMREM and switched with the existing terminal-flight condition;
+no per-frame probe capture or new texture downloads are required. Probe targets
+and temporary bake resources are disposed on teardown. The approved black tile
+image and its material settings are unchanged.
+
+These are illustrative lighting sketches, not measured HDR photography,
+location-correct reflections, or local cockpit reflection captures. Existing
+direct sunlight remains the primary light source. Review:
+[approach](review/reflections-approach.jpg) and [orbit](review/reflections-orbit.jpg).
+Both runtime views rendered without browser or shader errors; TypeScript,
+production build, exhaust tests and the three attitude tests pass. The root
+suite still stops at the existing `test_oms_retrograde_drops_periapsis`
+assertion (start periapsis 0).
+
+This branch also carries the wing seams and landing-gear details committed after
+the prior visual PR was merged. The newly merged root package manifest needed
+a duplicate test entry removed and its missing comma repaired, preserving the
+attitude test command.
+
+## Earth depth follow-up
+
+The existing NASA cloud composite now also supplies subtle cloud-shell bump
+relief and approximate surface occlusion. Occlusion follows the shell's
+independent longitude; wrapping is explicit at the dateline and latitude
+sampling is clamped at the poles. A small fixed UV displacement suggests cloud
+height but is not a sun-projected shadow calculation. Sun-facing grazing angles
+receive restrained blue aerial haze, complementing the outer atmospheric rim.
+The globe and cloud shell do not receive the orbiter's environment reflection
+probe, avoiding an artificial Earth reflection on Earth itself.
+
+This uses the existing 2K imagery without new downloads. It improves lighting
+depth, not geographic resolution, cloud accuracy, or orbital scale. Cloud
+relief and haze strengths are artistic estimates. Review:
+[orbit](review/earth-depth-orbit.jpg) and [entry](review/earth-depth-entry.jpg).

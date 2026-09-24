@@ -37,3 +37,24 @@ establish flight-model fidelity.
 Browser checks exercise door opening, gear visibility, attached launch hardware
 and hidden hardware after separation. The strict TypeScript/production build
 and existing exhaust-state tests are also run for this pass.
+
+## Wing and landing-gear detail
+
+The wing's previous single seam is replaced by separate inboard/outboard elevon
+outlines, following the two-surface arrangement described in NASA's
+[Shuttle reference material](https://ntrs.nasa.gov/api/citations/19790016501/downloads/19790016501.pdf).
+The outlines are fitted to this estimated wing and remain static; they do not
+claim actuator motion, hinge calibration or changes to aerodynamic behavior.
+
+Landing gear adds support/torque-link-like braces, strut sleeves, tire grooves
+and recessed hub faces. Their dimensions are artistic estimates. The original
+six-wheel layout, deployment visibility and wheel centers are retained. The
+small raised groove details extend approximately 0.0066 model units below the
+existing -2.4 contact plane; no collision or flight-model datum changes.
+
+Review: [gear detail](review/landing-gear-detail.jpg) and
+[wing detail](review/wing-detail.jpg). Browser inspection verifies deployed
+visibility, stowed hiding and a lowest-point tolerance of 0.02 model units
+around the original contact plane. Production build/TypeScript and existing
+exhaust-state checks pass. No browser errors occurred; the temporary measurement
+harness logged a duplicate-Three warning from its inspection-only import.

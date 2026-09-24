@@ -187,8 +187,21 @@ function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: n
 
 function LandingGear({ x, z, radius }: { x: number; z: number; radius: number }) {
   const y = -2.4 + radius;
+  const braces = useMemo(() => [
+    tubeBetween(new THREE.Vector3(0, -0.72, -0.65), new THREE.Vector3(0, y + 0.22, 0), 0.055),
+    tubeBetween(new THREE.Vector3(0.17, -1.05, 0), new THREE.Vector3(0.17, -1.3, 0.2), 0.035),
+    tubeBetween(new THREE.Vector3(0.17, -1.3, 0.2), new THREE.Vector3(0.17, y + 0.16, 0), 0.035),
+  ], [y]);
+  useEffect(() => () => braces.forEach(g => g.dispose()), [braces]);
   return (
     <group position={[x, 0, z]} scale={[1 / ORBITER_SPAN_SCALE, 1, 1]}>
+      {braces.map((g, i) => <mesh key={i} geometry={g} castShadow>
+        <meshStandardMaterial color="#858e90" metalness={0.72} roughness={0.4} />
+      </mesh>)}
+      <mesh position={[0, -0.99, 0]} castShadow>
+        <cylinderGeometry args={[0.145, 0.145, 0.45, 16]} />
+        <meshStandardMaterial color="#c0c4bf" metalness={0.45} roughness={0.54} />
+      </mesh>
       <mesh position={[0, (-0.75 + y) / 2, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.12, -0.75 - y, 12]} />
         <meshStandardMaterial color="#c2c5c5" metalness={0.85} roughness={0.25} />
@@ -202,6 +215,14 @@ function LandingGear({ x, z, radius }: { x: number; z: number; radius: number })
           <mesh castShadow>
             <torusGeometry args={[radius * 0.69, radius * 0.31, 12, 28]} />
             <meshStandardMaterial color="#141516" roughness={0.92} />
+          </mesh>
+          {[-0.13, 0, 0.13].map(offset => <mesh key={offset} position={[0, 0, offset * radius]}>
+            <torusGeometry args={[radius * (0.69 + Math.sqrt(0.31 ** 2 - offset ** 2)), radius * 0.012, 5, 32]} />
+            <meshStandardMaterial color="#070809" roughness={1} />
+          </mesh>)}
+          <mesh position={[0, 0, side * radius * 0.3]}>
+            <circleGeometry args={[radius * 0.36, 20]} />
+            <meshStandardMaterial color="#444e52" metalness={0.65} roughness={0.5} side={THREE.DoubleSide} />
           </mesh>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[radius * 0.53, radius * 0.53, radius * 0.57, 16]} />
@@ -272,12 +293,21 @@ export function Orbiter() {
       wingEdges: [-1, 1].map((side) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
         new THREE.Vector3(side * 1.68, -0.46, 6.5), new THREE.Vector3(side * 3.4, -0.46, 0.25), new THREE.Vector3(side * 10.9, -0.46, -6.5),
       ], false, "catmullrom", 0.05), 32, 0.115, 10, false)),
+      elevonSeams: [-1, 1].flatMap(side => [[2.6, 6.35], [6.43, 10.15]].flatMap(([inner, outer]) => {
+        const aft = (x: number) => -8.75 + (x - 2) * 0.5 / 8.7;
+        const a = new THREE.Vector3(side * inner, -0.365, aft(inner) + 1.05);
+        const b = new THREE.Vector3(side * outer, -0.365, aft(outer) + 1.05);
+        return [tubeBetween(a, b, 0.014),
+          tubeBetween(a, new THREE.Vector3(side * inner, -0.365, aft(inner) + 0.05), 0.012),
+          tubeBetween(b, new THREE.Vector3(side * outer, -0.365, aft(outer) + 0.05), 0.012)];
+      })),
       rudderSeam: tubeBetween(new THREE.Vector3(0.18, 1.6, -9.7), new THREE.Vector3(0.18, 6.8, -9.9), 0.018),
     };
   }, []);
   useEffect(() => () => {
     geometry.pod.dispose(); geometry.doorL.dispose(); geometry.doorR.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
     [...geometry.radiatorsL, ...geometry.radiatorsR].forEach(g => g.dispose());
+    geometry.elevonSeams.forEach(g => g.dispose());
     geometry.wingEdges.forEach((g) => g.dispose());
     geometry.windows.forEach(({ frame, glass }) => { frame.dispose(); glass.dispose(); });
   }, [geometry]);
@@ -327,11 +357,9 @@ export function Orbiter() {
         </mesh>
       ))}
       {geometry.wingEdges.map((edge, i) => <mesh key={i} geometry={edge}><meshStandardMaterial {...tile} /></mesh>)}
-      {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * 6.25, -0.35, -7.98]} rotation={[0, side * 0.07, 0]}>
-          <boxGeometry args={[6.0, 0.025, 0.035]} /><meshStandardMaterial color="#343738" roughness={0.8} />
-        </mesh>
-      ))}
+      {geometry.elevonSeams.map((g, i) => <mesh key={i} geometry={g}>
+        <meshStandardMaterial color="#515552" roughness={0.9} />
+      </mesh>)}
       <mesh geometry={geometry.fin} castShadow><meshStandardMaterial {...blanket} color="#deded6" /></mesh>
       <mesh geometry={geometry.rudderSeam}><meshStandardMaterial color="#424446" roughness={0.8} /></mesh>
       {[-1, 1].map((side) => (
