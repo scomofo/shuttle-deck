@@ -1,5 +1,6 @@
 /**
  * Body-rate integrator. Quaternion is q_body_from_eci (Gemini convention).
+ * Free rotation is a Lie–Poisson splitting; it is not forward Euler.
  */
 
 import { add, mul, type Vec3, v3 } from "../core/frames.ts";
@@ -51,33 +52,73 @@ function cross3(a: Vec3, b: Vec3): Vec3 {
   return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
 }
 
+function qmul(a: Quat, b: Quat): Quat {
+  return {
+    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+  };
+}
+
+type Axis = "x" | "y" | "z";
+
+function rotor(axis: Axis, theta: number): Quat {
+  const h = theta / 2;
+  const s = Math.sin(h);
+  const w = Math.cos(h);
+  if (axis === "x") return { x: s, y: 0, z: 0, w };
+  if (axis === "y") return { x: 0, y: s, z: 0, w };
+  return { x: 0, y: 0, z: s, w };
+}
+
+/** Exact flow of one principal-axis piece of the rigid-body Hamiltonian. */
+function spinAbout(pi: Vec3, axis: Axis, theta: number): Vec3 {
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  if (axis === "x") return { x: pi.x, y: c * pi.y + s * pi.z, z: -s * pi.y + c * pi.z };
+  if (axis === "y") return { x: c * pi.x - s * pi.z, y: pi.y, z: s * pi.x + c * pi.z };
+  return { x: c * pi.x + s * pi.y, y: -s * pi.x + c * pi.y, z: pi.z };
+}
+
 export class Attitude {
   q: Quat = qid();
   omega: Vec3 = v3();
   inertia: Vec3 = { x: 1.07e6, y: 7.9e6, z: 8.2e6 };
 
+  /**
+   * Lie–Poisson step for a diagonal inertia. The free rotation is a Strang
+   * splitting, so |π| does not leave the sphere. Torque is a kick around it.
+   * The quaternion is left-multiplied, matching q-dot = ½ ω q.
+   */
   step(dt: number, torque_body: Vec3): void {
     const I = this.inertia;
-    const w = this.omega;
-    const alpha = {
-      x: (torque_body.x - (I.z - I.y) * w.y * w.z) / I.x,
-      y: (torque_body.y - (I.x - I.z) * w.z * w.x) / I.y,
-      z: (torque_body.z - (I.y - I.x) * w.x * w.y) / I.z,
+    const half = {
+      x: torque_body.x * dt * 0.5,
+      y: torque_body.y * dt * 0.5,
+      z: torque_body.z * dt * 0.5,
     };
-    this.omega = add(w, mul(alpha, dt));
-    const oq = { x: this.omega.x, y: this.omega.y, z: this.omega.z, w: 0 };
-    const q = this.q;
-    const dq = {
-      x: 0.5 * (oq.w * q.x + oq.x * q.w + oq.y * q.z - oq.z * q.y),
-      y: 0.5 * (oq.w * q.y - oq.x * q.z + oq.y * q.w + oq.z * q.x),
-      z: 0.5 * (oq.w * q.z + oq.x * q.y - oq.y * q.x + oq.z * q.w),
-      w: 0.5 * (oq.w * q.w - oq.x * q.x - oq.y * q.y - oq.z * q.z),
+    let pi: Vec3 = {
+      x: I.x * this.omega.x + half.x,
+      y: I.y * this.omega.y + half.y,
+      z: I.z * this.omega.z + half.z,
     };
-    this.q = qnorm({
-      x: q.x + dq.x * dt,
-      y: q.y + dq.y * dt,
-      z: q.z + dq.z * dt,
-      w: q.w + dq.w * dt,
-    });
+    const parts: Array<[Axis, number]> = [
+      ["x", dt * 0.5],
+      ["y", dt * 0.5],
+      ["z", dt],
+      ["y", dt * 0.5],
+      ["x", dt * 0.5],
+    ];
+    let q = this.q;
+    for (const [axis, h] of parts) {
+      const w = axis === "x" ? pi.x / I.x : axis === "y" ? pi.y / I.y : pi.z / I.z;
+      const theta = w * h;
+      pi = spinAbout(pi, axis, theta);
+      q = qmul(rotor(axis, theta), q);
+    }
+    pi = { x: pi.x + half.x, y: pi.y + half.y, z: pi.z + half.z };
+    this.omega = { x: pi.x / I.x, y: pi.y / I.y, z: pi.z / I.z };
+    this.q = qnorm(q);
   }
 }
