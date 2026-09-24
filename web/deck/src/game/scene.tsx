@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { Orbiter } from "@/game/orbiter";
 import { terrainMaterial } from "./ground-materials";
+import { useReflectionEnvironment } from "./reflections";
 import { Runway } from "./runway";
 import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
@@ -93,6 +94,7 @@ function useFieldMap() {
 }
 
 function World() {
+  const setReflections = useReflectionEnvironment();
   const craft = useRef<THREE.Group>(null);
   const earth = useRef<THREE.Group>(null);
   const clouds = useRef<THREE.Mesh>(null);
@@ -124,6 +126,7 @@ function World() {
         sim.phase === "landed" ||
         (sim.phase === "lost" && sim.y < 8000));
     const scale = terminal ? 1 : sim.running ? 0.24 : 0.22;
+    setReflections(terminal);
     const basis = bodyBasis(sim.yaw, sim.pitch, sim.bank);
     _right.set(basis.rx, basis.ry, basis.rz);
     _dorsal.set(basis.dx, basis.dy, basis.dz);
@@ -344,4 +347,3 @@ export function FlightScene() {
     </SceneBoundary>
   );
 }
-
