@@ -60,7 +60,25 @@ Gates:
 
 ## Status
 
-Core, sequencer, systems, sourced aero geometry, procedure runner,
-cabin-fixed presenter. No Godot cabin and no WebGL layer yet — those
-subscribe to the bus after the owners exist. Do not put pitch, phase
-and meshes back into one class.
+Core, sequencer, systems, sourced aero geometry, procedure runner and
+cabin-fixed presenter live in `src/`. A runnable browser flight deck lives
+in `web/deck/`, with Three.js cockpit/exterior visuals and bundled texture
+assets. Its browser flight model is still separate from the core bus; this
+visual work does not complete that integration.
+
+## Run the browser flight deck
+
+Use Node 22.12+ (Node 24 recommended for the root's native TypeScript tests):
+
+```sh
+cd web/deck
+npm ci
+npm run dev
+```
+
+`npm run build` creates `web/deck/dist`; `npm run preview` serves that build.
+From the repository root, `npm run deck:dev`, `deck:build`, and
+`deck:typecheck` are shortcuts after installing `web/deck` dependencies.
+
+See [visual asset notes](web/deck/VISUAL_ASSETS.md) for sources, the approved
+black tile texture, validation, and the remaining photorealism work.
