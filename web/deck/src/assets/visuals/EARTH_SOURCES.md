@@ -1,7 +1,7 @@
 # Earth texture sources
 
 These files are bundled locally so the simulation does not depend on a live
-NASA image server. Both are unchanged downloads from NASA's Blue Marble 2002
+NASA image server. The 2K files are unchanged downloads from NASA's Blue Marble 2002
 collection, retrieved on 2026-09-24. No AI-generated geography is included.
 
 | Repository file | Source file | Dimensions | Bytes | Intended use |
@@ -44,4 +44,33 @@ SHA-256 of the original downloaded bytes:
 ```text
 5b54cc586c6cbf2b28762ef4d4011f6cf4227a8b93a637b818a0c54090ce6c2c  earth-day-2048.jpg
 daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793  earth-clouds-2048.jpg
+```
+
+## 4K desktop derivatives
+
+The 4096 × 2048 JPEGs are downsampled from NASA's 8192 × 4096 TIFF
+sources, retrieved 2026-09-24. They are not enlarged versions of the 2K maps.
+No geography or weather was generated. Existing provenance and media terms apply.
+
+- Surface: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_8192.tif
+- Clouds: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_8192.tif
+
+ImageMagick conversion: resize to 4096x2048, strip metadata, JPEG quality 88;
+surface uses 4:4:4 sampling. No sharpening or color grading was applied.
+Both maps use the same orientation as the 2K files.
+
+The renderer selects 4K when the initial viewport is at least 900 CSS pixels
+wide and MAX_TEXTURE_SIZE is at least 4096. Smaller screens retain the 2K
+pair. Selection stays fixed until the scene remounts, so resizing does not
+load both sets. Only the selected pair is requested. Estimated RGBA texture
+storage with mipmaps is about 85 MiB for the 4K pair versus 21 MiB for 2K;
+this excludes decoded source images and all other scene resources.
+
+SHA-256:
+
+```text
+fec3cb8e729347d1c57807cf66b7867c1f3c669bb2f1fc3a8ad1625562591b36  NASA surface TIFF
+d137775d8966ab8d443fd5126dc6e7ad72072bc1ed50555c5818d221735daf0f  NASA clouds TIFF
+ec1bdfd3c56ec55edcc8f4c83598c5cb782bc7b4638fa82d375e0db2d97c8d38  earth-day-4096.jpg
+1b8907b9481f93f2ee54ce0b97269b1df920b94a99c8a83ea1c4a00e550d1bca  earth-clouds-4096.jpg
 ```
