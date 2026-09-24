@@ -1302,3 +1302,18 @@
     height: calc(38dvh - 6.6rem) !important;
   }
 }
+
+.deck-light-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.deck-light-row .deck-call { flex: 1; min-width: 0; }
+.panel-light { display: flex; align-items: center; gap: 0.4rem; color: #d5d0b9; font: 0.62rem var(--font-mono); white-space: nowrap; }
+.panel-light input { width: 5.5rem; accent-color: #d5b16c; cursor: pointer; min-height: 1.6rem; }
+.panel-light input:focus-visible { outline: 2px solid #f2c572; outline-offset: 2px; }
+.panel-light output { width: 2.5rem; font-variant-numeric: tabular-nums; }
+.face-read { isolation: isolate; }
+.face-read::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(125deg, rgba(167,202,208,.08), transparent 30%, transparent 68%, rgba(125,157,167,.035));
+  box-shadow: inset 0 2px 4px #000b, inset 0 -1px 1px #9aaead22;
+}
+.face-read > div, .mdu > * { filter: brightness(var(--display-level, 1)); }
+@media (max-width: 600px) { .deck-light-row { flex-wrap: wrap; gap: 0; } .deck-light-row .deck-call { flex-basis: 100%; } .panel-light { margin-left: auto; } }

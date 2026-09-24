@@ -45,3 +45,22 @@ Browser verification checks APU off/on, camera cycling and a reachable mobile
 APU control after console scrolling. Production build includes TypeScript;
 existing exhaust tests are also checked. Historical dimensions, headset eye
 positions and full-flight acceptance remain outside this pass.
+
+## Materials and panel lighting
+
+The follow-up adds a keyboard-accessible **PANEL LIGHT** slider, saved separately
+from mission checkpoints as a local display preference. It ranges from 25–100%.
+The minimum intentionally retains readable telemetry; it is not an electrical
+power switch. Warning lamps and control labels stay undimmed. If browser storage
+is blocked, adjustment still works for the current session.
+
+The 3D display housings now have raised perimeter lips and a subtle physical
+glass layer over the live telemetry. Coated panels use a restrained clear coat;
+seat fabric uses a rough sheen response. A small blue-green light spill follows
+the dimmer. These are artistic material settings, not measured reflectance data.
+No new image assets, external texture requests, or changes to the approved tile
+texture are introduced.
+
+Review renders: [dim](review/panel-dim.jpg), [bright](review/panel-bright.jpg),
+and [portrait](review/panel-mobile.jpg). Browser checks cover keyboard endpoints,
+preference restoration after reload, APU interaction, and the portrait dimmer.

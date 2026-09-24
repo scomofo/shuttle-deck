@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { getSimVersion, sim, subscribeSim } from "@/sim/runtime";
 import { useSurfaceMaterial } from "@/game/materials";
 
+import { getPanelLight } from "./panel-lighting";
+
 const AMBER = "#e8a15a";
 const GREEN = "#8fefb0";
 const PLASMA = "#ff6b3d";
@@ -412,6 +414,8 @@ function WindowFrame({ points }: { points: [number,number][] }) {
 }
 
 function DisplayHousing({ map }: { map: THREE.Texture }) {
+  const screen = useRef<THREE.MeshBasicMaterial>(null);
+  useFrame(() => { if (screen.current) screen.current.color.setScalar(0.45 + getPanelLight() * 0.55); });
   return (
     <group>
       <Bar position={[0, 0, -0.014]} args={[0.432, 0.162, 0.037]} material={matGasket} />
@@ -419,7 +423,17 @@ function DisplayHousing({ map }: { map: THREE.Texture }) {
       <Bar position={[0, 0.004, 0.015]} args={[0.368, 0.126, 0.006]} material={matGasket} />
       <mesh position={[0, 0.004, 0.019]} raycast={() => null}>
         <planeGeometry args={[0.36, 0.12]} />
-        <meshBasicMaterial map={map} toneMapped={false} />
+        <meshBasicMaterial ref={screen} map={map} toneMapped={false} />
+      </mesh>
+      {/* Raised perimeter gives the glazing a recessed edge without covering telemetry. */}
+      {[-1, 1].map(side => <group key={side}>
+        <Bar position={[side * 0.19, 0.004, 0.028]} args={[0.018, 0.142, 0.018]} material={matHead} />
+        <Bar position={[0, 0.004 + side * 0.068, 0.028]} args={[0.398, 0.009, 0.018]} material={matHead} />
+      </group>)}
+      <mesh position={[0, 0.004, 0.024]} raycast={() => null}>
+        <planeGeometry args={[0.36, 0.12]} />
+        <meshPhysicalMaterial color="#c9e1e8" transparent opacity={0.065} roughness={0.19}
+          clearcoat={0.7} clearcoatRoughness={0.22} depthWrite={false} />
       </mesh>
       <PanelFasteners width={0.425} height={0.156} />
       {[-0.135, -0.09, -0.045, 0, 0.045, 0.09, 0.135].map((x) => (
@@ -435,14 +449,15 @@ export function CabinInterior() {
   const glass = useRef<THREE.Mesh>(null);
   const veil = useRef<THREE.Mesh>(null);
   const sticks = useRef<THREE.Group>(null);
+  const displaySpill = useRef<THREE.PointLight>(null);
   const { camera } = useThree();
   const panelSurface = useSurfaceMaterial("panel", [2.2, 1]);
   const clothSurface = useSurfaceMaterial("blanket", [3, 3]);
-  const panelMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    ...panelSurface, color: "#c6c9c3", metalness: 0.12, roughness: 0.73,
+  const panelMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+    ...panelSurface, color: "#b7bcb6", metalness: 0.08, roughness: 0.76, clearcoat: 0.18, clearcoatRoughness: 0.65,
   }), [panelSurface.map, panelSurface.bumpMap]);
-  const seatMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    ...clothSurface, color: "#294974", metalness: 0, roughness: 0.98, bumpScale: 0.002,
+  const seatMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+    ...clothSurface, color: "#294974", metalness: 0, roughness: 0.98, bumpScale: 0.002, sheen: 0.65, sheenRoughness: 0.9, sheenColor: new THREE.Color("#607a95"),
   }), [clothSurface.map, clothSurface.bumpMap]);
   useEffect(() => () => {
     panelMaterial.dispose();
@@ -471,6 +486,7 @@ export function CabinInterior() {
       sim.view === "cockpit" && sim.running && sim.phase !== "landed" && sim.phase !== "lost";
     rig.visible = seated;
     if (!seated) return;
+    if (displaySpill.current) displaySpill.current.intensity = 0.025 * getPanelLight();
     rig.position.copy(camera.position);
     rig.quaternion.copy(camera.quaternion);
     // Instrument textures need readable updates, not six uploads on every render frame.
@@ -496,6 +512,7 @@ export function CabinInterior() {
 
   return (
     <group ref={root} name="cockpit-interior" visible={false}>
+      <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#80bac7" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.22} distance={2.4} decay={2} color="#dae5ed" />
       <Bar position={[0, 0.58, -0.72]} args={[2.2, 0.07, 0.9]} />
       <Bar position={[-1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />

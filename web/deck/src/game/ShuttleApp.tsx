@@ -14,6 +14,9 @@ export function ShuttleApp() {
   useEffect(() => {
     attachControlsProbe();
     const down = (event: KeyboardEvent) => {
+      // Native form controls own their keys; adjusting panel light must not fly the vehicle.
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
       if (event.repeat && event.code !== "KeyB") return;
       sim.onKey(event.code, true);
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {

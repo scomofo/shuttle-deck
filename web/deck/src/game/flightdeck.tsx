@@ -1,6 +1,8 @@
-import { useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { getSimVersion, sim, subscribeSim } from "@/sim/runtime";
 import { activeCard } from "@/sim/procedures";
+
+import { setPanelLight, usePanelLight } from "./panel-lighting";
 
 function useSim() {
   useSyncExternalStore(subscribeSim, getSimVersion, getSimVersion);
@@ -120,6 +122,7 @@ function Paddle({
 
 export function FlightDeck() {
   const live = useSim();
+  const panelLight = usePanelLight();
   const stick = useRef<HTMLDivElement>(null);
   const knob = useRef<HTMLDivElement>(null);
   if (live.view !== "cockpit" || !live.running || live.phase === "landed" || live.phase === "lost") return null;
@@ -174,8 +177,15 @@ export function FlightDeck() {
   }
 
   return (
-    <section className="flightdeck" aria-label="Flight deck">
+    <section className="flightdeck" aria-label="Flight deck" style={{ "--display-level": 0.65 + panelLight * 0.35 } as CSSProperties}>
+      <div className="deck-light-row">
       <p className="deck-call">{live.callout && live.calloutT < 7 ? live.callout : "\u00a0"}</p>
+      <label className="panel-light">PANEL LIGHT
+        <input aria-label="Panel lighting" type="range" min="25" max="100" step="5" value={Math.round(panelLight * 100)}
+          onChange={event => setPanelLight(Number(event.target.value) / 100)} />
+        <output>{Math.round(panelLight * 100)}%</output>
+      </label>
+      </div>
       <div className="station">
         <Face
           code="F6"
