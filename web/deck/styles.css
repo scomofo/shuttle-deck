@@ -1274,3 +1274,31 @@
   color: #e7e2d6;
   text-shadow: none;
 }
+
+/* Preserve an outside view above the scrollable console in portrait. */
+@media (max-width: 600px) and (min-height: 650px) {
+  .hud[data-view="cockpit"] .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem;
+    padding: 0.4rem;
+  }
+  .hud[data-view="cockpit"] .brand b { font-size: 0.8rem; }
+  .hud[data-view="cockpit"] .phase-pill { font-size: 0.8rem; }
+  .hud[data-view="cockpit"] .topbar .row {
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.2rem;
+  }
+  .hud[data-view="cockpit"] .topbar button {
+    min-width: 2rem;
+    padding-inline: 0.35rem;
+    font-size: 0.65rem;
+  }
+  .deck:has(.hud[data-view="cockpit"]) .flight-viewport {
+    position: absolute !important;
+    top: 6.6rem;
+    height: calc(38dvh - 6.6rem) !important;
+  }
+}

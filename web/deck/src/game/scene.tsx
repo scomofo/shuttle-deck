@@ -183,7 +183,7 @@ function World() {
 
     _fwd.set(-Math.sin(sim.yaw), 0, -Math.cos(sim.yaw));
     if (sim.view === "cockpit") {
-      _cam.copy(_nose).multiplyScalar(8 * scale).addScaledVector(_dorsal, 2.4 * scale);
+      _cam.copy(_nose).multiplyScalar(8 * scale).addScaledVector(_dorsal, 2.4 * scale).addScaledVector(_right, -0.45 * scale);
       _look.copy(_cam).add(_nose);
     } else if (sim.view === "tower") {
       _cam.set(terminal ? -40 : 10, terminal ? 18 : 8, terminal ? 30 : 24);
@@ -206,8 +206,17 @@ function World() {
       _cam.x += Math.sin(performance.now() * 0.05) * shake * 0.4;
       _cam.y += Math.cos(performance.now() * 0.07) * shake * 0.25;
     }
-    camera.position.lerp(_cam, 1 - Math.exp(-6 * wall));
-    camera.up.set(0, 1, 0);
+    if (sim.view === "cockpit") {
+      // A seated eye must follow body roll. Snapping removes the sideways look
+      // transient produced by interpolating toward a target only one unit away.
+      camera.position.copy(_cam);
+      camera.up.copy(_dorsal);
+      // Estimated 7-degree downward sightline keeps the touchdown area above the glare shield.
+      _look.copy(camera.position).add(_nose).addScaledVector(_dorsal, -Math.tan(7 * Math.PI / 180));
+    } else {
+      camera.position.lerp(_cam, 1 - Math.exp(-6 * wall));
+      camera.up.set(0, 1, 0);
+    }
     camera.lookAt(_look);
   });
 
@@ -321,7 +330,7 @@ function AssetLoading() {
 export function FlightScene() {
   return (
     <SceneBoundary>
-      <Canvas camera={{ position: [0, 8, -24], fov: 48, near: 0.1, far: 4000 }} dpr={[1, 1.5]} shadows={{ type: THREE.PCFShadowMap }}
+      <Canvas className="flight-viewport" camera={{ position: [0, 8, -24], fov: 48, near: 0.1, far: 4000 }} dpr={[1, 1.5]} shadows={{ type: THREE.PCFShadowMap }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}>
         <Suspense fallback={null}>
           <World />

@@ -385,36 +385,30 @@ const GLASSES: { kind: string; x: number; y: number }[] = [
 const OVERHEAD_REDS = [2, 3, 16, 17, 44];
 const SIDE_REDS = [4, 9];
 
-function WindowFrame({ x, yaw }: { x: number; yaw: number }) {
-  const top = 0.2;
-  const bot = 0.3;
-  const h = 0.44;
-  const t = 0.03;
-  const lean = Math.atan2((bot - top) / 2, h);
-  const edgeX = (top + bot) / 4;
-  const glazing = useMemo(() => {
-    const shape = new THREE.Shape();
-    shape.moveTo(-bot / 2, -h / 2);
-    shape.lineTo(bot / 2, -h / 2);
-    shape.lineTo(top / 2, h / 2);
-    shape.lineTo(-top / 2, h / 2);
-    shape.closePath();
-    return new THREE.ShapeGeometry(shape);
-  }, []);
-  useEffect(() => () => glazing.dispose(), [glazing]);
-  return (
-    <group position={[x, 0.16, -1.06]} rotation={[0, yaw, 0]}>
-      <mesh position={[0, 0, -0.018]} geometry={glazing} material={matWindow} raycast={() => null} />
-      <Bar position={[0, h / 2, -0.008]} args={[top + 0.01, t + 0.012, 0.047]} material={matGasket} />
-      <Bar position={[0, -h / 2, -0.008]} args={[bot + 0.01, t + 0.012, 0.047]} material={matGasket} />
-      <Bar position={[-edgeX, 0, -0.008]} rotation={[0, 0, -lean]} args={[t + 0.012, h, 0.047]} material={matGasket} />
-      <Bar position={[edgeX, 0, -0.008]} rotation={[0, 0, lean]} args={[t + 0.012, h, 0.047]} material={matGasket} />
-      <Bar position={[0, h / 2, 0]} args={[top, t, 0.045]} material={matMullion} />
-      <Bar position={[0, -h / 2, 0]} args={[bot, t, 0.045]} material={matMullion} />
-      <Bar position={[-edgeX, 0, 0]} rotation={[0, 0, -lean]} args={[t, h, 0.045]} material={matMullion} />
-      <Bar position={[edgeX, 0, 0]} rotation={[0, 0, lean]} args={[t, h, 0.045]} material={matMullion} />
-    </group>
-  );
+// Commander-eye composition. Window topology follows NASA p3-7; seat layout follows p3-9;
+// coordinates are visual estimates, not a measured eye box.
+const FORWARD_PANES: [number, number][][] = [
+  [[-1.60,-0.10],[-1.04,-0.10],[-0.89,0.31],[-1.32,0.27]],
+  [[-1.00,-0.10],[-0.50,-0.10],[-0.42,0.40],[-0.85,0.33]],
+  [[-0.46,-0.10],[0.32,-0.10],[0.30,0.44],[-0.38,0.41]],
+  [[0.37,-0.10],[1.15,-0.10],[1.07,0.41],[0.39,0.44]],
+  [[1.19,-0.10],[1.69,-0.10],[1.54,0.33],[1.11,0.40]],
+  [[1.73,-0.10],[2.29,-0.10],[2.01,0.27],[1.58,0.31]],
+];
+function WindowFrame({ points }: { points: [number,number][] }) {
+  const glazing=useMemo(()=>new THREE.ShapeGeometry(new THREE.Shape(points.map(p=>new THREE.Vector2(...p)))),[points]);
+  useEffect(()=>()=>glazing.dispose(),[glazing]);
+  return <group position={[0,0,-1.08]}>
+    <mesh geometry={glazing} material={matWindow} raycast={()=>null}/>
+    {points.map(([x,y],i)=>{
+      const [ex,ey]=points[(i+1)%points.length];
+      const length=Math.hypot(ex-x,ey-y),angle=Math.atan2(ey-y,ex-x);
+      return <group key={i} position={[(x+ex)/2,(y+ey)/2,0.012]} rotation={[0,0,angle]}>
+        <Bar args={[length+0.016,0.036,0.042]} position={[0,0,0]} material={matGasket}/>
+        <Bar args={[length+0.012,0.022,0.044]} position={[0,0,0.010]} material={matMullion}/>
+      </group>;
+    })}
+  </group>;
 }
 
 function DisplayHousing({ map }: { map: THREE.Texture }) {
@@ -501,7 +495,8 @@ export function CabinInterior() {
   const live = sim.burning();
 
   return (
-    <group ref={root} visible={false}>
+    <group ref={root} name="cockpit-interior" visible={false}>
+      <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.22} distance={2.4} decay={2} color="#dae5ed" />
       <Bar position={[0, 0.58, -0.72]} args={[2.2, 0.07, 0.9]} />
       <Bar position={[-1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
       <Bar position={[1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
@@ -514,18 +509,7 @@ export function CabinInterior() {
         <SwitchField rows={4} cols={14} width={1.55} height={0.26} reds={OVERHEAD_REDS} />
       </group>
 
-      <Bar position={[0, 0.42, -1.08]} args={[2.15, 0.05, 0.05]} material={matMullion} />
-      <Bar position={[0, -0.08, -1.08]} args={[2.15, 0.05, 0.05]} material={matMullion} />
-      {[
-        [-0.86, 0.24],
-        [-0.52, 0.1],
-        [-0.17, 0],
-        [0.17, 0],
-        [0.52, -0.1],
-        [0.86, -0.24],
-      ].map(([x, yaw]) => (
-        <WindowFrame key={x} x={x} yaw={yaw} />
-      ))}
+      {FORWARD_PANES.map((points,i)=><WindowFrame key={i} points={points}/>)}
       {[-0.32, 0.32].map((x) => (
         <group key={x}>
           <Bar position={[x, 0.5, -0.92]} args={[0.34, 0.02, 0.025]} material={matMullion} />
@@ -544,8 +528,8 @@ export function CabinInterior() {
         <meshBasicMaterial color={VOID} transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      <mesh position={[0, -0.1, -0.98]} rotation={[0.55, 0, 0]} raycast={() => null} material={matHead}>
-        <boxGeometry args={[1.9, 0.045, 0.16]} />
+      <mesh position={[0.24, -0.135, -1.01]} rotation={[0.25, 0, 0]} raycast={() => null} material={matHead}>
+        <boxGeometry args={[2.25, 0.055, 0.22]} />
       </mesh>
 
       <group position={[0, -0.36, -0.78]} rotation={[-0.62, 0, 0]}>

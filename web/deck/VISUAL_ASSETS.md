@@ -70,6 +70,13 @@ refines the nose/window belt, and replaces ellipsoid OMS pods with tapered
 fairings. See [ORBITER_GEOMETRY.md](ORBITER_GEOMETRY.md) for exact sources,
 estimated details, and before/after review renders.
 
+## Commander view
+
+The seated-view pass reshapes the forward window openings, adjusts the glare
+shield and fixes camera bank alignment and view-transition drift. See
+[COCKPIT_VIEW.md](COCKPIT_VIEW.md) for sources, estimated sightline settings,
+comparison renders and acceptance limits.
+
 ## Validation and limits
 
 `npm run build` includes strict TypeScript checking. Desktop browser checks
