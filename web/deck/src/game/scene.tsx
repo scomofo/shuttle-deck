@@ -10,6 +10,8 @@ import { earthSurfaceMaterial } from "./earth-material";
 import { Runway } from "./runway";
 import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
+import earthDetailUrl from "@/assets/visuals/earth-day-4096.jpg";
+import cloudsDetailUrl from "@/assets/visuals/earth-clouds-4096.jpg";
 import terrainUrl from "@/assets/visuals/terrain-color.webp";
 import { syncAudio } from "@/game/audio";
 import { bodyBasis, HAC, sim } from "@/sim/runtime";
@@ -24,8 +26,12 @@ const _fwd = new THREE.Vector3();
 
 /** Local NASA observation composites; no network dependency at runtime. */
 function useEarthMaps() {
-  const sources = useLoader(THREE.TextureLoader, [earthUrl, cloudsUrl]);
   const { gl } = useThree();
+  // Choose once at mount: resizing/rotating must not load a second GPU set.
+  const detailed = useMemo(() => gl.capabilities.maxTextureSize >= 4096 &&
+    window.matchMedia("(min-width: 900px)").matches, [gl]);
+  const sources = useLoader(THREE.TextureLoader, detailed
+    ? [earthDetailUrl, cloudsDetailUrl] : [earthUrl, cloudsUrl]);
   const maps = useMemo(() => sources.map((source, i) => {
     const texture = source.clone();
     texture.colorSpace = i === 0 ? THREE.SRGBColorSpace : THREE.NoColorSpace;

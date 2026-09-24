@@ -170,3 +170,16 @@ This uses the existing 2K imagery without new downloads. It improves lighting
 depth, not geographic resolution, cloud accuracy, or orbital scale. Cloud
 relief and haze strengths are artistic estimates. Review:
 [orbit](review/earth-depth-orbit.jpg) and [entry](review/earth-depth-entry.jpg).
+
+## Higher-resolution Earth follow-up
+
+Desktop scenes now use 4K surface and cloud maps derived from NASA's 8K TIFFs,
+providing four times the texels of the earlier 2K pair. Small initial viewports
+and GPUs limited below 4096 retain the original maps. Selection happens at
+mount; the unselected JPEG pair is not fetched. Lighting, cloud shading, and
+approved orbiter tile remain unchanged. Source checksums, conversion settings,
+and memory estimates are in [EARTH_SOURCES.md](src/assets/visuals/EARTH_SOURCES.md).
+
+The larger maps improve coastline and cloud detail but still do not provide
+close-range terrain or historically matched weather. Review:
+[orbit](review/earth-4k-orbit.jpg) and [entry](review/earth-4k-entry.jpg).
