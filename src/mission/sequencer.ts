@@ -70,6 +70,12 @@ export class MissionSequencer {
     for (const [id, channel] of Object.entries(spec.events_on_control ?? {})) {
       if (Number(bus.get_value(channel, 0)) === 1) this._fire(id);
     }
+    // P4: the dynamics owns runway contact (dyn.landed, P3); the mission
+    // truth fires weight_on_wheels from it. The deck adapter used to inject
+    // this event; it no longer does.
+    if (this.phase === "approach" && this.dynamics.landed && this.fired["weight_on_wheels"] === undefined) {
+      this._fire("weight_on_wheels");
+    }
     for (const [id, cfg] of Object.entries(spec.event_config ?? {})) {
       if (this.fired[id] !== undefined && this.dynamics.config !== cfg) {
         bus.set_value("seq.config", cfg);

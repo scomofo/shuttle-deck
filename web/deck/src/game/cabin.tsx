@@ -322,7 +322,7 @@ const CW_LAMPS: { label: string; on: () => boolean }[] = [
     on: () => sim.running && sim.gear &&
       sim.phase !== "approach" && sim.phase !== "rollout" && sim.phase !== "landed",
   },
-  { label: "SMOKE", on: () => false },
+  { label: "SMOKE", on: () => sim.smokeAlarm },
 ];
 
 /** F7 caution/warning strip: seven live annunciators, backup alarm, GPC
@@ -506,7 +506,8 @@ function paintAftRight(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   tex.needsUpdate = true;
 }
 
-/** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW. */
+/** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW.
+ *  P4: the LEDs are painted dark — labels only, no RMS model drives them. */
 function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   const g = canvas.getContext("2d");
   if (!g) return;
@@ -520,9 +521,9 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.textBaseline = "middle";
   g.fillText("A8 · RMS MODE / JOINT", W / 2, 28);
   const rows: [string, string][] = [
-    ["ORB UNL", "#8fefb0"],
-    ["SHOULDER PITCH", "#8fefb0"],
-    ["SHOULDER YAW", "#8fefb0"],
+    ["ORB UNL", "#2c3430"],
+    ["SHOULDER PITCH", "#2c3430"],
+    ["SHOULDER YAW", "#2c3430"],
   ];
   rows.forEach(([label, color], i) => {
     const y = 78 + i * 66;
@@ -538,7 +539,7 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.fillStyle = "#8a939b";
   g.font = "400 12px 'IBM Plex Mono', monospace";
   g.textAlign = "center";
-  g.fillText("mode/joint labels per JSC-26419 · joints unattested", W / 2, H - 18);
+  g.fillText("labels per JSC-26419 · no RMS model — indicators dark", W / 2, H - 18);
   tex.needsUpdate = true;
 }
 
@@ -906,25 +907,22 @@ function MiniButton({
   );
 }
 
-/** ADI attitude selector rotary (INRTL / LVLH / REF). */
+/**
+ * ADI attitude selector rotary (INRTL / LVLH / REF).
+ * P4: rendered inert — the ADI source select has no root model behind it,
+ * so the knob does not move rather than pretending to switch sources.
+ */
 function AdiAttRotary({ x, y = -0.17 }: { x: number; y?: number }) {
-  const [mode, setMode] = useState(0);
   const modes = ["INRTL", "LVLH", "REF"];
+  const mode = 0;
   return (
     <group position={[x, y, 0.02]}>
       <mesh position={[0, 0, 0.004]} raycast={() => null} material={matHardware}>
         <cylinderGeometry args={[0.02, 0.024, 0.012, 16]} />
       </mesh>
-      <mesh
-        position={[0, 0, 0.014]}
-        rotation={[0, 0, (-mode * Math.PI * 2) / 3]}
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          setMode((m) => (m + 1) % 3);
-        }}
-      >
+      <mesh position={[0, 0, 0.014]} rotation={[0, 0, (-mode * Math.PI * 2) / 3]} raycast={() => null}>
         <boxGeometry args={[0.008, 0.03, 0.012]} />
-        <meshStandardMaterial color="#dddcd4" roughness={0.5} />
+        <meshStandardMaterial color="#8a8d86" roughness={0.5} />
       </mesh>
       <PlateLabel label="ADI ATT" x={0} y={0.042} scale={0.5} />
       <PlateLabel label={modes[mode]} x={0} y={-0.042} scale={0.5} />
@@ -932,35 +930,27 @@ function AdiAttRotary({ x, y = -0.17 }: { x: number; y?: number }) {
   );
 }
 
-/** ATT REF pushbutton. */
+/**
+ * ATT REF pushbutton.
+ * P4: rendered inert — no root model consumes an attitude reference
+ * update, so the button does not light rather than faking an action.
+ */
 function AttRefButton({ x, y = -0.17 }: { x: number; y?: number }) {
-  const [lit, setLit] = useState(false);
   return (
     <group position={[x, y, 0.02]}>
-      <mesh
-        position={[0, 0, 0.004]}
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          setLit(true);
-        }}
-        onPointerUp={(event) => {
-          event.stopPropagation();
-          setLit(false);
-        }}
-        onPointerLeave={() => setLit(false)}
-      >
+      <mesh position={[0, 0, 0.004]} raycast={() => null}>
         <boxGeometry args={[0.055, 0.026, 0.012]} />
-        <meshStandardMaterial color={lit ? "#d4b27c" : "#3a4046"} roughness={0.5} />
+        <meshStandardMaterial color="#3a4046" roughness={0.5} />
       </mesh>
       <PlateLabel label="ATT REF" x={0} y={-0.03} scale={0.5} />
     </group>
   );
 }
 
-/** RCS COMMAND lamp cluster. */
+/** RCS COMMAND lamp cluster. P4: lit from RCS firing truth (non-zero
+ * commanded torque in an RCS-effector config with propellant), not phase. */
 function RcsCmdLamps({ x, y = -0.17 }: { x: number; y?: number }) {
-  const active =
-    sim.running && (sim.phase === "ascent" || sim.phase === "entry" || sim.phase === "taem" || sim.phase === "approach");
+  const active = sim.running && sim.rcsFiring;
   return (
     <group position={[x, y, 0.02]}>
       <PlateLabel label="RCS CMD" x={0} y={0.038} scale={0.5} />
@@ -1368,7 +1358,7 @@ export function CabinInterior() {
         <group
           ref={gearHandle}
           position={[-0.1, 0.02, 0.12]}
-          rotation={[sim.gear ? -0.9 : 0.7, 0, 0]}
+          rotation={[sim.gearCommand ? -0.9 : 0.7, 0, 0]}
           onPointerDown={(event) => {
             event.stopPropagation();
             sim.toggleGear();

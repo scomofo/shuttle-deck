@@ -1,0 +1,354 @@
+{
+  "approach_ic": {
+    "_note": "[estimated] TAEM-gate start: 40 km out on runway-23 final (reciprocal bearing 050° from the anchor). GET is the sourced TAEM MET; alt/speed/fpa/position are estimates matching the model's TAEM gate (25,000 m), not measured STS-1 values.",
+    "alt_m": 25000,
+    "fpa_deg": -12,
+    "get_s": 195690,
+    "heading_deg": 230,
+    "lat_deg": 35.1362,
+    "lon_deg": -117.549,
+    "speed_rel_mps": 200
+  },
+  "ascent": {
+    "_azimuth_note": "[estimated] from cos(i)=sin(az)·cos(lat) with i=40.3°, lat=28.6°; press-kit value unsourced.",
+    "_profile_note": "[estimated] scripted shaping constrained by sourced anchors: SRB sep 53,000 m / Mach 3.88; MECO 118,000 m on a 13/80 n.mi. orbit (inertial 7,814 m/s, fpa 0.5°). Intermediate rows are plausible interpolation, not a trajectory reconstruction.",
+    "launch_azimuth_deg": 60.4,
+    "rows": [
+      {
+        "accel_g": 1.5,
+        "alt_m": 20,
+        "fpa_deg": 90,
+        "lat_deg": 28.608,
+        "lon_deg": -80.604,
+        "speed_rel_mps": 0,
+        "t_s": 0
+      },
+      {
+        "accel_g": 1.8,
+        "alt_m": 500,
+        "fpa_deg": 80,
+        "lat_deg": 28.61,
+        "lon_deg": -80.6,
+        "speed_rel_mps": 130,
+        "t_s": 8
+      },
+      {
+        "accel_g": 2.2,
+        "alt_m": 8077,
+        "fpa_deg": 62,
+        "lat_deg": 28.63,
+        "lon_deg": -80.55,
+        "speed_rel_mps": 313,
+        "t_s": 53
+      },
+      {
+        "accel_g": 2.6,
+        "alt_m": 53000,
+        "fpa_deg": 28,
+        "lat_deg": 28.75,
+        "lon_deg": -80.05,
+        "speed_rel_mps": 1164,
+        "t_s": 132
+      },
+      {
+        "accel_g": 2.9,
+        "alt_m": 78000,
+        "fpa_deg": 14,
+        "lat_deg": 29.1,
+        "lon_deg": -78.5,
+        "speed_rel_mps": 2600,
+        "t_s": 240
+      },
+      {
+        "accel_g": 3.0,
+        "alt_m": 102000,
+        "fpa_deg": 4,
+        "lat_deg": 29.9,
+        "lon_deg": -76.0,
+        "speed_rel_mps": 5200,
+        "t_s": 400
+      },
+      {
+        "accel_g": 0.1,
+        "alt_m": 118000,
+        "fpa_deg": 0.5,
+        "lat_deg": 30.5,
+        "lon_deg": -74.2,
+        "speed_rel_mps": 7466,
+        "t_s": 512
+      }
+    ]
+  },
+  "data_version": 1,
+  "entry_ic": {
+    "_note": "EI: 400,000 ft = 121,920 m (research rounds to 120,000 m); inertial 7,844 m/s. Lat/lon/heading/speed_rel/fpa are [estimated]: the fix is chosen so the great-circle distance to the runway anchor ≈ 8,216 km vs the sourced 8,110 km, and speed_rel = 7,844 minus the Earth-rotation component along the heading at lat −20°. Actual EI lat/lon unsourced. Entry attitude is wings-level; the historical 40° hypersonic AoA is a P3/P4 guidance gap (see Mission.start_in_entry).",
+    "alt_m": 121920,
+    "fpa_deg": -1.5,
+    "get_s": 194162,
+    "heading_deg": 60,
+    "lat_deg": -20.0,
+    "lon_deg": -170.0,
+    "speed_rel_mps": 7465
+  },
+  "event_schedule": {
+    "_note": "Full press-kit Flight Sequence of Events as reference data (GET seconds). Only the ascent events are sequencer-driven (phases.ascent.events); OMS burns need burn targeting the sim does not have yet (P3), so they are recorded here, not fired.",
+    "_source": "STS-001 Press Kit via the research file; MECO ±2 s (Wikipedia says 0:08:34); deorbit burn 147 s per press kit (Wikipedia 160 s, AmericaSpace 2.5 min — ±15 s).",
+    "events": [
+      {
+        "get_s": 0,
+        "id": "srb_ignition",
+        "label": "SRB ignition"
+      },
+      {
+        "get_s": 0.3,
+        "id": "liftoff",
+        "label": "Liftoff"
+      },
+      {
+        "get_s": 8,
+        "id": "pitchover",
+        "label": "Pitchover"
+      },
+      {
+        "detail": "606 psf at Mach 1.06, 26.5 kft (White Eagle Aerospace)",
+        "get_s": 53,
+        "id": "max_q",
+        "label": "Max Q"
+      },
+      {
+        "detail": "53,000 m alt, Mach 3.88",
+        "get_s": 132,
+        "id": "srb_sep",
+        "label": "SRB separation"
+      },
+      {
+        "detail": "orbit 13/80 n.mi., alt 118,000 m",
+        "get_s": 512,
+        "id": "meco",
+        "label": "MECO"
+      },
+      {
+        "detail": "18 s after MECO",
+        "get_s": 530,
+        "id": "et_sep",
+        "label": "ET separation"
+      },
+      {
+        "delta_v_mps": 50.3,
+        "detail": "ΔV 165 fps",
+        "get_s": 632,
+        "id": "oms1_ignition",
+        "label": "OMS-1 ignition"
+      },
+      {
+        "detail": "orbit 130/57 n.mi.",
+        "get_s": 721,
+        "id": "oms1_cutoff",
+        "label": "OMS-1 cutoff"
+      },
+      {
+        "delta_v_mps": 41.8,
+        "detail": "ΔV 137 fps",
+        "get_s": 2640,
+        "id": "oms2_ignition",
+        "label": "OMS-2 ignition"
+      },
+      {
+        "detail": "orbit 130/130 n.mi. → 246 × 248 km achieved",
+        "get_s": 2715,
+        "id": "oms2_cutoff",
+        "label": "OMS-2 cutoff"
+      },
+      {
+        "delta_v_mps": 11.1,
+        "detail": "ΔV 36.5 fps",
+        "get_s": 22841,
+        "id": "oms3_ignition",
+        "label": "OMS-3 ignition"
+      },
+      {
+        "detail": "orbit 150/134 n.mi.",
+        "get_s": 22880,
+        "id": "oms3_cutoff",
+        "label": "OMS-3 cutoff"
+      },
+      {
+        "delta_v_mps": 11.4,
+        "detail": "ΔV 37.5 fps",
+        "get_s": 25531,
+        "id": "oms4_ignition",
+        "label": "OMS-4 ignition"
+      },
+      {
+        "detail": "orbit 150/150 n.mi. ≈ 278 km circular, incl 40.3°",
+        "get_s": 25571,
+        "id": "oms4_cutoff",
+        "label": "OMS-4 cutoff"
+      },
+      {
+        "delta_v_mps": 91.1,
+        "detail": "twin OMS, ΔV 299 fps",
+        "get_s": 192480,
+        "id": "deorbit_ignition",
+        "label": "Deorbit ignition"
+      },
+      {
+        "detail": "resulting orbit 149/2 n.mi.",
+        "get_s": 192627,
+        "id": "deorbit_cutoff",
+        "label": "Deorbit cutoff"
+      },
+      {
+        "_source": "Wikipedia/NASA",
+        "detail": "400,000 ft, ~28,240 km/h (7,844 m/s), 8,110 km from landing site",
+        "get_s": 194162,
+        "id": "entry_interface",
+        "label": "Entry interface"
+      },
+      {
+        "get_s": 195690,
+        "id": "taem",
+        "label": "TAEM"
+      },
+      {
+        "_source": "press kit / astronautix",
+        "detail": "rollout 2,741 m; touchdown 339 kph (94.2 m/s); 1,844 m long",
+        "get_s": 196063,
+        "id": "landing",
+        "label": "Landing (wheel stop)"
+      }
+    ]
+  },
+  "id": "sts1",
+  "identity": {
+    "_source": "STS-001 Press Kit (Orloff 2001 reprint); duration 2 d 06:27:43 per press kit [estimated-conflict: one Wikipedia mirror says 2 d 06:20:32 — press kit wins]",
+    "crew": [
+      "John W. Young (CDR)",
+      "Robert L. Crippen (PLT)"
+    ],
+    "landing_site": "Edwards AFB, Runway 23 (Rogers Dry Lake)",
+    "launch_site": "Kennedy Space Center, Pad 39A",
+    "mission": "STS-1",
+    "mission_duration": "2 d 06:27:43",
+    "orbits": 36,
+    "vehicle": "OV-102 Columbia"
+  },
+  "insertion": {
+    "_note": "Post-OMS-2 achieved orbit: press kit 130/130 n.mi. → 246 × 248 km. Used by the on-orbit start helper. NOT the MECO state (13/80 n.mi.) — the ascent→insertion phase transition at MECO (GET 512) hands a scripted state to the propagator, like the template.",
+    "apogee_km": 248.0,
+    "get_s": 2715.0,
+    "inclination_deg": 40.3,
+    "perigee_km": 246.0
+  },
+  "liftoff_jd": 2444707.000034722,
+  "liftoff_utc": "1981-04-12T12:00:03Z",
+  "masses": {
+    "_source": "astronautix.com STS-1 (medium confidence); 4.5M lb stack matches the repo's 2,040,000 kg round",
+    "dfi_payload_kg": 4909,
+    "orbiter_landing_kg": 88662,
+    "orbiter_liftoff_kg": 99453,
+    "stack_liftoff_kg": 2041000
+  },
+  "name": "STS-1 · Columbia (OV-102)",
+  "phases": {
+    "_note": "Same ops model as the template: ascent is scripted until MECO, then the propagator owns the state. ET sep and the deorbit burn are crew-commanded (events_on_control), matching how the deck adapter drives them.",
+    "approach": {
+      "config": "entry",
+      "events_on_control": {
+        "gear": "ctl.gear"
+      },
+      "next": "rollout",
+      "on": {
+        "event": "weight_on_wheels"
+      }
+    },
+    "ascent": {
+      "config": "stack",
+      "events": {
+        "meco": 512.0,
+        "srb_sep": 132.0
+      },
+      "next": "insertion",
+      "on": {
+        "get_s": 512.0
+      }
+    },
+    "deorbit": {
+      "config": "orbit",
+      "next": "entry",
+      "on": {
+        "channel": "dyn.alt_m",
+        "lt": 121920.0
+      }
+    },
+    "entry": {
+      "config": "entry",
+      "next": "taem",
+      "on": {
+        "channel": "dyn.alt_m",
+        "lt": 25000.0
+      },
+      "one_shot": [
+        "entry_interface"
+      ]
+    },
+    "insertion": {
+      "config": "stack",
+      "events_on_control": {
+        "et_sep": "seq.cmd.et_sep"
+      },
+      "next": "orbit",
+      "on": {
+        "event": "et_sep"
+      }
+    },
+    "orbit": {
+      "config": "orbit",
+      "next": "deorbit",
+      "on": {
+        "control": "seq.cmd.deorbit",
+        "equals": 1
+      }
+    },
+    "prelaunch": {
+      "config": "stack",
+      "next": "ascent",
+      "on": {
+        "event": "liftoff"
+      }
+    },
+    "rollout": {
+      "config": "entry",
+      "next": "wheel_stop",
+      "on": {
+        "channel": "dyn.speed_mps",
+        "lt": 1.0
+      }
+    },
+    "taem": {
+      "config": "entry",
+      "next": "approach",
+      "on": {
+        "channel": "dyn.alt_m",
+        "lt": 3000.0
+      }
+    },
+    "wheel_stop": {
+      "config": "entry",
+      "one_shot": [
+        "wheel_stop"
+      ]
+    }
+  },
+  "runway": {
+    "_note": "Touchdown speed (339 kph), rollout, and miss distance sourced (press kit / astronautix). Lat/lon/heading are [estimated] Rogers Dry Lake reference points for the deck render anchor — the precise runway-23 threshold is unsourced in the research file.",
+    "heading_deg": 230,
+    "id": "EDW-RWY23",
+    "lat_deg": 34.905,
+    "lon_deg": -117.885,
+    "miss_distance_m": 1844,
+    "name": "Edwards AFB Runway 23, Rogers Dry Lake",
+    "rollout_m": 2741,
+    "touchdown_speed_mps": 94.2
+  }
+}

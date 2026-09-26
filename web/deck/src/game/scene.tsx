@@ -173,10 +173,18 @@ function World() {
 
     if (ground.current) {
       ground.current.visible = terminal;
-      ground.current.position.set(-sim.x, -sim.y, -sim.z);
+      // The runway/HAC layout is historic deck geometry; the terminal anchor
+      // shifts it so the layout's historic vehicle position lands on the
+      // vehicle (the root sim flies real geography now).
+      const anchor = sim.terminalAnchor;
+      const ax = anchor ? anchor.x : 0;
+      const az = anchor ? anchor.z : 0;
+      ground.current.position.set(ax - sim.x, -sim.y, az - sim.z);
     }
     if (papi.current.length === 4 && (sim.phase === "taem" || sim.phase === "approach")) {
-      const glide = Math.atan2(Math.max(sim.y, 0), Math.max(80, -200 - sim.x));
+      const anchor = sim.terminalAnchor;
+      const threshX = -200 + (anchor ? anchor.x : 0);
+      const glide = Math.atan2(Math.max(sim.y, 0), Math.max(80, threshX - sim.x));
       const err = glide - (10 * Math.PI) / 180;
       const nWhite = err > 0.02 ? 4 : err > 0.006 ? 3 : err > -0.006 ? 2 : err > -0.02 ? 1 : 0;
       papi.current.forEach((mesh, i) => {

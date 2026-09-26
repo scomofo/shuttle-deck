@@ -10,13 +10,16 @@ import { Dynamics } from "../dynamics/dynamics.ts";
 import { Mission, type MissionData } from "../mission/mission.ts";
 import { MissionSequencer } from "../mission/sequencer.ts";
 import { Presenter } from "../presentation/presenter.ts";
+import { Apu } from "../systems/apu.ts";
 import { Ecs } from "../systems/ecs.ts";
 import { Electrical } from "../systems/electrical.ts";
+import { Fire } from "../systems/fire.ts";
 import { Guidance } from "../systems/guidance.ts";
+import { Mechanisms } from "../systems/mechanisms.ts";
 import { Propulsion } from "../systems/propulsion.ts";
 import sts from "../../assets/data/missions/sts_template/mission.json" with { type: "json" };
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 export class SimRuntime {
   mission: Mission;
@@ -29,6 +32,9 @@ export class SimRuntime {
     propulsion: Propulsion;
     guidance: Guidance;
     ecs: Ecs;
+    apu: Apu;
+    mechanisms: Mechanisms;
+    fire: Fire;
   };
   last_checkpoint_error = "";
 
@@ -43,6 +49,9 @@ export class SimRuntime {
       propulsion: new Propulsion(),
       guidance: new Guidance(),
       ecs: new Ecs(),
+      apu: new Apu(),
+      mechanisms: new Mechanisms(),
+      fire: new Fire(),
     };
     this.bind();
   }
@@ -52,6 +61,9 @@ export class SimRuntime {
     clock.add_ticker((dt) => this.systems.electrical.tick(dt), Stage.POWER_GUIDANCE);
     clock.add_ticker((dt) => this.systems.guidance.tick(dt), Stage.POWER_GUIDANCE);
     clock.add_ticker((dt) => this.systems.propulsion.tick(dt), Stage.SYSTEMS);
+    clock.add_ticker((dt) => this.systems.apu.tick(dt), Stage.SYSTEMS);
+    clock.add_ticker((dt) => this.systems.mechanisms.tick(dt), Stage.SYSTEMS);
+    clock.add_ticker((dt) => this.systems.fire.tick(dt), Stage.SYSTEMS);
     clock.add_ticker((dt) => this.dynamics.tick(dt), Stage.DYNAMICS);
     clock.add_ticker((dt) => this.systems.ecs.tick(dt), Stage.DEPENDENT);
   }
@@ -60,7 +72,14 @@ export class SimRuntime {
     bus.reset_values_only();
     this.controls.reset_latched();
     this.sequencer.start(phase);
+    // Publish every system's initial truth so the bus is complete from
+    // t=0; the deck facade reads root channels, never adapter memory.
     this.systems.electrical.tick(0);
+    this.systems.propulsion.tick(0);
+    this.systems.guidance.tick(0);
+    this.systems.apu.tick(0);
+    this.systems.mechanisms.tick(0);
+    this.systems.fire.tick(0);
     this.systems.ecs.publish_state();
     this.dynamics.publish();
     this.presenter.sync();
@@ -79,6 +98,9 @@ export class SimRuntime {
         propulsion: this.systems.propulsion.snapshot(),
         guidance: this.systems.guidance.snapshot(),
         ecs: this.systems.ecs.snapshot(),
+        apu: this.systems.apu.snapshot(),
+        mechanisms: this.systems.mechanisms.snapshot(),
+        fire: this.systems.fire.snapshot(),
       },
       controls: this.controls.snapshot(),
     };
@@ -104,10 +126,16 @@ export class SimRuntime {
     this.systems.propulsion.restore(d.systems.propulsion);
     this.systems.guidance.restore(d.systems.guidance);
     this.systems.ecs.restore(d.systems.ecs);
+    this.systems.apu.restore(d.systems.apu);
+    this.systems.mechanisms.restore(d.systems.mechanisms);
+    this.systems.fire.restore(d.systems.fire);
     this.systems.electrical.tick(0);
     this.systems.propulsion.tick(0);
     this.systems.guidance.tick(0);
     this.systems.ecs.tick(0);
+    this.systems.apu.tick(0);
+    this.systems.mechanisms.tick(0);
+    this.systems.fire.tick(0);
     this.dynamics.publish();
     this.presenter.sync();
     clock.paused = was;

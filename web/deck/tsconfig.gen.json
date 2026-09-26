@@ -1,0 +1,22 @@
+{
+  // Prebuild config: compiles the root sim (../../src) to plain JS + declarations
+  // under src/gen so the browser deck can bundle it. Not part of deck:typecheck.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
+    "outDir": "src/gen",
+    "rootDir": "../..",
+    "types": []
+  },
+  "include": ["../../src/**/*.ts"],
+  "exclude": ["../../src/controls/placement.ts"]
+}

@@ -1,4 +1,7 @@
-import { lerp_coeff, Aero } from "../src/dynamics/aero.ts";
+import { lerp_coeff, Aero, EFFECTOR_NEUTRAL } from "../src/dynamics/aero.ts";
+import { q_body_x_along } from "../src/dynamics/attitude.ts";
+import { v_rel } from "../src/dynamics/aero.ts";
+import { density, sound_speed } from "../src/dynamics/atmosphere.ts";
 import table from "../assets/data/spacecraft/aero.json" with { type: "json" };
 
 function assert(cond: unknown, msg: string): asserts cond {
@@ -31,9 +34,100 @@ function test_aero_publishes_sample_shape() {
   const aero = new Aero();
   const r = { x: 6_378_137 + 80_000, y: 0, z: 0 };
   const v = { x: 0, y: 7000, z: 0 };
-  const s = aero.accelerations(r, v, 85_000, { x: 0, y: 1, z: 0 }, 0);
+  const q = q_body_x_along(v_rel(r, v));
+  const s = aero.accelerations(r, v, 85_000, q, { x: 0, y: 0, z: 0 }, EFFECTOR_NEUTRAL, false);
   assert(s.q_dyn > 0, `q ${s.q_dyn}`);
   assert(s.lift_to_drag > 0, `L/D ${s.lift_to_drag}`);
+  almost(s.alpha_deg, 0, 2, `nose into wind, alpha ${s.alpha_deg}`);
+  almost(s.beta_deg, 0, 2, `beta ${s.beta_deg}`);
+  assert(s.mach > 15 && s.mach < 30, `mach ${s.mach}`);
+}
+
+function test_standard_atmosphere() {
+  almost(density(0), 1.225, 0.005, "sea-level density");
+  almost(sound_speed(0), 340.3, 0.5, "sea-level sound speed");
+  almost(sound_speed(11_000), 295.1, 0.5, "tropopause sound speed");
+  almost(sound_speed(20_000), 295.1, 0.5, "stratosphere sound speed");
+  assert(sound_speed(0) > sound_speed(11_000), "sound speed follows temperature");
+  assert(density(90_000) < 0.001 * density(0), "thin at 90 km");
+  assert(density(130_000) === 0, "no atmosphere above the model top");
+}
+
+function test_elevon_pitch_sign() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 80_000, y: 0, z: 0 };
+  const v = { x: 0, y: 7000, z: 0 };
+  const q = q_body_x_along(v_rel(r, v));
+  const w = { x: 0, y: 0, z: 0 };
+  const base = aero.accelerations(r, v, 85_000, q, w, EFFECTOR_NEUTRAL, false);
+  const down = aero.accelerations(
+    r, v, 85_000, q, w,
+    { ...EFFECTOR_NEUTRAL, elevon_l_deg: 20, elevon_r_deg: 20 },
+    false,
+  );
+  assert(down.torque_body.y < base.torque_body.y, "elevon TE-down pitches nose down");
+}
+
+function test_differential_elevon_rolls() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 80_000, y: 0, z: 0 };
+  const v = { x: 0, y: 7000, z: 0 };
+  const q = q_body_x_along(v_rel(r, v));
+  const w = { x: 0, y: 0, z: 0 };
+  const s = aero.accelerations(
+    r, v, 85_000, q, w,
+    { ...EFFECTOR_NEUTRAL, elevon_l_deg: 10, elevon_r_deg: -10 },
+    false,
+  );
+  assert(s.torque_body.x > 0, `left TE-down rolls right, got ${s.torque_body.x}`);
+}
+
+function test_rudder_yaws() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 80_000, y: 0, z: 0 };
+  const v = { x: 0, y: 7000, z: 0 };
+  const q = q_body_x_along(v_rel(r, v));
+  const w = { x: 0, y: 0, z: 0 };
+  const s = aero.accelerations(r, v, 85_000, q, w, { ...EFFECTOR_NEUTRAL, rudder_deg: 10 }, false);
+  assert(s.torque_body.z > 0, `rudder TE-right yaws nose right, got ${s.torque_body.z}`);
+}
+
+function test_gear_and_speedbrake_add_drag() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 3_000, y: 0, z: 0 };
+  const v = { x: 0, y: 150, z: 0 };
+  const q = q_body_x_along(v_rel(r, v));
+  const w = { x: 0, y: 0, z: 0 };
+  const clean = aero.accelerations(r, v, 85_000, q, w, EFFECTOR_NEUTRAL, false);
+  const gear = aero.accelerations(r, v, 85_000, q, w, EFFECTOR_NEUTRAL, true);
+  assert(gear.cd > clean.cd + 0.03, `gear drag increment, ${clean.cd} -> ${gear.cd}`);
+  const sb = aero.accelerations(r, v, 85_000, q, w, { ...EFFECTOR_NEUTRAL, speedbrake_deg: 60 }, false);
+  assert(sb.cd > clean.cd + 0.05, `speedbrake drag, ${clean.cd} -> ${sb.cd}`);
+}
+
+function test_heating_and_blackout_band() {
+  const aero = new Aero();
+  const w = { x: 0, y: 0, z: 0 };
+  const hot = (() => {
+    const r = { x: 6_378_137 + 70_000, y: 0, z: 0 };
+    const v = { x: 0, y: 7400, z: 0 };
+    return aero.accelerations(r, v, 85_000, q_body_x_along(v_rel(r, v)), w, EFFECTOR_NEUTRAL, false);
+  })();
+  assert(hot.heating > 1e5 && hot.heating < 5e6, `heat flux W/m^2: ${hot.heating}`);
+  assert(hot.blackout === true, "blackout inside the ionization band");
+  assert(hot.plasma > 0, "plasma display scale nonzero");
+  const thin = (() => {
+    const r = { x: 6_378_137 + 120_000, y: 0, z: 0 };
+    const v = { x: 0, y: 7500, z: 0 };
+    return aero.accelerations(r, v, 85_000, q_body_x_along(v_rel(r, v)), w, EFFECTOR_NEUTRAL, false);
+  })();
+  assert(thin.blackout === false, "no blackout above the atmosphere");
+  const slow = (() => {
+    const r = { x: 6_378_137 + 10_000, y: 0, z: 0 };
+    const v = { x: 0, y: 200, z: 0 };
+    return aero.accelerations(r, v, 85_000, q_body_x_along(v_rel(r, v)), w, EFFECTOR_NEUTRAL, false);
+  })();
+  assert(slow.blackout === false, "no blackout at low speed");
 }
 
 const tests = [
@@ -41,6 +135,12 @@ const tests = [
   test_atp_anchor_ld,
   test_lerp_between_mach,
   test_aero_publishes_sample_shape,
+  test_standard_atmosphere,
+  test_elevon_pitch_sign,
+  test_differential_elevon_rolls,
+  test_rudder_yaws,
+  test_gear_and_speedbrake_add_drag,
+  test_heating_and_blackout_band,
 ];
 
 let failed = 0;
