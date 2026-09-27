@@ -302,6 +302,13 @@ export class Dynamics {
     bus.set_value("dyn.q_body_from_eci", [q.x, q.y, q.z, q.w]);
     bus.set_value("dyn.alt_m", this.orbit.altitude());
     bus.set_value("dyn.speed_mps", len(v));
+    // Earth-relative (ground) speed: dyn.speed_mps is inertial and never
+    // drops below corotation on the runway, so the rollout→wheel_stop
+    // transition keys off this channel instead.
+    bus.set_value(
+      "dyn.ground_speed_mps",
+      len(sub(v, cross({ x: 0, y: 0, z: EARTH_ROTATION_RATE }, r))),
+    );
     bus.set_value("dyn.mass_kg", this.mass);
     bus.set_value("dyn.accel_g", this.accel_g);
     bus.set_value("dyn.landed", this.landed);

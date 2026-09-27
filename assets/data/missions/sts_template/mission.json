@@ -67,7 +67,7 @@
     },
     "rollout": {
       "next": "wheel_stop",
-      "on": { "channel": "dyn.speed_mps", "lt": 1.0 },
+      "on": { "channel": "dyn.ground_speed_mps", "lt": 1.0 },
       "config": "entry"
     },
     "wheel_stop": {
