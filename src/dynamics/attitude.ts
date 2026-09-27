@@ -19,8 +19,22 @@ export function qnorm(q: Quat): Quat {
   return { x: q.x / n, y: q.y / n, z: q.z / n, w: q.w / n };
 }
 
-/** Rotate an ECI vector into body. */
+/**
+ * Rotate an ECI vector into body. Convention (matches nose_eci and the
+ * left-multiplied body rotors in Attitude.step): v_eci = q v_body q*,
+ * so the ECI->body direction is the conjugate rotation.
+ */
 export function body_from_eci(q: Quat, v: Vec3): Vec3 {
+  return rotate_vec(qconj(q), v);
+}
+
+/** Rotate a body vector into ECI (inverse of body_from_eci). */
+export function eci_from_body(q: Quat, v: Vec3): Vec3 {
+  return rotate_vec(q, v);
+}
+
+/** Active rotation of v by the unit quaternion q: q v q*. */
+function rotate_vec(q: Quat, v: Vec3): Vec3 {
   const qv = { x: q.x, y: q.y, z: q.z };
   const t = mul(cross3(qv, v), 2);
   return add(v, add(mul(t, q.w), cross3(qv, t)));
@@ -96,7 +110,11 @@ export class Attitude {
   /**
    * Lie–Poisson step for a diagonal inertia. The free rotation is a Strang
    * splitting, so |π| does not leave the sphere. Torque is a kick around it.
-   * The quaternion is left-multiplied, matching q-dot = ½ ω q.
+   * Convention: v_eci = q v_body q* (see nose_eci), so body rates integrate
+   * as q-dot = 1/2 q ω_body: each principal-axis rotor postmultiplies, which
+   * applies the rotation in the body frame. (Premultiplying here would
+   * integrate ECI-frame rates instead — the aerodynamic moments would then
+   * act about the wrong axes.)
    */
   step(dt: number, torque_body: Vec3): void {
     const I = this.inertia;
@@ -122,7 +140,7 @@ export class Attitude {
       const w = axis === "x" ? pi.x / I.x : axis === "y" ? pi.y / I.y : pi.z / I.z;
       const theta = w * h;
       pi = spinAbout(pi, axis, theta);
-      q = qmul(rotor(axis, theta), q);
+      q = qmul(q, rotor(axis, theta));
     }
     pi = { x: pi.x + half.x, y: pi.y + half.y, z: pi.z + half.z };
     this.omega = { x: pi.x / I.x, y: pi.y / I.y, z: pi.z / I.z };

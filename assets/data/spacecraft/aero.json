@@ -1,5 +1,235 @@
 {
-  "_note": "Orbiter reference geometry is sourced. The Mach/alpha force table is a coarse schedule so Dynamics can publish Gemini-shaped aero.* channels. Rows tagged estimated are not a Rockwell databook transcription.",
+  "_note": "Orbiter reference geometry is sourced. The Mach/alpha force table is a schedule so Dynamics can publish Gemini-shaped aero.* channels. Rows tagged estimated are not a Rockwell databook transcription. Moment coefficients, stability derivatives, damping derivatives and effector effectiveness are order-of-magnitude estimates shaped for plausible trim and response, tagged [estimated] throughout.",
+  "atmosphere_top_m": 120000.0,
+  "beta_derivatives": [
+    {
+      "cl_beta_per_rad": -0.08,
+      "cn_beta_per_rad": 0.12,
+      "mach": 0.3,
+      "note": "stable weathervane (+Cn) and dihedral (-Cl); beta = atan2(v_y_body, v_x_body), positive = velocity right of nose (wind from right)",
+      "tag": "estimated"
+    },
+    {
+      "cl_beta_per_rad": -0.05,
+      "cn_beta_per_rad": 0.08,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "cl_beta_per_rad": -0.03,
+      "cn_beta_per_rad": 0.05,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "cl_beta_per_rad": -0.02,
+      "cn_beta_per_rad": 0.04,
+      "mach": 25.0,
+      "tag": "estimated"
+    }
+  ],
+  "damping_derivatives": {
+    "clp_per_rad": -0.45,
+    "cmq_per_rad": -6.0,
+    "cnr_per_rad": -0.6,
+    "note": "rotary damping, per radian of (rate * ref_length / 2V); stabilizes the rigid-body response",
+    "tag": "estimated"
+  },
+  "effectors": {
+    "_note": "Deflection sign: positive trailing-edge down for elevon/bodyflap, positive nose-right for rudder, positive = open for speedbrake. Effectiveness per degree. Limits and rates [estimated] at orbiter scale.",
+    "bodyflap": {
+      "dcd_per_deg_abs": 0.0003,
+      "dcm_per_deg": -0.002,
+      "max_deg": 15,
+      "min_deg": -20,
+      "note": "pitch trim surface; trailing-edge-down positive",
+      "rate_deg_s": 15,
+      "tag": "estimated"
+    },
+    "elevon": {
+      "dcd_per_deg_abs": 0.0004,
+      "dcl_diff_per_deg": 0.0016,
+      "dcm_per_deg": -0.0042,
+      "max_deg": 25,
+      "min_deg": -25,
+      "note": "pair: average drives pitch, differential drives roll",
+      "rate_deg_s": 20,
+      "tag": "estimated"
+    },
+    "gear": {
+      "dcd": 0.045,
+      "note": "landing-gear drag increment, gear down",
+      "tag": "estimated"
+    },
+    "rudder": {
+      "dcd_per_deg_abs": 0.0002,
+      "dcn_per_deg": 0.0022,
+      "max_deg": 27,
+      "min_deg": -27,
+      "rate_deg_s": 25,
+      "tag": "estimated"
+    },
+    "speedbrake": {
+      "dcd_per_deg": 0.0018,
+      "dcl_per_deg": 0.0002,
+      "dcm_per_deg": -0.0004,
+      "max_deg": 90,
+      "min_deg": 0,
+      "note": "split rudder panels open symmetrically; dominant effect is drag",
+      "rate_deg_s": 15,
+      "tag": "estimated"
+    }
+  },
+  "entry_interface_alt_m": 121920.0,
+  "heating": {
+    "blackout_note": "[estimated] comm blackout while v > 2800 m/s and rho > 3e-6 kg/m^3: brackets the real ~Mach 25 to ~Mach 9 blackout band without an electron-density model",
+    "blackout_rho_min_kgm3": 3e-06,
+    "blackout_v_min_mps": 2800,
+    "model": "Sutton-Graves stagnation-point proxy q = k * sqrt(rho / R_n) * v^3 [estimated application to the orbiter nose; not a full thermal analysis]",
+    "nose_radius_m": 0.8,
+    "nose_radius_note": "[estimated] orbiter nose radius is order 1 m; sets the absolute scale of the heat-flux proxy",
+    "plasma_heat_ref_wm2": 300000.0,
+    "plasma_note": "[estimated] display scale: aero.plasma = min(3, q / 3e5)",
+    "sutton_graves_k": 0.000183
+  },
+  "hypersonic_alpha_design_deg": [
+    25,
+    50
+  ],
+  "mac_m": 12.0602,
+  "moment_table": [
+    {
+      "alpha_deg": 0,
+      "cm": 0.02,
+      "mach": 0.3,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 8,
+      "cm": 0.01,
+      "mach": 0.3,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 14,
+      "cm": 0.0,
+      "mach": 0.3,
+      "note": "subsonic trim near final-approach alpha with elevons near neutral",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cm": -0.03,
+      "mach": 0.3,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 0,
+      "cm": 0.02,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cm": 0.0,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 15,
+      "cm": -0.015,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cm": -0.04,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cm": 0.01,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cm": 0.0,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cm": -0.03,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 25,
+      "cm": 0.015,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cm": 0.008,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cm": 0.0,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 50,
+      "cm": -0.03,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 25,
+      "cm": 0.02,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cm": 0.0,
+      "mach": 10.0,
+      "note": "hypersonic trim near the ATP design alpha with elevons near neutral",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cm": -0.005,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 50,
+      "cm": -0.035,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cm": 0.005,
+      "mach": 25.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cm": 0.0,
+      "mach": 25.0,
+      "tag": "estimated"
+    }
+  ],
+  "reference_area_ft2": 2690,
+  "reference_area_m2": 249.909,
+  "reference_span_m": 23.7917,
   "sources": [
     {
       "id": "NTRS-19740012442",
@@ -22,26 +252,309 @@
       "url": "https://ntrs.nasa.gov/citations/19850008580"
     }
   ],
-  "reference_area_m2": 249.909,
-  "reference_area_ft2": 2690,
-  "reference_span_m": 23.7917,
-  "mac_m": 12.0602,
-  "vertical_tail_area_m2": 38.392,
-  "entry_interface_alt_m": 121920.0,
-  "atmosphere_top_m": 120000.0,
-  "blackout_heating_proxy": 12000.0,
-  "plasma_heating_proxy": 8000.0,
-  "_proxy_note": "heating proxy = sqrt(rho) * v^3 * 1e-9. Thresholds [estimated] for comm blackout / plasma presentation. Same form as Gemini aero.json.",
-  "hypersonic_alpha_design_deg": [25, 50],
   "table": [
-    { "mach": 0.6, "alpha_deg": 10, "cl": 0.45, "cd": 0.08, "tag": "estimated", "note": "subsonic approach; ATP max L/D 5.7 is an upper bound, not this row" },
-    { "mach": 0.6, "alpha_deg": 15, "cl": 0.62, "cd": 0.14, "tag": "estimated" },
-    { "mach": 1.5, "alpha_deg": 10, "cl": 0.28, "cd": 0.16, "tag": "estimated" },
-    { "mach": 1.5, "alpha_deg": 20, "cl": 0.40, "cd": 0.24, "tag": "estimated" },
-    { "mach": 5.0, "alpha_deg": 25, "cl": 0.55, "cd": 0.38, "tag": "estimated" },
-    { "mach": 5.0, "alpha_deg": 40, "cl": 0.72, "cd": 0.58, "tag": "estimated" },
-    { "mach": 10.0, "alpha_deg": 34, "cl": 0.70, "cd": 0.54, "tag": "sourced-anchor", "note": "ATP published L/D 1.3 at 34 deg; cl/cd split [estimated] to match that ratio" },
-    { "mach": 10.0, "alpha_deg": 40, "cl": 0.78, "cd": 0.68, "tag": "estimated" },
-    { "mach": 25.0, "alpha_deg": 40, "cl": 0.80, "cd": 0.73, "tag": "estimated", "note": "typical entry alpha ~40 deg; L/D ~1.1" }
-  ]
+    {
+      "alpha_deg": 0,
+      "cd": 0.045,
+      "cl": 0.05,
+      "mach": 0.3,
+      "note": "subsonic approach build-up; max L/D kept near the ATP 5.7 upper bound",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 8,
+      "cd": 0.1,
+      "cl": 0.55,
+      "mach": 0.3,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 14,
+      "cd": 0.16,
+      "cl": 0.85,
+      "mach": 0.3,
+      "note": "final-approach alpha region",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cd": 0.28,
+      "cl": 1.02,
+      "mach": 0.3,
+      "note": "near stall; L/D falls off",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 0,
+      "cd": 0.04,
+      "cl": 0.03,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cd": 0.08,
+      "cl": 0.45,
+      "mach": 0.6,
+      "note": "subsonic approach; ATP max L/D 5.7 is an upper bound, not this row",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 15,
+      "cd": 0.14,
+      "cl": 0.62,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cd": 0.24,
+      "cl": 0.76,
+      "mach": 0.6,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 0,
+      "cd": 0.045,
+      "cl": 0.03,
+      "mach": 0.9,
+      "note": "high-subsonic drag rise beginning",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cd": 0.11,
+      "cl": 0.48,
+      "mach": 0.9,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 16,
+      "cd": 0.19,
+      "cl": 0.68,
+      "mach": 0.9,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 0,
+      "cd": 0.055,
+      "cl": 0.02,
+      "mach": 1.2,
+      "note": "supersonic wave drag present at all alphas",
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cd": 0.15,
+      "cl": 0.34,
+      "mach": 1.2,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 16,
+      "cd": 0.24,
+      "cl": 0.5,
+      "mach": 1.2,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 0,
+      "cd": 0.08,
+      "cl": 0.01,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cd": 0.16,
+      "cl": 0.28,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cd": 0.24,
+      "cl": 0.4,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.37,
+      "cl": 0.5,
+      "mach": 1.5,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 10,
+      "cd": 0.12,
+      "cl": 0.22,
+      "mach": 2.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cd": 0.2,
+      "cl": 0.38,
+      "mach": 2.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.31,
+      "cl": 0.5,
+      "mach": 2.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 20,
+      "cd": 0.22,
+      "cl": 0.4,
+      "mach": 3.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.34,
+      "cl": 0.55,
+      "mach": 3.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.49,
+      "cl": 0.66,
+      "mach": 3.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 25,
+      "cd": 0.38,
+      "cl": 0.55,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.46,
+      "cl": 0.62,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.58,
+      "cl": 0.72,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 50,
+      "cd": 0.73,
+      "cl": 0.78,
+      "mach": 5.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.47,
+      "cl": 0.64,
+      "mach": 6.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.6,
+      "cl": 0.74,
+      "mach": 6.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 30,
+      "cd": 0.49,
+      "cl": 0.66,
+      "mach": 8.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.63,
+      "cl": 0.76,
+      "mach": 8.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 25,
+      "cd": 0.42,
+      "cl": 0.58,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cd": 0.54,
+      "cl": 0.7,
+      "mach": 10.0,
+      "note": "ATP published L/D 1.3 at 34 deg; cl/cd split [estimated] to match that ratio",
+      "tag": "sourced-anchor"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.68,
+      "cl": 0.78,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 50,
+      "cd": 0.79,
+      "cl": 0.82,
+      "mach": 10.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cd": 0.56,
+      "cl": 0.72,
+      "mach": 15.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.7,
+      "cl": 0.8,
+      "mach": 15.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cd": 0.58,
+      "cl": 0.74,
+      "mach": 20.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.72,
+      "cl": 0.81,
+      "mach": 20.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 34,
+      "cd": 0.6,
+      "cl": 0.74,
+      "mach": 25.0,
+      "tag": "estimated"
+    },
+    {
+      "alpha_deg": 40,
+      "cd": 0.73,
+      "cl": 0.8,
+      "mach": 25.0,
+      "note": "typical entry alpha ~40 deg; L/D ~1.1",
+      "tag": "estimated"
+    }
+  ],
+  "vertical_tail_area_m2": 38.392
 }

@@ -15,6 +15,11 @@
  * Not in this slice: the other six FC-to-bus paths, contactor transit,
  * and barberpole. Talkback steps ON/OFF in the same fixed step. That is
  * functional causality, not timing fidelity.
+ *
+ * P4: cryo reactant consumption. Each online fuel cell drains the lumped
+ * O2/H2 reactant pools; an empty pool takes the cells offline exactly as
+ * an open contactor would (bus goes dark, C&W follows). Quantities and
+ * flow rates are [estimated].
  */
 
 import { bus } from "../core/bus.ts";
@@ -24,6 +29,12 @@ type BusId = "a" | "b" | "c";
 
 export type LoadDef = (typeof topology.loads)[number];
 
+/** Cryo reactant pools and per-cell flow [estimated]. */
+const O2_FULL_KG = 1600;
+const H2_FULL_KG = 200;
+const O2_FLOW_KG_S_PER_CELL = 2.0e-4;
+const H2_FLOW_KG_S_PER_CELL = 2.5e-5;
+
 export class Electrical {
   cells = [true, true, true];
   contactors = { fc1_mna: true, fc2_mnb: true, fc3_mnc: true };
@@ -31,13 +42,18 @@ export class Electrical {
   main_volts = 28;
   bus_powered: Record<BusId, boolean> = { a: true, b: true, c: true };
   loads_a = 42;
+  o2_kg = O2_FULL_KG;
+  h2_kg = H2_FULL_KG;
 
   constructor() {
     this.recompute();
   }
 
   tick(dt: number): void {
-    if (dt !== 0) this.apply_commands();
+    if (dt !== 0) {
+      this.apply_commands();
+      this.consume_reactant(dt);
+    }
     this.recompute();
     this.publish_state();
   }
@@ -45,6 +61,8 @@ export class Electrical {
   publish_state(): void {
     bus.set_value("elec.main_bus.volts", this.main_volts);
     bus.set_value("elec.main_bus.powered", this.main_volts > 18);
+    bus.set_value("elec.reactant.o2_kg", this.o2_kg);
+    bus.set_value("elec.reactant.h2_kg", this.h2_kg);
     this.cells.forEach((on, i) => bus.set_value(`elec.source.fuel_cell_${i + 1}.on`, on && this.fc_commanded(i)));
     bus.set_value("elec.talkback.fc1_mn_a", this.contactors.fc1_mna ? "ON" : "OFF");
     bus.set_value("elec.talkback.fc2_mn_b", this.contactors.fc2_mnb ? "ON" : "OFF");
@@ -70,6 +88,8 @@ export class Electrical {
       main_volts: this.main_volts,
       contactors: { ...this.contactors },
       ties: { ...this.ties },
+      o2_kg: this.o2_kg,
+      h2_kg: this.h2_kg,
     };
   }
 
@@ -78,11 +98,15 @@ export class Electrical {
     main_volts: number;
     contactors?: Electrical["contactors"];
     ties?: Electrical["ties"];
+    o2_kg?: number;
+    h2_kg?: number;
   }): void {
     this.cells = [...d.cells];
     this.main_volts = d.main_volts;
     if (d.contactors) this.contactors = { ...d.contactors };
     if (d.ties) this.ties = { ...d.ties };
+    if (d.o2_kg !== undefined) this.o2_kg = d.o2_kg;
+    if (d.h2_kg !== undefined) this.h2_kg = d.h2_kg;
     this.recompute();
     this.publish_state();
   }
@@ -120,7 +144,15 @@ export class Electrical {
   }
 
   private fc_online(i: number): boolean {
-    return this.cells[i] && this.fc_commanded(i);
+    return this.cells[i] && this.fc_commanded(i) && this.o2_kg > 0 && this.h2_kg > 0;
+  }
+
+  /** Drain the cryo pools for every online cell; an empty pool is a dead cell. */
+  private consume_reactant(dt: number): void {
+    const online = [0, 1, 2].filter((i) => this.cells[i] && this.fc_commanded(i)).length;
+    if (online === 0) return;
+    this.o2_kg = Math.max(0, this.o2_kg - O2_FLOW_KG_S_PER_CELL * online * dt);
+    this.h2_kg = Math.max(0, this.h2_kg - H2_FLOW_KG_S_PER_CELL * online * dt);
   }
 
   private breaker_closed(channel: string): boolean {

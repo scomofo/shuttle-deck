@@ -1,9 +1,27 @@
 {
   "_note": "Public control IDs for the procedure runner. No Godot nodes. Each id writes one command channel the same way a cabin switch would. Momentary switches spring back to CENTER; they do not own the device they command.",
   "controls": [
-    { "id": "FuelCell1", "channel": "ctl.elec.fuel_cell_1", "kind": "switch", "on": true, "off": false },
-    { "id": "FuelCell2", "channel": "ctl.elec.fuel_cell_2", "kind": "switch", "on": true, "off": false },
-    { "id": "FuelCell3", "channel": "ctl.elec.fuel_cell_3", "kind": "switch", "on": true, "off": false },
+    {
+      "id": "FuelCell1",
+      "channel": "ctl.elec.fuel_cell_1",
+      "kind": "switch",
+      "on": true,
+      "off": false
+    },
+    {
+      "id": "FuelCell2",
+      "channel": "ctl.elec.fuel_cell_2",
+      "kind": "switch",
+      "on": true,
+      "off": false
+    },
+    {
+      "id": "FuelCell3",
+      "channel": "ctl.elec.fuel_cell_3",
+      "kind": "switch",
+      "on": true,
+      "off": false
+    },
     {
       "id": "Fc1MnA",
       "channel": "ctl.elec.fc1_mn_a",
@@ -86,11 +104,85 @@
       "spec_id": "O14_MNA_ANNUN_FWD_ACA_1",
       "confidence": "described"
     },
-    { "id": "EtSep", "channel": "seq.cmd.et_sep", "kind": "button" },
-    { "id": "Deorbit", "channel": "seq.cmd.deorbit", "kind": "button" },
-    { "id": "Gear", "channel": "ctl.gear", "kind": "switch", "on": true, "off": false },
-    { "id": "OmsBurn", "channel": "ctl.oms.burn", "kind": "switch", "on": true, "off": false },
-    { "id": "DapRetro", "channel": "ctl.dap.mode", "kind": "switch", "on": "retrograde", "off": "manual" },
-    { "id": "Rhc", "channel": "ctl.hand", "kind": "hand" }
+    {
+      "id": "EtSep",
+      "channel": "seq.cmd.et_sep",
+      "kind": "button"
+    },
+    {
+      "id": "Deorbit",
+      "channel": "seq.cmd.deorbit",
+      "kind": "button"
+    },
+    {
+      "id": "Gear",
+      "channel": "ctl.gear",
+      "kind": "switch",
+      "on": true,
+      "off": false
+    },
+    {
+      "id": "OmsBurn",
+      "channel": "ctl.oms.burn",
+      "kind": "switch",
+      "on": true,
+      "off": false
+    },
+    {
+      "id": "DapRetro",
+      "channel": "ctl.dap.mode",
+      "kind": "switch",
+      "on": "retrograde",
+      "off": "manual"
+    },
+    {
+      "id": "Rhc",
+      "channel": "ctl.hand",
+      "kind": "hand"
+    },
+    {
+      "id": "GearArm",
+      "channel": "ctl.gear_arm",
+      "kind": "button",
+      "_note": "P4: latches the gear extend valves in the mechanisms owner; DN does nothing until armed."
+    },
+    {
+      "id": "Plbd",
+      "channel": "ctl.plbd.open",
+      "kind": "switch",
+      "on": true,
+      "off": false,
+      "_note": "P4: payload bay door open/close command; the mechanisms owner sequences latches and drive."
+    },
+    {
+      "id": "Apu1",
+      "channel": "ctl.apu.1.start",
+      "kind": "switch",
+      "on": true,
+      "off": false,
+      "_note": "P4: APU 1 start/shutdown command; the APU owner handles spool, fuel, hydraulics."
+    },
+    {
+      "id": "Apu2",
+      "channel": "ctl.apu.2.start",
+      "kind": "switch",
+      "on": true,
+      "off": false,
+      "_note": "P4: APU 2 start/shutdown command."
+    },
+    {
+      "id": "Apu3",
+      "channel": "ctl.apu.3.start",
+      "kind": "switch",
+      "on": true,
+      "off": false,
+      "_note": "P4: APU 3 start/shutdown command."
+    },
+    {
+      "id": "SmokeFault",
+      "channel": "ctl.fault.smoke_flt_dk",
+      "kind": "button",
+      "_note": "P4: fault injection for the flight-deck smoke detector (test panel only; no deck switch)."
+    }
   ]
 }

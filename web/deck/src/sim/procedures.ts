@@ -25,7 +25,7 @@ type SimView = {
   doorsOpen: boolean;
   gear: boolean;
   gearArmed: boolean;
-  dvDeorbit: number;
+  burnActive: boolean;
   srbAttached: boolean;
   get: number;
   altErr: number;
@@ -141,16 +141,16 @@ const PROCEDURES: ProcDef[] = [
     steps: [
       {
         id: "apu",
-        call: "APU for entry",
+        call: "APUs 2+3 for entry",
         response: (s) => (s.apu ? "RUN" : "OFF"),
         ok: (s) => s.apu,
         action: "apu",
       },
       {
         id: "burn",
-        call: "Retro burn",
-        response: (s) => `${Math.min(95, Math.round(s.dvDeorbit))} / 95`,
-        ok: (s) => s.dvDeorbit >= 95 || later.has(s.phase),
+        call: "Retro burn (hold B)",
+        response: (s) => (s.burnActive ? "BURNING" : "—"),
+        ok: (s) => later.has(s.phase),
         latch: true,
       },
     ],

@@ -81,3 +81,35 @@ ecs.cabin.kpa,ecs,kPa,
 ecs.cabin.ok,ecs,bool,
 present.world_r_cabin_m,presenter,m,never fed back
 present.earth_distance_m,presenter,m,never fed back
+ctl.gear_arm,controls,bool,gear extend-valve arm (momentary, latched by mechanisms)
+ctl.plbd.open,controls,bool,payload bay door open command
+ctl.apu.1.start,controls,bool,APU 1 start command
+ctl.apu.2.start,controls,bool,APU 2 start command
+ctl.apu.3.start,controls,bool,APU 3 start command
+ctl.fault.smoke_flt_dk,controls,bool,fault injection: smoke at the flight-deck detector
+apu.1.state,apu,enum,off|starting|running
+apu.1.running,apu,bool,
+apu.1.hyd_press_pa,apu,Pa,hydraulic system pressure driven by this APU
+apu.1.fuel_kg,apu,kg,hydrazine remaining
+apu.running_count,apu,1,APUs running
+hyd.pressurized_count,apu,1,hydraulic systems above 50% nominal
+hyd.servo_ok,apu,bool,aerosurface servo power available (future consumer: guidance/dynamics)
+mech.plbd.position,mechanisms,1,0 closed .. 1 open
+mech.plbd.state,mechanisms,enum,door/latch sequence state
+mech.plbd.open,mechanisms,bool,fully open
+mech.plbd.latched,mechanisms,bool,closed and latched
+mech.plbd.talkback,mechanisms,enum,CL|OP|TRANSIT
+mech.plbd.moving,mechanisms,bool,drive in transit
+mech.gear.state,mechanisms,enum,up|armed|extending|down_locked
+mech.gear.armed,mechanisms,bool,extend valves latched
+mech.gear.down_locked,mechanisms,bool,down-lock talkback
+mech.gear.talkback,mechanisms,enum,UP|ARM|TRANSIT|DN
+sys.fire.smoke_flt_dk,fire,bool,flight-deck smoke alarm
+sys.fire.detector_flt_dk_ok,fire,bool,detector powered (breaker + MN A)
+elec.reactant.o2_kg,electrical,kg,cryo O2 remaining for the fuel cells
+elec.reactant.h2_kg,electrical,kg,cryo H2 remaining for the fuel cells
+prop.oms.eng_l.thrust_n,propulsion,N,left OMS engine thrust
+prop.oms.eng_r.thrust_n,propulsion,N,right OMS engine thrust
+prop.oms.pod_l_kg,propulsion,kg,left OMS pod propellant
+prop.oms.pod_r_kg,propulsion,kg,right OMS pod propellant
+prop.rcs.available,propulsion,bool,RCS propellant remaining

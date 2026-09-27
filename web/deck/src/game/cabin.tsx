@@ -61,7 +61,7 @@ type MduId =
   | "CDR1" | "CDR2"
   | "CRT1" | "CRT2" | "CRT3" | "MFD1" | "MFD2"
   | "PLT1" | "PLT2"
-  | "CRT4";
+  | "CRT4" | "AFD1";
 
 /** Local candidate formats per MDU. Clicking a bezel cycles these; this is a
  *  stand-in for exploring formats, not the real GPC display-select model. */
@@ -76,10 +76,37 @@ const MDU_FORMATS: Record<MduId, string[]> = {
   PLT1: ["hsi", "ami"],
   PLT2: ["adi", "traj"],
   CRT4: ["gnc", "sys", "traj"],
+  AFD1: ["sys", "traj"],
 };
 /** CRT3 format-select buttons: DPS/SYS/TRAJ map to the gnc/sys/traj formats. */
 const CRT3_SET = ["gnc", "sys", "traj"];
 const CRT3_LABELS = ["DPS", "SYS", "TRAJ"];
+
+/* Central flight-deck dimension table (meters). Sourced from the Shuttle Crew
+ * Operations Manual USA007587 Rev. A (SCOM) unless noted; see
+ * ~/workspace/shuttle-deck-research/flight-deck-visual-references.md.
+ * [sourced] = SCOM text or Appendix A panel drawing.
+ * [estimated] = photo-scaled against the 8-in MDU bezel, ±15–20%. */
+const DECK_DIMS = {
+  mduScreen: 0.170, // 6.7-in-square AMLCD active area — SCOM §2.6 [sourced]
+  mduBezel: 0.205, // ~8-in-square enclosure — FlightGlobal [estimated, non-authoritative]
+  fwdWindowW: 0.66, // forward window clear width, W1–W6 [estimated]
+  fwdWindowH: 0.36, // forward window clear height, W1–W6 [estimated]
+  ohWindow: 0.508, // overhead windows W7/W8 clear view, 20×20 in — SCOM §1.2 [sourced]
+  aftWindowW: 0.368, // aft payload-bay windows, 14.5 in — SCOM §1.2 [sourced]
+  aftWindowH: 0.279, // aft payload-bay windows, 11 in — SCOM §1.2 [sourced]
+};
+
+/* F7 C/W annunciator matrix legends, transcribed from the SCOM Appendix A
+ * Panel F7 drawing [sourced]. 8 columns × 5 rows = 40 lamps: 39 primary C/W
+ * + BACKUP C/W ALARM (bottom-right) — SCOM §2.2. */
+const CW_MATRIX: string[][] = [
+  ["FUEL CELL PUMP", "AC OVERLOAD", "RCS JET", "RIGHT RCS", "RIGHT OMS", "OMS TVC", "", "HYD PRESS"],
+  ["FUEL CELL STACK TEMP", "AC VOLTAGE", "FWD RCS", "LEFT RCS", "LEFT OMS", "OMS KIT", "MPS", "APU UNDERSPEED"],
+  ["FUEL CELL REAC", "MAIN BUS UNDERVOLT", "IMU", "AIR DATA", "RIGHT/AFT RCS BHC", "FCS SATURATION", "FCS CHANNEL", "APU OVERSPEED"],
+  ["H2 PRESS", "O2 HEATER TEMP", "AV BAY/CABIN AIR", "RGA/ACCEL", "LEFT RHC", "GPC", "PRIMARY C/W", "APU TEMP"],
+  ["O2 PRESS", "CABIN ATM", "FREON LOOP", "H2O LOOP", "", "PAYLOAD WARNING", "PAYLOAD CAUTION", "BACKUP C/W ALARM"],
+];
 
 function drawAdi(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
   const cx = x + w / 2;
@@ -322,65 +349,121 @@ const CW_LAMPS: { label: string; on: () => boolean }[] = [
     on: () => sim.running && sim.gear &&
       sim.phase !== "approach" && sim.phase !== "rollout" && sim.phase !== "landed",
   },
-  { label: "SMOKE", on: () => false },
+  { label: "SMOKE", on: () => sim.smokeAlarm },
 ];
 
-/** F7 caution/warning strip: seven live annunciators, backup alarm, GPC
- *  light, and the event-time readout. Painted live. */
-function paintBrow(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
+/** Live C/W matrix lamp state. Only lamps with a real sim channel behind
+ *  them can light; the rest stay dark (no fault). BACKUP C/W ALARM follows
+ *  the same caution logic the 2D deck uses. */
+const cwLampLit = (label: string): boolean => {
+  if (label === "FUEL CELL PUMP") return sim.running && !sim.fuelCell;
+  if (label === "HYD PRESS") return sim.running && !sim.apu;
+  if (label === "BACKUP C/W ALARM") return CW_LAMPS.some((l) => l.on());
+  return false;
+};
+/** Master-alarm pushbuttons (F2/F4/A7) light with the backup C/W alarm. */
+const masterAlarmLit = (): boolean => CW_LAMPS.some((l) => l.on());
+
+/** F7 C/W annunciator matrix faceplate: 8×5 = 40 lamp windows with the
+ *  legends transcribed from the SCOM Appendix A Panel F7 drawing [sourced].
+ *  Static — painted once; lamp illumination is separate emissive meshes. */
+function paintCwMatrix(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   const g = canvas.getContext("2d");
   if (!g) return;
   const W = canvas.width;
   const H = canvas.height;
-  g.fillStyle = "#14171c";
+  g.fillStyle = "#9aa09a";
   g.fillRect(0, 0, W, H);
-  const n = CW_LAMPS.length;
-  const cell = W / (n + 3);
-  CW_LAMPS.forEach((lamp, i) => {
-    const cx = cell * (i + 0.5);
-    const lit = lamp.on();
-    g.fillStyle = lit ? "#ffb14e" : "#232a31";
-    g.fillRect(cx - cell * 0.42, 10, cell * 0.84, H - 20);
+  g.fillStyle = "#14171c";
+  g.fillRect(6, 6, W - 12, H - 12);
+  const cols = 8;
+  const rows = 5;
+  const cw = (W - 12) / cols;
+  const ch = (H - 12) / rows;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const label = CW_MATRIX[r][c];
+      const x = 6 + c * cw;
+      const y = 6 + r * ch;
+      // Lamp window (emissive overlay mesh sits on top of this).
+      g.fillStyle = "#232a31";
+      g.fillRect(x + cw * 0.12, y + ch * 0.1, cw * 0.76, ch * 0.52);
+      g.strokeStyle = "#0a0c0e";
+      g.lineWidth = 2;
+      g.strokeRect(x + cw * 0.12, y + ch * 0.1, cw * 0.76, ch * 0.52);
+      if (label) {
+        g.fillStyle = "#c8cfd6";
+        const words = label.split(" ");
+        const fs = words.length > 2 ? 11 : 13;
+        g.font = `600 ${fs}px 'IBM Plex Mono', monospace`;
+        if (words.length <= 2) {
+          g.fillText(label, x + cw / 2, y + ch * 0.82);
+        } else {
+          g.fillText(words.slice(0, Math.ceil(words.length / 2)).join(" "), x + cw / 2, y + ch * 0.74);
+          g.fillText(words.slice(Math.ceil(words.length / 2)).join(" "), x + cw / 2, y + ch * 0.9);
+        }
+      }
+    }
+  }
+  tex.needsUpdate = true;
+}
+
+/** F7 middle-right strip: MAIN ENGINE STATUS indicators, SM ALERT, and the
+ *  EVENT TIME / MISSION TIME digital readout — SCOM Appendix A Panel F7
+ *  [sourced]. Painted live for the event-time digits. */
+function paintMeStrip(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
+  const g = canvas.getContext("2d");
+  if (!g) return;
+  const W = canvas.width;
+  const H = canvas.height;
+  g.fillStyle = "#9aa09a";
+  g.fillRect(0, 0, W, H);
+  g.fillStyle = "#14171c";
+  g.fillRect(5, 5, W - 10, H - 10);
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillStyle = "#c8cfd6";
+  g.font = "600 13px 'IBM Plex Mono', monospace";
+  g.fillText("MAIN ENGINE", W / 2, 24);
+  g.fillText("STATUS", W / 2, 40);
+  // Three engine position indicators: LEFT / CTR / RIGHT (static plates —
+  // the sim has no per-SSME status channel, so these stay unlit).
+  const boxes = ["LEFT", "CTR", "RIGHT"];
+  boxes.forEach((b, i) => {
+    const y = 66 + i * 44;
+    g.fillStyle = "#232a31";
+    g.fillRect(W / 2 - 52, y - 16, 104, 32);
     g.strokeStyle = "#0a0c0e";
     g.lineWidth = 2;
-    g.strokeRect(cx - cell * 0.42, 10, cell * 0.84, H - 20);
-    g.fillStyle = lit ? "#1a1206" : "#5a636b";
-    g.font = "600 15px 'IBM Plex Mono', monospace";
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.fillText(lamp.label, cx, H / 2);
+    g.strokeRect(W / 2 - 52, y - 16, 104, 32);
+    g.fillStyle = "#5a636b";
+    g.font = "600 13px 'IBM Plex Mono', monospace";
+    g.fillText(b, W / 2, y);
   });
-  // Backup C/W alarm: lit whenever any annunciator is lit.
-  const anyLit = CW_LAMPS.some((lamp) => lamp.on());
-  const bx = cell * (n + 0.5);
-  g.fillStyle = anyLit ? "#ff5a4a" : "#3a2320";
-  g.beginPath();
-  g.arc(bx, H / 2, 16, 0, Math.PI * 2);
-  g.fill();
-  g.fillStyle = anyLit ? "#1a0a08" : "#7a5a55";
-  g.font = "600 11px 'IBM Plex Mono', monospace";
-  g.fillText("BACKUP", bx, H / 2 - 7);
-  g.fillText("C/W", bx, H / 2 + 7);
-  // GPC caution/warning light.
-  const gx = cell * (n + 1.5);
-  const gpc = sim.fail !== "";
-  g.fillStyle = gpc ? "#ffb14e" : "#232a31";
-  g.beginPath();
-  g.arc(gx, H / 2, 13, 0, Math.PI * 2);
-  g.fill();
-  g.fillStyle = gpc ? "#1a1206" : "#5a636b";
-  g.font = "600 11px 'IBM Plex Mono', monospace";
-  g.fillText("GPC", gx, H / 2 - 7);
-  g.fillText("C/W", gx, H / 2 + 7);
-  // Event time readout.
-  const ex = cell * (n + 2.5);
-  g.fillStyle = "#d7ecff";
+  const smY = 66 + 3 * 44;
+  g.fillStyle = "#1c2733";
+  g.fillRect(W / 2 - 52, smY - 16, 104, 32);
+  g.strokeStyle = "#3a5a7a";
+  g.strokeRect(W / 2 - 52, smY - 16, 104, 32);
+  g.fillStyle = "#7ab5e0";
   g.font = "600 13px 'IBM Plex Mono', monospace";
-  g.textAlign = "center";
-  g.fillText("EVENT TIME", ex, 16);
-  g.font = "600 20px 'IBM Plex Mono', monospace";
+  g.fillText("SM ALERT", W / 2, smY);
+  // Event-time digital readout (mission clock).
+  const etY = smY + 52;
+  g.fillStyle = "#c8cfd6";
+  g.font = "600 13px 'IBM Plex Mono', monospace";
+  g.fillText("EVENT TIME", W / 2, etY);
+  g.fillStyle = "#0a0f14";
+  g.fillRect(W / 2 - 78, etY + 14, 156, 44);
   g.fillStyle = GREEN;
-  g.fillText(fmtMET(metSeconds()), ex, H - 22);
+  g.font = "600 30px 'IBM Plex Mono', monospace";
+  g.fillText(fmtMET(metSeconds()), W / 2, etY + 38);
+  g.fillStyle = "#c8cfd6";
+  g.font = "600 11px 'IBM Plex Mono', monospace";
+  g.fillText("MIN", W / 2 - 52, etY + 70);
+  g.fillText("SEC", W / 2 + 52, etY + 70);
   tex.needsUpdate = true;
 }
 
@@ -506,7 +589,8 @@ function paintAftRight(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   tex.needsUpdate = true;
 }
 
-/** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW. */
+/** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW.
+ *  P4: the LEDs are painted dark — labels only, no RMS model drives them. */
 function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   const g = canvas.getContext("2d");
   if (!g) return;
@@ -520,9 +604,9 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.textBaseline = "middle";
   g.fillText("A8 · RMS MODE / JOINT", W / 2, 28);
   const rows: [string, string][] = [
-    ["ORB UNL", "#8fefb0"],
-    ["SHOULDER PITCH", "#8fefb0"],
-    ["SHOULDER YAW", "#8fefb0"],
+    ["ORB UNL", "#2c3430"],
+    ["SHOULDER PITCH", "#2c3430"],
+    ["SHOULDER YAW", "#2c3430"],
   ];
   rows.forEach(([label, color], i) => {
     const y = 78 + i * 66;
@@ -538,7 +622,7 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.fillStyle = "#8a939b";
   g.font = "400 12px 'IBM Plex Mono', monospace";
   g.textAlign = "center";
-  g.fillText("mode/joint labels per JSC-26419 · joints unattested", W / 2, H - 18);
+  g.fillText("labels per JSC-26419 · no RMS model — indicators dark", W / 2, H - 18);
   tex.needsUpdate = true;
 }
 
@@ -833,24 +917,33 @@ function SwitchField({
 
 /** One square MEDS MDU: bezel, live screen, six edgekeys. Click the screen
  *  (without dragging) to cycle its candidate formats. */
+/* MEDS display unit. Active area 6.7-in-square (SCOM §2.6) [sourced];
+ * enclosure ~8-in-square (FlightGlobal) [estimated, non-authoritative].
+ * Six edgekeys sit below the display on F6/F8 MDUs and along the right side
+ * of F7 MDUs (strip follows mounting orientation — SCOM App. A drawings). */
 function MduUnit({
   id,
   map,
   x,
   y,
   onCycle,
+  edgekeys = "bottom",
 }: {
   id: MduId;
   map: THREE.Texture;
   x: number;
   y: number;
   onCycle: () => void;
+  edgekeys?: "bottom" | "right";
 }) {
   const downPos = useRef<[number, number] | null>(null);
+  const B = DECK_DIMS.mduBezel;
+  const S = DECK_DIMS.mduScreen;
+  const ek = [-0.068, -0.041, -0.014, 0.014, 0.041, 0.068];
   return (
     <group position={[x, y, 0.015]}>
-      <Bar position={[0, 0, -0.008]} args={[0.26, 0.28, 0.03]} material={matGasket} />
-      <Bar position={[0, 0.005, 0]} args={[0.24, 0.26, 0.028]} material={matMullion} />
+      <Bar position={[0, 0, -0.008]} args={[B + 0.012, B + 0.012, 0.03]} material={matGasket} />
+      <Bar position={[0, 0.005, 0]} args={[B, B, 0.028]} material={matMullion} />
       <mesh
         position={[0, 0.015, 0.016]}
         onPointerDown={(event) => {
@@ -864,13 +957,78 @@ function MduUnit({
           if (d && Math.hypot(event.clientX - d[0], event.clientY - d[1]) < 6) onCycle();
         }}
       >
-        <planeGeometry args={[0.21, 0.21]} />
+        <planeGeometry args={[S, S]} />
         <meshBasicMaterial map={map} toneMapped={false} />
       </mesh>
-      {[-0.075, -0.045, -0.015, 0.015, 0.045, 0.075].map((kx) => (
-        <Bar key={kx} position={[kx, -0.108, 0.016]} args={[0.024, 0.012, 0.008]} material={matHead} />
-      ))}
-      <PlateLabel label={id} x={-0.085} y={0.122} scale={0.62} z={0.037} />
+      {edgekeys === "bottom"
+        ? ek.map((kx) => (
+            <Bar key={kx} position={[kx, -(B / 2 - 0.013), 0.016]} args={[0.02, 0.011, 0.008]} material={matHead} />
+          ))
+        : ek.map((ky) => (
+            <Bar key={ky} position={[B / 2 - 0.013, ky, 0.016]} args={[0.011, 0.02, 0.008]} material={matHead} />
+          ))}
+      <PlateLabel label={id} x={-(B / 2 - 0.022)} y={B / 2 - 0.014} scale={0.62} z={0.037} />
+    </group>
+  );
+}
+
+/** Red MASTER ALARM pushbutton indicator — SCOM §2.2 places four on panels
+ *  F2, F4, A7, and MO52J [sourced]. Positions below are [estimated];
+ *  MO52J is not a flight-deck panel in this blockout and is not modeled. */
+function MasterAlarm({ x, y, z = 0.02 }: { x: number; y: number; z?: number }) {
+  const lit = masterAlarmLit();
+  return (
+    <group position={[x, y, z]}>
+      <mesh position={[0, 0, 0.004]}>
+        <boxGeometry args={[0.045, 0.028, 0.014]} />
+        <meshStandardMaterial
+          color={lit ? "#ff2a1a" : "#5a1610"}
+          emissive={lit ? "#ff2a1a" : "#000000"}
+          emissiveIntensity={lit ? 1.4 : 0}
+          roughness={0.4}
+        />
+      </mesh>
+      <PlateLabel label="MASTER ALARM" x={0} y={-0.027} scale={0.4} />
+    </group>
+  );
+}
+
+/** F7 C/W annunciator matrix: static legend faceplate plus one emissive lamp
+ *  overlay per legend. Only lamps with a real sim channel light (see
+ *  cwLampLit); the rest stay dark. Faceplate 0.23×0.16 m [estimated]. */
+function CwMatrix({ x, y, map }: { x: number; y: number; map: THREE.Texture }) {
+  const W = 0.23;
+  const H = 0.16;
+  const lamps: { label: string; px: number; py: number }[] = [];
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 8; c++) {
+      // Must match the lamp-window geometry drawn in paintCwMatrix
+      // (640×400 canvas, 6 px frame).
+      const cx = (6 + c * 78.5 + 78.5 * 0.5) / 640;
+      const cy = (6 + r * 77.6 + 77.6 * 0.36) / 400;
+      lamps.push({ label: CW_MATRIX[r][c], px: (cx - 0.5) * W, py: (0.5 - cy) * H });
+    }
+  }
+  return (
+    <group position={[x, y, 0.015]}>
+      <mesh position={[0, 0, 0.012]} raycast={() => null}>
+        <planeGeometry args={[W, H]} />
+        <meshBasicMaterial map={map} toneMapped={false} />
+      </mesh>
+      {lamps.map((l, i) => {
+        const lit = l.label !== "" && cwLampLit(l.label);
+        return (
+          <mesh key={i} position={[l.px, l.py, 0.016]} raycast={() => null}>
+            <planeGeometry args={[0.017, 0.015]} />
+            <meshBasicMaterial
+              color={lit ? "#ffb14e" : "#000000"}
+              transparent
+              opacity={lit ? 0.9 : 0}
+              toneMapped={false}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
@@ -906,25 +1064,22 @@ function MiniButton({
   );
 }
 
-/** ADI attitude selector rotary (INRTL / LVLH / REF). */
+/**
+ * ADI attitude selector rotary (INRTL / LVLH / REF).
+ * P4: rendered inert — the ADI source select has no root model behind it,
+ * so the knob does not move rather than pretending to switch sources.
+ */
 function AdiAttRotary({ x, y = -0.17 }: { x: number; y?: number }) {
-  const [mode, setMode] = useState(0);
   const modes = ["INRTL", "LVLH", "REF"];
+  const mode = 0;
   return (
     <group position={[x, y, 0.02]}>
       <mesh position={[0, 0, 0.004]} raycast={() => null} material={matHardware}>
         <cylinderGeometry args={[0.02, 0.024, 0.012, 16]} />
       </mesh>
-      <mesh
-        position={[0, 0, 0.014]}
-        rotation={[0, 0, (-mode * Math.PI * 2) / 3]}
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          setMode((m) => (m + 1) % 3);
-        }}
-      >
+      <mesh position={[0, 0, 0.014]} rotation={[0, 0, (-mode * Math.PI * 2) / 3]} raycast={() => null}>
         <boxGeometry args={[0.008, 0.03, 0.012]} />
-        <meshStandardMaterial color="#dddcd4" roughness={0.5} />
+        <meshStandardMaterial color="#8a8d86" roughness={0.5} />
       </mesh>
       <PlateLabel label="ADI ATT" x={0} y={0.042} scale={0.5} />
       <PlateLabel label={modes[mode]} x={0} y={-0.042} scale={0.5} />
@@ -932,35 +1087,27 @@ function AdiAttRotary({ x, y = -0.17 }: { x: number; y?: number }) {
   );
 }
 
-/** ATT REF pushbutton. */
+/**
+ * ATT REF pushbutton.
+ * P4: rendered inert — no root model consumes an attitude reference
+ * update, so the button does not light rather than faking an action.
+ */
 function AttRefButton({ x, y = -0.17 }: { x: number; y?: number }) {
-  const [lit, setLit] = useState(false);
   return (
     <group position={[x, y, 0.02]}>
-      <mesh
-        position={[0, 0, 0.004]}
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          setLit(true);
-        }}
-        onPointerUp={(event) => {
-          event.stopPropagation();
-          setLit(false);
-        }}
-        onPointerLeave={() => setLit(false)}
-      >
+      <mesh position={[0, 0, 0.004]} raycast={() => null}>
         <boxGeometry args={[0.055, 0.026, 0.012]} />
-        <meshStandardMaterial color={lit ? "#d4b27c" : "#3a4046"} roughness={0.5} />
+        <meshStandardMaterial color="#3a4046" roughness={0.5} />
       </mesh>
       <PlateLabel label="ATT REF" x={0} y={-0.03} scale={0.5} />
     </group>
   );
 }
 
-/** RCS COMMAND lamp cluster. */
+/** RCS COMMAND lamp cluster. P4: lit from RCS firing truth (non-zero
+ * commanded torque in an RCS-effector config with propellant), not phase. */
 function RcsCmdLamps({ x, y = -0.17 }: { x: number; y?: number }) {
-  const active =
-    sim.running && (sim.phase === "ascent" || sim.phase === "entry" || sim.phase === "taem" || sim.phase === "approach");
+  const active = sim.running && sim.rcsFiring;
   return (
     <group position={[x, y, 0.02]}>
       <PlateLabel label="RCS CMD" x={0} y={0.038} scale={0.5} />
@@ -977,16 +1124,16 @@ function RcsCmdLamps({ x, y = -0.17 }: { x: number; y?: number }) {
 const OVERHEAD_REDS = [2, 3, 16, 17, 44];
 const SIDE_REDS = [4, 9];
 
-// Commander-eye composition. Window topology follows NASA p3-7; seat layout follows p3-9;
-// coordinates are visual estimates, not a measured eye box.
-const FORWARD_PANES: [number, number][][] = [
-  [[-1.60,-0.10],[-1.04,-0.10],[-0.89,0.31],[-1.32,0.27]],
-  [[-1.00,-0.10],[-0.50,-0.10],[-0.42,0.40],[-0.85,0.33]],
-  [[-0.46,-0.10],[0.32,-0.10],[0.30,0.44],[-0.38,0.41]],
-  [[0.37,-0.10],[1.15,-0.10],[1.07,0.41],[0.39,0.44]],
-  [[1.19,-0.10],[1.69,-0.10],[1.54,0.33],[1.11,0.40]],
-  [[1.73,-0.10],[2.29,-0.10],[2.01,0.27],[1.58,0.31]],
-];
+// Commander-eye composition. Six forward windows W1–W6, numbered left to
+// right facing forward (SCOM §1.2) [sourced]; each pane ≈0.66×0.36 m clear
+// [estimated] photo-scaled in flight-deck-visual-references.md.
+const FWD_PANE_CENTERS = [-1.05, -0.63, -0.21, 0.21, 0.63, 1.05];
+const FORWARD_PANES: [number, number][][] = FWD_PANE_CENTERS.map((cx) => [
+  [cx - DECK_DIMS.fwdWindowW / 2, 0.24],
+  [cx + DECK_DIMS.fwdWindowW / 2, 0.24],
+  [cx + DECK_DIMS.fwdWindowW / 2 - 0.025, 0.24 + DECK_DIMS.fwdWindowH],
+  [cx - DECK_DIMS.fwdWindowW / 2 + 0.025, 0.24 + DECK_DIMS.fwdWindowH],
+]);
 function WindowFrame({ points }: { points: [number,number][] }) {
   const glazing=useMemo(()=>new THREE.ShapeGeometry(new THREE.Shape(points.map(p=>new THREE.Vector2(...p)))),[points]);
   useEffect(()=>()=>glazing.dispose(),[glazing]);
@@ -1057,7 +1204,8 @@ export function CabinInterior() {
     });
     return {
       mdus,
-      brow: make(1024, 96),
+      cwMatrix: make(640, 400),
+      meStrip: make(256, 384),
       overhead: make(1536, 320),
       aftL: make(640, 760),
       aftR: make(640, 480),
@@ -1070,12 +1218,13 @@ export function CabinInterior() {
   }, []);
   useEffect(() => () => {
     (Object.values(tex.mdus) as { map: THREE.CanvasTexture }[]).forEach(({ map }) => map.dispose());
-    [tex.brow, tex.overhead, tex.aftL, tex.aftR, tex.aftRms,
+    [tex.cwMatrix, tex.meStrip, tex.overhead, tex.aftL, tex.aftR, tex.aftRms,
       tex.aftSideL, tex.aftSideR, tex.aftLower, tex.kb].forEach(({ map }) => map.dispose());
   }, [tex]);
 
   // Static panel faces are painted once; live faces repaint in useFrame.
   useEffect(() => {
+    paintCwMatrix(tex.cwMatrix.canvas, tex.cwMatrix.map);
     paintOverhead(tex.overhead.canvas, tex.overhead.map);
     paintAftRight(tex.aftR.canvas, tex.aftR.map);
     paintAftRms(tex.aftRms.canvas, tex.aftRms.map);
@@ -1099,27 +1248,35 @@ export function CabinInterior() {
       return { ...f, [id]: list[(list.indexOf(cur) + 1) % list.length] };
     });
 
+  /* MDU assignments per SCOM §2.6 + Appendix A panel drawings [sourced].
+   * F6 = CDR1/CDR2, F8 = PLT1/PLT2, F7 = CRT2/MFD2 (top), CRT3 (center),
+   * CRT1/MFD1 (bottom); aft = CRT4 (tilted, R12) + AFD1. Positions [estimated]. */
   const mduUnits = (panel: "F6" | "F7" | "F8" | "R12") => {
-    const defs: Record<string, { id: MduId; x: number; y: number }[]> = {
+    const defs: Record<string, { id: MduId; x: number; y: number; ek: "bottom" | "right"; tilt?: number }[]> = {
       F6: [
-        { id: "CDR1", x: -0.135, y: 0.1 },
-        { id: "CDR2", x: 0.135, y: 0.1 },
+        { id: "CDR1", x: -0.125, y: 0.1, ek: "bottom" },
+        { id: "CDR2", x: 0.125, y: 0.1, ek: "bottom" },
       ],
       F8: [
-        { id: "PLT1", x: -0.135, y: 0.1 },
-        { id: "PLT2", x: 0.135, y: 0.1 },
+        { id: "PLT1", x: -0.125, y: 0.1, ek: "bottom" },
+        { id: "PLT2", x: 0.125, y: 0.1, ek: "bottom" },
       ],
       F7: [
-        { id: "CRT1", x: -0.2, y: 0.22 },
-        { id: "CRT2", x: 0.2, y: 0.22 },
-        { id: "CRT3", x: 0, y: 0.0 },
-        { id: "MFD1", x: -0.2, y: -0.27 },
-        { id: "MFD2", x: 0.2, y: -0.27 },
+        { id: "CRT2", x: -0.16, y: 0.28, ek: "right" },
+        { id: "MFD2", x: 0.16, y: 0.28, ek: "right" },
+        { id: "CRT3", x: 0.025, y: 0.02, ek: "right" },
+        { id: "CRT1", x: -0.16, y: -0.3, ek: "right" },
+        { id: "MFD1", x: 0.16, y: -0.3, ek: "right" },
       ],
-      R12: [{ id: "CRT4", x: 0, y: 0.17 }],
+      R12: [
+        { id: "CRT4", x: -0.125, y: 0.14, ek: "bottom", tilt: -0.1 },
+        { id: "AFD1", x: 0.125, y: 0.14, ek: "bottom" },
+      ],
     };
-    return defs[panel].map(({ id, x, y }) => (
-      <MduUnit key={id} id={id} map={tex.mdus[id].map} x={x} y={y} onCycle={() => cycleMdu(id)} />
+    return defs[panel].map(({ id, x, y, ek, tilt }) => (
+      <group key={id} rotation={[tilt ?? 0, 0, 0]}>
+        <MduUnit id={id} map={tex.mdus[id].map} x={x} y={y} edgekeys={ek} onCycle={() => cycleMdu(id)} />
+      </group>
     ));
   };
 
@@ -1165,7 +1322,7 @@ export function CabinInterior() {
     if (clock.elapsedTime - lastInstrumentPaint.current >= 1 / 15) {
       (Object.keys(tex.mdus) as MduId[]).forEach((id) =>
         paintMdu(tex.mdus[id].canvas, tex.mdus[id].map, id, mduFormat(id)));
-      paintBrow(tex.brow.canvas, tex.brow.map);
+      paintMeStrip(tex.meStrip.canvas, tex.meStrip.map);
       paintAftLeft(tex.aftL.canvas, tex.aftL.map);
       lastInstrumentPaint.current = clock.elapsedTime;
     }
@@ -1209,23 +1366,35 @@ export function CabinInterior() {
         </group>
       </group>
 
+      {/* Overhead windows W7/W8: 20×20 in clear view each, numbered
+          left-to-right facing aft (SCOM §1.2) [sourced]. Ceiling plate and
+          window positions [estimated]. */}
+      <Bar position={[0, 0.86, -0.05]} args={[1.7, 0.04, 1.0]} material={matHead} />
+      {[
+        { x: 0.38, id: "W7" },
+        { x: -0.38, id: "W8" },
+      ].map(({ x, id }) => (
+        <group key={id} position={[x, 0.83, -0.05]} rotation={[0.45, 0, 0]}>
+          <mesh raycast={() => null} material={matWindow}>
+            <planeGeometry args={[DECK_DIMS.ohWindow, DECK_DIMS.ohWindow]} />
+          </mesh>
+          <Bar position={[0, DECK_DIMS.ohWindow / 2 + 0.015, 0.01]} args={[DECK_DIMS.ohWindow + 0.06, 0.03, 0.03]} material={matGasket} />
+          <Bar position={[0, -DECK_DIMS.ohWindow / 2 - 0.015, 0.01]} args={[DECK_DIMS.ohWindow + 0.06, 0.03, 0.03]} material={matGasket} />
+          <Bar position={[-DECK_DIMS.ohWindow / 2 - 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.ohWindow + 0.06, 0.03]} material={matGasket} />
+          <Bar position={[DECK_DIMS.ohWindow / 2 + 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.ohWindow + 0.06, 0.03]} material={matGasket} />
+          <PlateLabel label={id} x={0} y={-DECK_DIMS.ohWindow / 2 - 0.05} scale={0.55} />
+        </group>
+      ))}
+
       <Bar position={[0, 0.58, -0.72]} args={[2.2, 0.07, 0.9]} />
       <Bar position={[-1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
       <Bar position={[1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
       <Bar position={[0, -0.55, -0.48]} args={[1.6, 0.06, 0.9]} material={matHead} />
 
       {FORWARD_PANES.map((points,i)=><WindowFrame key={i} points={points}/>)}
-      {[-0.32, 0.32].map((x) => (
-        <group key={x}>
-          <Bar position={[x, 0.5, -0.92]} args={[0.34, 0.02, 0.025]} material={matMullion} />
-          <Bar position={[x, 0.66, -0.92]} args={[0.34, 0.02, 0.025]} material={matMullion} />
-          <Bar position={[x - 0.16, 0.58, -0.92]} args={[0.02, 0.16, 0.025]} material={matMullion} />
-          <Bar position={[x + 0.16, 0.58, -0.92]} args={[0.02, 0.16, 0.025]} material={matMullion} />
-        </group>
-      ))}
 
-      <mesh ref={glass} position={[0, 0.17, -1.12]} raycast={() => null}>
-        <planeGeometry args={[2.0, 0.46]} />
+      <mesh ref={glass} position={[0, 0.42, -1.12]} raycast={() => null}>
+        <planeGeometry args={[2.9, 0.44]} />
         <meshBasicMaterial color="#b7d4ee" transparent opacity={0.04} depthWrite={false} />
       </mesh>
       <mesh ref={veil} position={[0, 0.12, -0.62]} raycast={() => null}>
@@ -1233,9 +1402,14 @@ export function CabinInterior() {
         <meshBasicMaterial color={VOID} transparent opacity={0} depthWrite={false} />
       </mesh>
 
+      {/* Glareshield brow — dimensions [estimated]. F2/F4 MASTER ALARM
+          pushbuttons (SCOM §2.2) [sourced] on the crew face, positions
+          [estimated]. */}
       <mesh position={[0.24, -0.135, -1.01]} rotation={[0.25, 0, 0]} raycast={() => null} material={matHead}>
         <boxGeometry args={[2.25, 0.055, 0.22]} />
       </mesh>
+      <MasterAlarm x={-0.6} y={-0.135} z={-0.888} />
+      <MasterAlarm x={0.6} y={-0.135} z={-0.888} />
 
       {/* F6 — commander MEDS: CDR1/CDR2 + retained ADI/RCS cluster */}
       <group position={[-0.6, -0.26, -0.78]} rotation={[-0.62, 0.14, 0]}>
@@ -1247,37 +1421,33 @@ export function CabinInterior() {
         <PlateLabel label="F6 · CDR" x={0} y={-0.245} scale={0.7} />
       </group>
 
-      {/* F7 — center MEDS: CRT1/CRT2, CRT3, MFD1/MFD2, C/W strip, grille */}
-      <group position={[0, -0.22, -0.84]} rotation={[-0.62, 0, 0]}>
-        <PanelPlate width={0.78} height={0.9} material={panelMaterial} />
+      {/* F7 — center MEDS per SCOM Appendix A Panel F7 [sourced]: top row
+          CRT2/MFD2, middle row C/W matrix + CRT3 + MAIN ENGINE STATUS strip,
+          bottom row CRT1/MFD1. Edgekeys on the right side of each MDU.
+          Plate 0.66×0.86 sized to its sourced contents [estimated]. */}
+      <group position={[0, -0.2, -0.84]} rotation={[-0.62, 0, 0]}>
+        <PanelPlate width={0.66} height={0.86} material={panelMaterial} />
         {mduUnits("F7")}
-        {/* Caution/warning strip stays at the top of F7: the pedestal occludes
-            the panel's lower center from the eye station. */}
-        <group position={[0, 0.4, 0.015]}>
-          <PanelPlate width={0.72} height={0.07} material={panelMaterial} />
-          <mesh position={[0, 0, 0.014]} raycast={() => null}>
-            <planeGeometry args={[0.7, 0.068]} />
-            <meshBasicMaterial map={tex.brow.map} toneMapped={false} />
+        <CwMatrix x={-0.2} y={0.02} map={tex.cwMatrix.map} />
+        <group position={[0.215, 0.02, 0.015]}>
+          <mesh position={[0, 0, 0.012]} raycast={() => null}>
+            <planeGeometry args={[0.13, 0.195]} />
+            <meshBasicMaterial map={tex.meStrip.map} toneMapped={false} />
           </mesh>
         </group>
-        {/* Vent grille between CRT1 and CRT2 — purpose unattested. */}
-        <group position={[0, 0.22, 0.015]}>
-          {[0, 1, 2, 3].map((i) => (
-            <Bar key={i} position={[(i - 1.5) * 0.018, 0, 0]} args={[0.008, 0.1, 0.02]} material={matHead} />
-          ))}
-        </group>
-        {/* Retained switch cluster below CRT3: DPS/SYS/TRAJ format selects. */}
+        {/* Retained switch cluster for CRT3: DPS/SYS/TRAJ format selects.
+            Own row between the middle and bottom MDU rows. */}
         {CRT3_LABELS.map((label, i) => (
           <MiniButton
             key={label}
-            x={(i - 1) * 0.055}
-            y={-0.18}
+            x={0.02 + (i - 1) * 0.05}
+            y={-0.13}
             label={label}
             active={(formats.CRT3 ?? "gnc") === CRT3_SET[i]}
             onDown={() => setFormats((f) => ({ ...f, CRT3: CRT3_SET[i] }))}
           />
         ))}
-        <PlateLabel label="F7 · PLT-CDR" x={0} y={-0.425} scale={0.6} />
+        <PlateLabel label="F7" x={0} y={-0.41} scale={0.6} />
       </group>
 
       {/* F8 — pilot MEDS: PLT1/PLT2 + retained ADI cluster */}
@@ -1368,7 +1538,7 @@ export function CabinInterior() {
         <group
           ref={gearHandle}
           position={[-0.1, 0.02, 0.12]}
-          rotation={[sim.gear ? -0.9 : 0.7, 0, 0]}
+          rotation={[sim.gearCommand ? -0.9 : 0.7, 0, 0]}
           onPointerDown={(event) => {
             event.stopPropagation();
             sim.toggleGear();
@@ -1383,7 +1553,9 @@ export function CabinInterior() {
         </group>
       </group>
 
-      {/* Aft station — starboard: R12 CRT4, R13 PLBD, R11/R14/R15 */}
+      {/* Aft station — starboard: R12 CRT4 (tilted per SCOM §2.6) + AFD1,
+          R13 PLBD, R11/R14/R15. R11L DPS keyboard (SCOM §2.6) [sourced];
+          positions [estimated]. */}
       <group position={[0.66, -0.05, 0.62]} rotation={[-0.15, -2.32, 0]}>
         <PanelPlate width={0.62} height={0.72} material={panelMaterial} />
         <PlateLabel label="AFT · STBD" x={0} y={0.325} scale={0.8} />
@@ -1392,6 +1564,14 @@ export function CabinInterior() {
           <planeGeometry args={[0.58, 0.38]} />
           <meshBasicMaterial map={tex.aftR.map} toneMapped={false} />
         </mesh>
+        <group position={[-0.17, -0.2, 0.02]}>
+          <PanelPlate width={0.15} height={0.11} material={panelMaterial} />
+          <mesh position={[0, 0.005, 0.014]} raycast={() => null}>
+            <planeGeometry args={[0.13, 0.07]} />
+            <meshBasicMaterial map={tex.kb.map} toneMapped={false} />
+          </mesh>
+          <PlateLabel label="R11L · DPS KEY" x={0} y={-0.068} scale={0.45} />
+        </group>
         <Switch
           position={[-0.06, -0.3, 0.03]}
           label="PLBD OP"
@@ -1410,7 +1590,8 @@ export function CabinInterior() {
         />
       </group>
 
-      {/* Aft station — port: A1 comm, A4 time, A6U ADI, A7 floodlight */}
+      {/* Aft station — port: A1 comm, A4 time, A6U ADI, A7 floodlight +
+          A7 MASTER ALARM pushbutton (SCOM §2.2) [sourced], pos [estimated]. */}
       <group position={[-0.66, -0.05, 0.62]} rotation={[-0.15, 2.32, 0]}>
         <PanelPlate width={0.62} height={0.72} material={panelMaterial} />
         <PlateLabel label="AFT · PORT" x={0} y={0.325} scale={0.8} />
@@ -1421,6 +1602,7 @@ export function CabinInterior() {
         <AdiAttRotary x={-0.15} y={-0.18} />
         <Switch position={[0.15, -0.18, 0.03]} label="FLD FWD" hot={flood} onDown={() => setFlood((f) => !f)} />
         <Switch position={[0.25, -0.18, 0.03]} label="FLD AFT" hot={flood} onDown={() => setFlood((f) => !f)} />
+        <MasterAlarm x={-0.24} y={0.24} />
       </group>
 
       {/* A8 — RMS mode/joint panel (attested labels only) */}
@@ -1477,16 +1659,17 @@ export function CabinInterior() {
         </group>
       ))}
 
-      {/* Aft-facing windows */}
+      {/* Aft-facing payload-bay windows: 14.5×11 in clear view each
+          (SCOM §1.2) [sourced]. Positions [estimated]. */}
       {[-0.3, 0.3].map((x) => (
         <group key={x} position={[x, 0.58, 0.62]} rotation={[0.5, Math.PI, 0]}>
           <mesh raycast={() => null} material={matWindow}>
-            <planeGeometry args={[0.3, 0.22]} />
+            <planeGeometry args={[DECK_DIMS.aftWindowW, DECK_DIMS.aftWindowH]} />
           </mesh>
-          <Bar position={[0, 0.12, 0.01]} args={[0.34, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[0, -0.12, 0.01]} args={[0.34, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[-0.16, 0, 0.01]} args={[0.03, 0.26, 0.03]} material={matGasket} />
-          <Bar position={[0.16, 0, 0.01]} args={[0.03, 0.26, 0.03]} material={matGasket} />
+          <Bar position={[0, DECK_DIMS.aftWindowH / 2 + 0.015, 0.01]} args={[DECK_DIMS.aftWindowW + 0.06, 0.03, 0.03]} material={matGasket} />
+          <Bar position={[0, -DECK_DIMS.aftWindowH / 2 - 0.015, 0.01]} args={[DECK_DIMS.aftWindowW + 0.06, 0.03, 0.03]} material={matGasket} />
+          <Bar position={[-DECK_DIMS.aftWindowW / 2 - 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.aftWindowH + 0.06, 0.03]} material={matGasket} />
+          <Bar position={[DECK_DIMS.aftWindowW / 2 + 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.aftWindowH + 0.06, 0.03]} material={matGasket} />
         </group>
       ))}
 

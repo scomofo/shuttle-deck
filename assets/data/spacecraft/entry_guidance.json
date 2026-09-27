@@ -1,0 +1,67 @@
+{
+  "_note": "Entry/TAEM/approach reference schedules for the root flight-director laws (src/systems/guidance.ts). Orbiter-like shapes; every number [estimated] unless it cites a sourced anchor. These are command targets for effector laws, not a transcription of the onboard guidance software.",
+  "alpha_schedule": {
+    "_note": "[estimated] commanded angle of attack vs Earth-relative speed: ~40 deg through hypersonic flight, easing to final-approach alpha subsonic. Shape follows the published orbiter entry profile (high-alpha hypersonic, low-alpha subsonic).",
+    "points": [
+      {
+        "alpha_deg": 40,
+        "v_mps": 7900
+      },
+      {
+        "alpha_deg": 40,
+        "v_mps": 6000
+      },
+      {
+        "alpha_deg": 36,
+        "v_mps": 4000
+      },
+      {
+        "alpha_deg": 30,
+        "v_mps": 2500
+      },
+      {
+        "alpha_deg": 22,
+        "v_mps": 1500
+      },
+      {
+        "alpha_deg": 17,
+        "v_mps": 900
+      },
+      {
+        "alpha_deg": 15,
+        "v_mps": 600
+      },
+      {
+        "alpha_deg": 13,
+        "v_mps": 300
+      },
+      {
+        "alpha_deg": 12,
+        "v_mps": 150
+      },
+      {
+        "alpha_deg": 10,
+        "v_mps": 95
+      }
+    ]
+  },
+  "approach": {
+    "_note": "[estimated] terminal-area outer loop: altitude error is measured against a linear energy line h_ref(v) = slope * (v - v_td). At the deck's approach start (~148 m/s, ~1980 m) this reads slightly high, which is the intended correction direction. Outer gamma -12 deg suits the orbiter L/D~4-5; guidance flares to -2 deg below 300 m.",
+    "alt_ref_slope_m_per_mps": 28.0,
+    "gamma_cmd_deg": -15.0,
+    "gamma_gain_per_m": 0.004,
+    "touchdown_speed_mps": 95,
+    "vref_margin_mps": 5
+  },
+  "bank": {
+    "_note": "[estimated] bank law limits. Crew bank command (guid.bank_deg) remains the target in entry; TAEM/approach default wings-level unless the crew banks.",
+    "max_deg": 70,
+    "rate_deg_s": 10
+  },
+  "brakes": {
+    "_note": "[estimated] brake and nose-wheel steering model. mu_brake is the friction coefficient increment at full brake command on a dry runway; steer_rate is the heading rate at full steering input.",
+    "mu_brake": 0.45,
+    "mu_rolling": 0.025,
+    "steer_rate_rad_s": 0.35
+  }
+}

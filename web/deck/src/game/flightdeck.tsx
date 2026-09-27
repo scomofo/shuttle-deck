@@ -225,9 +225,16 @@ export function FlightDeck() {
           <div>
             <Tip
               code="F2"
-              about="Glare shield, just above these instruments. CSS is control stick steering. On, the rotational hand controller flies the vehicle. Off, guidance flies and the stick only perturbs that path."
+              about="Glare shield, just above these instruments. CSS is control stick steering. On, the rotational hand controller flies the vehicle. Off, guidance flies and the stick only perturbs that path. In this build the switch is inert: the root guidance has no control path for it, so the deck always flies with guidance holding the path."
             />
-            <button type="button" className="guard css" data-on={!live.auto} onClick={() => live.toggleAuto()}>
+            {/*
+              P4: rendered inert — the DAP auto flag lives inside the root
+              guidance owner (src/systems/guidance.ts, out of bounds for P4)
+              and no ctl.* channel drives it, so this switch cannot receive
+              honest causality. The root always flies manual+auto: guidance
+              holds the path and the stick perturbs it.
+            */}
+            <button type="button" className="guard css" data-on={false} aria-disabled="true" title="No DAP control path in this build">
               CSS
             </button>
           </div>
@@ -355,7 +362,7 @@ export function FlightDeck() {
           />
           <Tip
             code="R2"
-            about="Immediately right of the pilot's seat, parallel to it, so it can be reached without looking away from F8. APU OPERATE START/RUN. Three hydrazine units drive the hydraulic pumps. RUN means those pumps are on the line. The real panel has a ready-to-start talkback for each unit. This switch is that start."
+            about="Immediately right of the pilot's seat, parallel to it, so it can be reached without looking away from F8. APU OPERATE START/RUN. Three hydrazine units drive the hydraulic pumps. RUN means those pumps are on the line — it lights after the spool-up, not the instant the switch moves. The real panel has a ready-to-start talkback for each unit. This switch is that start."
           />
           <Paddle
             label="APU"
@@ -374,7 +381,7 @@ export function FlightDeck() {
           <Paddle
             label="BAY"
             on={live.doorsOpen}
-            talk={live.doorsOpen ? "OP" : "CL"}
+            talk={live.doorTalkback}
             cued={ask === "doors-open" || ask === "doors-close"}
             onClick={() => live.toggleDoors()}
           />
