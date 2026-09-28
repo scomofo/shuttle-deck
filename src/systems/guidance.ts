@@ -115,7 +115,7 @@ export class Guidance {
       this.alpha_cmd_deg = 0;
       this.brake_cmd = 0;
       this.eff_cmd = { elevon_l_deg: 0, elevon_r_deg: 0, rudder_deg: 0, speedbrake_deg: 0, bodyflap_deg: 0 };
-      torque = this.att_hold ? this.hold_torque() : { x: roll * 4e5, y: pitch * 6e5, z: yaw * 3e5 };
+      torque = this.att_hold ? this.hold_torque() : this.manual_rcs_torque(roll, pitch, yaw);
     }
 
     bus.set_value("guid.mode", aero_law ?? this.mode);
@@ -258,6 +258,30 @@ export class Guidance {
       x: clamp(ORBITER_INERTIA.x * (KP * angle * axis.x - KD * om.x), -TMAX, TMAX),
       y: clamp(ORBITER_INERTIA.y * (KP * angle * axis.y - KD * om.y), -TMAX, TMAX),
       z: clamp(ORBITER_INERTIA.z * (KP * angle * axis.z - KD * om.z), -TMAX, TMAX),
+    };
+  }
+
+  /**
+   * Manual RCS rotation with rate damping. Pure hand torque leaves any
+   * stick bump as a permanent spin — there is no aerodynamic damping in
+   * vacuum — so the manual path damps body rates the way the historical
+   * DAP did. Authority is [estimated]: two 3870 N primary jets at ~4 m
+   * moment arms ≈ 3e4 N·m per axis (the old 4e5-class values spun the
+   * vehicle ~10x too hot). Damping decays a bumped rate with a ~2 s time
+   * constant instead of tumbling forever.
+   */
+  private manual_rcs_torque(roll: number, pitch: number, yaw: number): Vec3 {
+    const om = {
+      x: (Number(bus.get_value("guid.rate.roll", 0)) * Math.PI) / 180,
+      y: (Number(bus.get_value("guid.rate.pitch", 0)) * Math.PI) / 180,
+      z: (Number(bus.get_value("guid.rate.yaw", 0)) * Math.PI) / 180,
+    };
+    const AUTH = { x: 4e4, y: 6e4, z: 3e4 };
+    const DAMP = 0.5;
+    return {
+      x: clamp(AUTH.x * roll - DAMP * ORBITER_INERTIA.x * om.x, -AUTH.x, AUTH.x),
+      y: clamp(AUTH.y * pitch - DAMP * ORBITER_INERTIA.y * om.y, -AUTH.y, AUTH.y),
+      z: clamp(AUTH.z * yaw - DAMP * ORBITER_INERTIA.z * om.z, -AUTH.z, AUTH.z),
     };
   }
 

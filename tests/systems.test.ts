@@ -283,6 +283,26 @@ reset();
   bus.set_value("ctl.hand.roll", 0);
 }
 
+// --- Manual RCS rate damping ---
+// A stick bump must not leave a permanent spin: the manual DAP path damps
+// body rates the way the historical DAP did (no aerodynamic damping in
+// vacuum, so undamped hand torque tumbled forever).
+
+reset();
+{
+  const rt = new SimRuntime();
+  rt.start("orbit");
+  bus.set_value("ctl.hand.roll", 0.5);
+  clock.advance(1); // bump: 1 s of half stick
+  bus.set_value("ctl.hand.roll", 0);
+  const w0 = Math.abs(Number(bus.get_value("guid.rate.roll", 0)));
+  assert(w0 > 0.01, `bump imparts a roll rate (${w0.toFixed(3)} deg/s)`);
+  clock.advance(10); // hands off: damping must kill the rate
+  const w1 = Math.abs(Number(bus.get_value("guid.rate.roll", 0)));
+  assert(w1 < 0.05, `roll rate damps out after hands-off (${w1.toFixed(3)} deg/s)`);
+  assert(w1 < w0, "bumped rate decays rather than persisting");
+}
+
 // --- Root-owned weight_on_wheels ---
 
 reset();
