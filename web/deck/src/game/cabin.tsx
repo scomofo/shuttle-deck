@@ -591,15 +591,17 @@ function paintAftRight(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
 }
 
 /** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW.
+ *  Panel base matches the rest of the flight deck (all orbiter panels share
+ *  the same light-gray finish); the old dark finish was a styling error.
  *  P4: the LEDs are painted dark — labels only, no RMS model drives them. */
 function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   const g = canvas.getContext("2d");
   if (!g) return;
   const W = canvas.width;
   const H = canvas.height;
-  g.fillStyle = "#232629";
+  g.fillStyle = "#b7bcb6";
   g.fillRect(0, 0, W, H);
-  g.fillStyle = "#f4f1ea";
+  g.fillStyle = "#2a3038";
   g.font = "600 22px 'IBM Plex Mono', monospace";
   g.textAlign = "center";
   g.textBaseline = "middle";
@@ -611,11 +613,11 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   ];
   rows.forEach(([label, color], i) => {
     const y = 78 + i * 66;
-    g.strokeStyle = "#5a6068";
+    g.strokeStyle = "#8a8d86";
     g.lineWidth = 2;
     g.strokeRect(20, y - 26, W - 40, 52);
     ohLed(g, 56, y, color, "");
-    g.fillStyle = "#f4f1ea";
+    g.fillStyle = "#2a3038";
     g.font = "600 19px 'IBM Plex Mono', monospace";
     g.textAlign = "left";
     g.fillText(label, 84, y);
@@ -968,6 +970,17 @@ function MduUnit({
         : ek.map((ky) => (
             <Bar key={ky} position={[B / 2 - 0.013, ky, 0.016]} args={[0.011, 0.02, 0.008]} material={matHead} />
           ))}
+      {/* Brightness knob + ON/OFF switch on the bezel — SCOM MEDS §2.7:
+          each MDU carries 6 edgekeys, a brightness knob, and an ON/OFF
+          switch. Corner placement [estimated]; rendered inert (no MDU power
+          model behind them). */}
+      <mesh position={[B / 2 - 0.024, B / 2 - 0.024, 0.02]} rotation={[Math.PI / 2, 0, 0]} raycast={() => null} material={matHardware}>
+        <cylinderGeometry args={[0.008, 0.009, 0.012, 12]} />
+      </mesh>
+      <mesh position={[B / 2 - 0.024, B / 2 - 0.052, 0.02]} raycast={() => null} material={matHead}>
+        <boxGeometry args={[0.013, 0.02, 0.009]} />
+      </mesh>
+      <PlateLabel label="BRT" x={B / 2 - 0.024} y={B / 2 - 0.068} scale={0.32} z={0.021} />
       <PlateLabel label={id} x={-(B / 2 - 0.022)} y={B / 2 - 0.014} scale={0.62} z={0.037} />
     </group>
   );
