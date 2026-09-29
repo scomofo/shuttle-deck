@@ -26,7 +26,7 @@ const matHead = new THREE.MeshStandardMaterial({ color: "#202324", roughness: 0.
 const matRed = new THREE.MeshStandardMaterial({ color: "#8b3529", roughness: 0.57 });
 const matSeam = new THREE.MeshStandardMaterial({ color: "#385d82", roughness: 1 });
 const matWindow = new THREE.MeshPhysicalMaterial({
-  color: "#c0d0ce", transparent: true, opacity: 0.055, depthWrite: false,
+  color: "#c0d0ce", transparent: true, opacity: 0.075, depthWrite: false,
   roughness: 0.14, metalness: 0.08, clearcoat: 1, clearcoatRoughness: 0.1,
 });
 
@@ -1363,7 +1363,11 @@ export function CabinInterior() {
     <group ref={root} name="cockpit-interior" visible={false}>
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#80bac7" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.22} distance={2.4} decay={2} color="#dae5ed" />
-      <pointLight ref={floodLight} position={[0, 0.3, 0.9]} intensity={0} distance={2.5} decay={2} color="#fff1d7" />
+      {/* Cabin floodlight: ceiling-mounted above the crew station, so it
+          washes the forward panels rather than lighting from behind the
+          crew. Toggled by the FLD FWD / FLD AFT switches on the aft port
+          panel. Position [estimated]. */}
+      <pointLight ref={floodLight} position={[0, 0.72, -0.1]} intensity={0} distance={3.2} decay={2} color="#fff1d7" />
 
       {/* Overhead panels O1–O3, O5–O9 + O13–O16 breaker strip (O17 in O6) */}
       <group position={[0, 0.48, -0.74]} rotation={[0.85, 0, 0]}>
@@ -1764,9 +1768,13 @@ export function CabinInterior() {
         </group>
       ))}
 
+      {/* Cool skylight fill through the forward windows: positioned
+          above-forward of the panels so it reads as exterior light spilling
+          through the glazing, not light emitted by the panels themselves.
+          Positions [estimated]. */}
       <pointLight position={[0, 0.4, -0.35]} color="#fff1d7" intensity={0.24} distance={2.1} decay={2} />
-      <pointLight position={[-0.52, -0.16, -0.58]} color="#b9d5f0" intensity={0.035} distance={0.65} decay={2} />
-      <pointLight position={[0.52, -0.16, -0.58]} color="#b9d5f0" intensity={0.035} distance={0.65} decay={2} />
+      <pointLight position={[-0.52, 0.12, -0.7]} color="#b9d5f0" intensity={0.05} distance={0.85} decay={2} />
+      <pointLight position={[0.52, 0.12, -0.7]} color="#b9d5f0" intensity={0.05} distance={0.85} decay={2} />
     </group>
   );
 }
