@@ -480,7 +480,8 @@ function paintOverhead(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
     ["O2", "CRYO"],
     ["O3", "RCS / OMS"],
     ["O5", "CDR AUDIO"],
-    ["O6", "GPC / DPS · O17"],
+    ["O6", "GPC / DPS"],
+    ["O17", "ASCENT TVC · EIU"],
     ["O7", "TACAN / GPS"],
     ["O8", "MLS / RDR ALT"],
     ["O9", "PLT AUDIO"],
@@ -1249,8 +1250,11 @@ export function CabinInterior() {
     });
 
   /* MDU assignments per SCOM §2.6 + Appendix A panel drawings [sourced].
-   * F6 = CDR1/CDR2, F8 = PLT1/PLT2, F7 = CRT2/MFD2 (top), CRT3 (center),
-   * CRT1/MFD1 (bottom); aft = CRT4 (tilted, R12) + AFD1. Positions [estimated]. */
+   * F6 = CDR1/CDR2, F8 = PLT1/PLT2, F7 = CRT1/CRT2 (top), CRT3 (center),
+   * MFD1/MFD2 (bottom); aft = CRT4 (tilted, R12) + AFD1. Positions [estimated].
+   * Top row left-to-right CRT1/CRT2 and bottom row MFD1/MFD2 follow the NASA
+   * 2002 MEDS cockpit drawing (NPS Fig. 4), cross-checked against the SCOM
+   * station groups — CDR: CDR1/CDR2/MFD1/CRT1/CRT3, PLT: CRT2/PLT1/PLT2/MFD2. */
   const mduUnits = (panel: "F6" | "F7" | "F8" | "R12") => {
     const defs: Record<string, { id: MduId; x: number; y: number; ek: "bottom" | "right"; tilt?: number }[]> = {
       F6: [
@@ -1262,11 +1266,11 @@ export function CabinInterior() {
         { id: "PLT2", x: 0.125, y: 0.1, ek: "bottom" },
       ],
       F7: [
-        { id: "CRT2", x: -0.16, y: 0.28, ek: "right" },
-        { id: "MFD2", x: 0.16, y: 0.28, ek: "right" },
+        { id: "CRT1", x: -0.16, y: 0.28, ek: "right" },
+        { id: "CRT2", x: 0.16, y: 0.28, ek: "right" },
         { id: "CRT3", x: 0.025, y: 0.02, ek: "right" },
-        { id: "CRT1", x: -0.16, y: -0.3, ek: "right" },
-        { id: "MFD1", x: 0.16, y: -0.3, ek: "right" },
+        { id: "MFD1", x: -0.16, y: -0.3, ek: "right" },
+        { id: "MFD2", x: 0.16, y: -0.3, ek: "right" },
       ],
       R12: [
         { id: "CRT4", x: -0.125, y: 0.14, ek: "bottom", tilt: -0.1 },
@@ -1411,6 +1415,20 @@ export function CabinInterior() {
       <MasterAlarm x={-0.6} y={-0.135} z={-0.888} />
       <MasterAlarm x={0.6} y={-0.135} z={-0.888} />
 
+      {/* HUD combiner — SCOM MEDS references HUD electronic units; the HUD
+          hardware sits in front of the commander's station (research §8).
+          Frame and combiner geometry [estimated]. */}
+      <group position={[-0.6, -0.03, -0.99]} rotation={[-0.12, 0, 0]}>
+        <mesh position={[0, -0.045, 0]} raycast={() => null} material={matHead}>
+          <boxGeometry args={[0.15, 0.03, 0.07]} />
+        </mesh>
+        <mesh position={[0, 0.035, 0.012]} raycast={() => null} material={matWindow}>
+          <planeGeometry args={[0.13, 0.085]} />
+        </mesh>
+        <Bar position={[-0.068, 0.03, 0]} args={[0.01, 0.1, 0.025]} material={matHead} />
+        <Bar position={[0.068, 0.03, 0]} args={[0.01, 0.1, 0.025]} material={matHead} />
+      </group>
+
       {/* F6 — commander MEDS: CDR1/CDR2 + retained ADI/RCS cluster */}
       <group position={[-0.6, -0.26, -0.78]} rotation={[-0.62, 0.14, 0]}>
         <PanelPlate width={0.56} height={0.52} material={panelMaterial} />
@@ -1418,6 +1436,20 @@ export function CabinInterior() {
         <AdiAttRotary x={-0.17} y={-0.15} />
         <AttRefButton x={0} y={-0.15} />
         <RcsCmdLamps x={0.17} y={-0.15} />
+        {/* Commander's THC — Operator's Manual: on the left (outboard) side
+            of the commander's forward panel. No pilot THC. Rendered inert:
+            the sim has no translation-command model behind it, so the
+            T-handle does not move rather than pretending to translate.
+            T-handle shape [estimated]. */}
+        <group position={[-0.345, -0.1, 0.02]}>
+          <mesh position={[0, 0, 0]} raycast={() => null} material={matHardware}>
+            <cylinderGeometry args={[0.011, 0.013, 0.045, 10]} />
+          </mesh>
+          <mesh position={[0, 0.032, 0]} raycast={() => null} material={matHead}>
+            <boxGeometry args={[0.085, 0.022, 0.022]} />
+          </mesh>
+          <PlateLabel label="THC" x={0} y={-0.045} scale={0.45} />
+        </group>
         <PlateLabel label="F6 · CDR" x={0} y={-0.245} scale={0.7} />
       </group>
 
@@ -1428,6 +1460,14 @@ export function CabinInterior() {
       <group position={[0, -0.2, -0.84]} rotation={[-0.62, 0, 0]}>
         <PanelPlate width={0.66} height={0.86} material={panelMaterial} />
         {mduUnits("F7")}
+        {/* Vent/speaker grille between CRT1 and CRT2 — present in the NASA
+            2002 drawing; purpose unattested [estimated]. */}
+        <group position={[0, 0.28, 0.015]}>
+          <Bar position={[0, 0, 0]} args={[0.08, 0.15, 0.01]} material={matGasket} />
+          {[-0.05, -0.025, 0, 0.025, 0.05].map((sy) => (
+            <Bar key={sy} position={[0, sy, 0.006]} args={[0.07, 0.008, 0.004]} material={matHead} />
+          ))}
+        </group>
         <CwMatrix x={-0.2} y={0.02} map={tex.cwMatrix.map} />
         <group position={[0.215, 0.02, 0.015]}>
           <mesh position={[0, 0, 0.012]} raycast={() => null}>
