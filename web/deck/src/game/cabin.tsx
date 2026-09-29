@@ -26,7 +26,7 @@ const matHead = new THREE.MeshStandardMaterial({ color: "#202324", roughness: 0.
 const matRed = new THREE.MeshStandardMaterial({ color: "#8b3529", roughness: 0.57 });
 const matSeam = new THREE.MeshStandardMaterial({ color: "#385d82", roughness: 1 });
 const matWindow = new THREE.MeshPhysicalMaterial({
-  color: "#c0d0ce", transparent: true, opacity: 0.055, depthWrite: false,
+  color: "#c0d0ce", transparent: true, opacity: 0.075, depthWrite: false,
   roughness: 0.14, metalness: 0.08, clearcoat: 1, clearcoatRoughness: 0.1,
 });
 
@@ -480,7 +480,8 @@ function paintOverhead(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
     ["O2", "CRYO"],
     ["O3", "RCS / OMS"],
     ["O5", "CDR AUDIO"],
-    ["O6", "GPC / DPS · O17"],
+    ["O6", "GPC / DPS"],
+    ["O17", "ASCENT TVC · EIU"],
     ["O7", "TACAN / GPS"],
     ["O8", "MLS / RDR ALT"],
     ["O9", "PLT AUDIO"],
@@ -590,15 +591,17 @@ function paintAftRight(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
 }
 
 /** A8 RMS mode/joint panel face: ORB UNL, SHOULDER PITCH, SHOULDER YAW.
+ *  Panel base matches the rest of the flight deck (all orbiter panels share
+ *  the same light-gray finish); the old dark finish was a styling error.
  *  P4: the LEDs are painted dark — labels only, no RMS model drives them. */
 function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   const g = canvas.getContext("2d");
   if (!g) return;
   const W = canvas.width;
   const H = canvas.height;
-  g.fillStyle = "#232629";
+  g.fillStyle = "#b7bcb6";
   g.fillRect(0, 0, W, H);
-  g.fillStyle = "#f4f1ea";
+  g.fillStyle = "#2a3038";
   g.font = "600 22px 'IBM Plex Mono', monospace";
   g.textAlign = "center";
   g.textBaseline = "middle";
@@ -610,11 +613,11 @@ function paintAftRms(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   ];
   rows.forEach(([label, color], i) => {
     const y = 78 + i * 66;
-    g.strokeStyle = "#5a6068";
+    g.strokeStyle = "#8a8d86";
     g.lineWidth = 2;
     g.strokeRect(20, y - 26, W - 40, 52);
     ohLed(g, 56, y, color, "");
-    g.fillStyle = "#f4f1ea";
+    g.fillStyle = "#2a3038";
     g.font = "600 19px 'IBM Plex Mono', monospace";
     g.textAlign = "left";
     g.fillText(label, 84, y);
@@ -967,6 +970,17 @@ function MduUnit({
         : ek.map((ky) => (
             <Bar key={ky} position={[B / 2 - 0.013, ky, 0.016]} args={[0.011, 0.02, 0.008]} material={matHead} />
           ))}
+      {/* Brightness knob + ON/OFF switch on the bezel — SCOM MEDS §2.7:
+          each MDU carries 6 edgekeys, a brightness knob, and an ON/OFF
+          switch. Corner placement [estimated]; rendered inert (no MDU power
+          model behind them). */}
+      <mesh position={[B / 2 - 0.024, B / 2 - 0.024, 0.02]} rotation={[Math.PI / 2, 0, 0]} raycast={() => null} material={matHardware}>
+        <cylinderGeometry args={[0.008, 0.009, 0.012, 12]} />
+      </mesh>
+      <mesh position={[B / 2 - 0.024, B / 2 - 0.052, 0.02]} raycast={() => null} material={matHead}>
+        <boxGeometry args={[0.013, 0.02, 0.009]} />
+      </mesh>
+      <PlateLabel label="BRT" x={B / 2 - 0.024} y={B / 2 - 0.068} scale={0.32} z={0.021} />
       <PlateLabel label={id} x={-(B / 2 - 0.022)} y={B / 2 - 0.014} scale={0.62} z={0.037} />
     </group>
   );
@@ -1249,8 +1263,11 @@ export function CabinInterior() {
     });
 
   /* MDU assignments per SCOM §2.6 + Appendix A panel drawings [sourced].
-   * F6 = CDR1/CDR2, F8 = PLT1/PLT2, F7 = CRT2/MFD2 (top), CRT3 (center),
-   * CRT1/MFD1 (bottom); aft = CRT4 (tilted, R12) + AFD1. Positions [estimated]. */
+   * F6 = CDR1/CDR2, F8 = PLT1/PLT2, F7 = CRT1/CRT2 (top), CRT3 (center),
+   * MFD1/MFD2 (bottom); aft = CRT4 (tilted, R12) + AFD1. Positions [estimated].
+   * Top row left-to-right CRT1/CRT2 and bottom row MFD1/MFD2 follow the NASA
+   * 2002 MEDS cockpit drawing (NPS Fig. 4), cross-checked against the SCOM
+   * station groups — CDR: CDR1/CDR2/MFD1/CRT1/CRT3, PLT: CRT2/PLT1/PLT2/MFD2. */
   const mduUnits = (panel: "F6" | "F7" | "F8" | "R12") => {
     const defs: Record<string, { id: MduId; x: number; y: number; ek: "bottom" | "right"; tilt?: number }[]> = {
       F6: [
@@ -1262,11 +1279,11 @@ export function CabinInterior() {
         { id: "PLT2", x: 0.125, y: 0.1, ek: "bottom" },
       ],
       F7: [
-        { id: "CRT2", x: -0.16, y: 0.28, ek: "right" },
-        { id: "MFD2", x: 0.16, y: 0.28, ek: "right" },
+        { id: "CRT1", x: -0.16, y: 0.28, ek: "right" },
+        { id: "CRT2", x: 0.16, y: 0.28, ek: "right" },
         { id: "CRT3", x: 0.025, y: 0.02, ek: "right" },
-        { id: "CRT1", x: -0.16, y: -0.3, ek: "right" },
-        { id: "MFD1", x: 0.16, y: -0.3, ek: "right" },
+        { id: "MFD1", x: -0.16, y: -0.3, ek: "right" },
+        { id: "MFD2", x: 0.16, y: -0.3, ek: "right" },
       ],
       R12: [
         { id: "CRT4", x: -0.125, y: 0.14, ek: "bottom", tilt: -0.1 },
@@ -1346,7 +1363,11 @@ export function CabinInterior() {
     <group ref={root} name="cockpit-interior" visible={false}>
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#80bac7" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.22} distance={2.4} decay={2} color="#dae5ed" />
-      <pointLight ref={floodLight} position={[0, 0.3, 0.9]} intensity={0} distance={2.5} decay={2} color="#fff1d7" />
+      {/* Cabin floodlight: ceiling-mounted above the crew station, so it
+          washes the forward panels rather than lighting from behind the
+          crew. Toggled by the FLD FWD / FLD AFT switches on the aft port
+          panel. Position [estimated]. */}
+      <pointLight ref={floodLight} position={[0, 0.72, -0.1]} intensity={0} distance={3.2} decay={2} color="#fff1d7" />
 
       {/* Overhead panels O1–O3, O5–O9 + O13–O16 breaker strip (O17 in O6) */}
       <group position={[0, 0.48, -0.74]} rotation={[0.85, 0, 0]}>
@@ -1411,6 +1432,20 @@ export function CabinInterior() {
       <MasterAlarm x={-0.6} y={-0.135} z={-0.888} />
       <MasterAlarm x={0.6} y={-0.135} z={-0.888} />
 
+      {/* HUD combiner — SCOM MEDS references HUD electronic units; the HUD
+          hardware sits in front of the commander's station (research §8).
+          Frame and combiner geometry [estimated]. */}
+      <group position={[-0.6, -0.03, -0.99]} rotation={[-0.12, 0, 0]}>
+        <mesh position={[0, -0.045, 0]} raycast={() => null} material={matHead}>
+          <boxGeometry args={[0.15, 0.03, 0.07]} />
+        </mesh>
+        <mesh position={[0, 0.035, 0.012]} raycast={() => null} material={matWindow}>
+          <planeGeometry args={[0.13, 0.085]} />
+        </mesh>
+        <Bar position={[-0.068, 0.03, 0]} args={[0.01, 0.1, 0.025]} material={matHead} />
+        <Bar position={[0.068, 0.03, 0]} args={[0.01, 0.1, 0.025]} material={matHead} />
+      </group>
+
       {/* F6 — commander MEDS: CDR1/CDR2 + retained ADI/RCS cluster */}
       <group position={[-0.6, -0.26, -0.78]} rotation={[-0.62, 0.14, 0]}>
         <PanelPlate width={0.56} height={0.52} material={panelMaterial} />
@@ -1418,6 +1453,20 @@ export function CabinInterior() {
         <AdiAttRotary x={-0.17} y={-0.15} />
         <AttRefButton x={0} y={-0.15} />
         <RcsCmdLamps x={0.17} y={-0.15} />
+        {/* Commander's THC — Operator's Manual: on the left (outboard) side
+            of the commander's forward panel. No pilot THC. Rendered inert:
+            the sim has no translation-command model behind it, so the
+            T-handle does not move rather than pretending to translate.
+            T-handle shape [estimated]. */}
+        <group position={[-0.345, -0.1, 0.02]}>
+          <mesh position={[0, 0, 0]} raycast={() => null} material={matHardware}>
+            <cylinderGeometry args={[0.011, 0.013, 0.045, 10]} />
+          </mesh>
+          <mesh position={[0, 0.032, 0]} raycast={() => null} material={matHead}>
+            <boxGeometry args={[0.085, 0.022, 0.022]} />
+          </mesh>
+          <PlateLabel label="THC" x={0} y={-0.045} scale={0.45} />
+        </group>
         <PlateLabel label="F6 · CDR" x={0} y={-0.245} scale={0.7} />
       </group>
 
@@ -1428,6 +1477,14 @@ export function CabinInterior() {
       <group position={[0, -0.2, -0.84]} rotation={[-0.62, 0, 0]}>
         <PanelPlate width={0.66} height={0.86} material={panelMaterial} />
         {mduUnits("F7")}
+        {/* Vent/speaker grille between CRT1 and CRT2 — present in the NASA
+            2002 drawing; purpose unattested [estimated]. */}
+        <group position={[0, 0.28, 0.015]}>
+          <Bar position={[0, 0, 0]} args={[0.08, 0.15, 0.01]} material={matGasket} />
+          {[-0.05, -0.025, 0, 0.025, 0.05].map((sy) => (
+            <Bar key={sy} position={[0, sy, 0.006]} args={[0.07, 0.008, 0.004]} material={matHead} />
+          ))}
+        </group>
         <CwMatrix x={-0.2} y={0.02} map={tex.cwMatrix.map} />
         <group position={[0.215, 0.02, 0.015]}>
           <mesh position={[0, 0, 0.012]} raycast={() => null}>
@@ -1711,9 +1768,13 @@ export function CabinInterior() {
         </group>
       ))}
 
+      {/* Cool skylight fill through the forward windows: positioned
+          above-forward of the panels so it reads as exterior light spilling
+          through the glazing, not light emitted by the panels themselves.
+          Positions [estimated]. */}
       <pointLight position={[0, 0.4, -0.35]} color="#fff1d7" intensity={0.24} distance={2.1} decay={2} />
-      <pointLight position={[-0.52, -0.16, -0.58]} color="#b9d5f0" intensity={0.035} distance={0.65} decay={2} />
-      <pointLight position={[0.52, -0.16, -0.58]} color="#b9d5f0" intensity={0.035} distance={0.65} decay={2} />
+      <pointLight position={[-0.52, 0.12, -0.7]} color="#b9d5f0" intensity={0.05} distance={0.85} decay={2} />
+      <pointLight position={[0.52, 0.12, -0.7]} color="#b9d5f0" intensity={0.05} distance={0.85} decay={2} />
     </group>
   );
 }
