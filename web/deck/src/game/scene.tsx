@@ -74,12 +74,25 @@ const skyVertex = `
   }`;
 const skyFragment = `
   varying vec3 vDirection;
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
   void main() {
     vec3 direction = normalize(vDirection);
-    float elevation = max(direction.y, 0.0);
-    vec3 color = mix(vec3(0.60, 0.70, 0.77), vec3(0.085, 0.25, 0.46), pow(elevation, 0.4));
-    float sun = pow(max(dot(direction, normalize(vec3(40.0, 24.0, -30.0))), 0.0), 180.0);
-    gl_FragColor = vec4(color + vec3(1.0, 0.79, 0.51) * sun * 0.22, 1.0);
+    float elevation = clamp(direction.y, 0.0, 1.0);
+    vec3 horizon = vec3(0.69, 0.75, 0.76);
+    vec3 zenith = vec3(0.055, 0.19, 0.39);
+    vec3 color = mix(horizon, zenith, pow(elevation, 0.42));
+    vec3 sunDirection = normalize(vec3(40.0, 24.0, -30.0));
+    float mu = max(dot(direction, sunDirection), 0.0);
+    float sunDisc = smoothstep(0.99972, 0.99988, mu);
+    float aureole = pow(mu, 48.0) * (1.0 - elevation) * 0.32;
+    float horizonHaze = exp(-elevation * 16.0);
+    color += vec3(1.0, 0.69, 0.38) * (sunDisc * 3.5 + aureole);
+    color = mix(color, vec3(0.82, 0.78, 0.68), horizonHaze * 0.18);
+    // Tiny stable dither prevents visible gradient banding without a sky texture.
+    color += (hash(gl_FragCoord.xy) - 0.5) / 255.0;
+    gl_FragColor = vec4(color, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }`;
@@ -106,7 +119,7 @@ function World() {
   const craft = useRef<THREE.Group>(null);
   const earth = useRef<THREE.Group>(null);
   const clouds = useRef<THREE.Mesh>(null);
-  const plasma = useRef<THREE.Mesh>(null);
+  const plasma = useRef<THREE.Group>(null);
   const ground = useRef<THREE.Group>(null);
   const skyDome = useRef<THREE.Mesh>(null);
   const blob = useRef<THREE.Mesh>(null);
@@ -152,9 +165,13 @@ function World() {
     }
     if (plasma.current) {
       plasma.current.visible = sim.plasma > 0.05 && !terminal;
-      const s = scale * (1.8 + sim.plasma);
-      plasma.current.scale.setScalar(s);
-      (plasma.current.material as THREE.MeshBasicMaterial).opacity = 0.15 + sim.plasma * 0.45;
+      const intensity = THREE.MathUtils.smoothstep(sim.plasma, 0.05, 1);
+      plasma.current.scale.setScalar(scale * (1 + intensity * 0.18));
+      plasma.current.traverse((child) => {
+        if (!(child instanceof THREE.Mesh)) return;
+        const material = child.material as THREE.MeshBasicMaterial;
+        material.opacity = Number(child.userData.baseOpacity) * (0.35 + intensity * 0.65);
+      });
     }
 
     const visR = 180;
@@ -329,10 +346,28 @@ function World() {
       </group>
       <group ref={craft}>
         <Orbiter />
-        <mesh ref={plasma}>
-          <sphereGeometry args={[16, 20, 16]} />
-          <meshBasicMaterial color="#ff6a3d" transparent opacity={0.3} depthWrite={false} />
-        </mesh>
+        {/* Entry luminosity hugs the stagnation point and leading edges instead
+            of reading as a single transparent ball around the vehicle. */}
+        <group ref={plasma} visible={false}>
+          <mesh position={[0, -0.2, 9.4]} scale={[3.1, 1.45, 4.9]} userData={{ baseOpacity: 0.34 }}>
+            <sphereGeometry args={[1, 32, 18]} />
+            <meshBasicMaterial color="#ff7b3d" transparent opacity={0.34} depthWrite={false}
+              blending={THREE.AdditiveBlending} side={THREE.BackSide} />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <mesh key={side} position={[side * 5.1, -0.55, -1]} rotation={[0, side * -0.57, 0]}
+              scale={[6.8, 0.5, 0.72]} userData={{ baseOpacity: 0.22 }}>
+              <sphereGeometry args={[1, 28, 12]} />
+              <meshBasicMaterial color="#ffb05b" transparent opacity={0.22} depthWrite={false}
+                blending={THREE.AdditiveBlending} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.1, -5.5]} scale={[4.2, 1.1, 8.5]} userData={{ baseOpacity: 0.10 }}>
+            <sphereGeometry args={[1, 28, 16]} />
+            <meshBasicMaterial color="#e83f25" transparent opacity={0.1} depthWrite={false}
+              blending={THREE.AdditiveBlending} side={THREE.BackSide} />
+          </mesh>
+        </group>
       </group>
     </>
   );
