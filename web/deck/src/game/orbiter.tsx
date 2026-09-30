@@ -185,6 +185,29 @@ function EngineBell({ x, y, z = -10.4, size = 1 }: { x: number; y: number; z?: n
   );
 }
 
+/** Recessed black apertures suggest the visible forward/aft RCS jet clusters.
+ * Positions are photo-matched presentation estimates, not thruster geometry. */
+function RcsPorts() {
+  const aperture = <>
+    <circleGeometry args={[0.105, 14]} />
+    <meshStandardMaterial color="#080a0b" roughness={0.9} metalness={0.18} side={THREE.DoubleSide} />
+  </>;
+  return <>
+    {[-1, 1].flatMap(side => [0, 1, 2].map((row) => (
+      <mesh key={`forward-${side}-${row}`} position={[side * (0.47 + row * 0.08), 1.44 - row * 0.17, 9.72 - row * 0.2]}
+        rotation={[-0.32, side * 0.22, 0]} scale={[1.25, 0.72, 1]}>
+        {aperture}
+      </mesh>
+    )))}
+    {[-1, 1].flatMap(side => [-0.24, 0, 0.24].map((x, i) => (
+      <mesh key={`aft-${side}-${i}`} position={[side * 2.39 + x, 1.52, -9.18 - Math.abs(x) * 0.7]}
+        rotation={[-Math.PI / 2, 0, 0]}>
+        {aperture}
+      </mesh>
+    )))}
+  </>;
+}
+
 function LandingGear({ x, z, radius }: { x: number; z: number; radius: number }) {
   const y = -2.4 + radius;
   const braces = useMemo(() => [
@@ -367,6 +390,7 @@ export function Orbiter() {
           <meshStandardMaterial {...blanket} color="#d5d4cc" />
         </mesh>
       ))}
+      <RcsPorts />
       <mesh position={[0, 0.1, -10.49]} rotation={[0, Math.PI, 0]} scale={[1, 0.58, 1]}>
         <circleGeometry args={[1.95, 40]} /><meshStandardMaterial {...tile} />
       </mesh>

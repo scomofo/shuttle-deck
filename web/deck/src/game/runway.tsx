@@ -33,7 +33,7 @@ function RunwayLights() {
     for (let z = -40; z <= 40; z += 5) { points.push([-397, z, "#61d793"]); points.push([4797, z, "#e16a57"]); }
     for (let x = -450; x >= -1200; x -= 30) for (const z of [-3, 0, 3]) points.push([x, z, "#ffead0"]);
     const fixture = new THREE.SphereGeometry(0.55, 6, 4);
-    const material = new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: "#ffffff", emissiveIntensity: 0.3, roughness: 0.35 });
+    const material = new THREE.MeshBasicMaterial({ color: "#ffffff", toneMapped: false });
     const mesh = new THREE.InstancedMesh(fixture, material, points.length);
     const matrix = new THREE.Matrix4();
     points.forEach(([x, z, color], i) => {
@@ -78,10 +78,29 @@ export function Runway({ terrainMap }: { terrainMap: THREE.Texture }) {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.12, 0]} receiveShadow>
       <planeGeometry args={[5600, 220]} /><meshStandardMaterial color="#c3c7aa" map={vergeMap} roughness={1} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
     </mesh>
+    {/* Weathered paved shoulders keep the concrete from ending in a perfectly
+        clean line and make its scale legible on short final. */}
+    {[-1, 1].map(side => <mesh key={side} rotation={[-Math.PI / 2, 0, 0]}
+      position={[2200, 0.19, side * 51]} receiveShadow>
+      <planeGeometry args={[5200, 12]} />
+      <meshStandardMaterial color="#555b55" roughness={1} />
+    </mesh>)}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2200, 0.22, 0]} receiveShadow>
       <planeGeometry args={[5200, 90]} />
       <primitive object={concrete} attach="material" />
     </mesh>
+    {[-1, 1].flatMap(side => [650, 1250, 1850, 2450, 3050, 3650, 4250].map((x, i) => (
+      <group key={`${side}-${x}`} position={[x, 1.9, side * 61]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.35, 3.2, 4.8]} />
+          <meshStandardMaterial color="#dad7c9" roughness={0.72} />
+        </mesh>
+        <mesh position={[-0.19, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+          <planeGeometry args={[3.8, 2.25]} />
+          <meshBasicMaterial color={i < 5 ? "#222725" : "#755b42"} />
+        </mesh>
+      </group>
+    )))}
     <Strips strips={detail.joints} color="#42463f" y={0.226} opacity={0.28} />
     <Strips strips={detail.paint} color="#e5e2d5" y={0.23} />
     <Strips strips={detail.rubber} color="#1c211e" y={0.235} opacity={0.18} />
