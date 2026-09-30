@@ -53,6 +53,10 @@ ECLSS depth, comms, aerosurface servo gating on hydraulic power —
 policy, every visible control must either have modeled causality or be
 hidden/disabled — no decorative switches.
 
+The same rule applies to instruments: the F7 event timer reads the root
+50 Hz simulation GET, so pause, time acceleration, scenario restart, and
+checkpoint restore cannot diverge from a browser-wall-clock display.
+
 ### Flight-dynamics fidelity — simplified but unified
 The root simulation propagates ECI position/velocity with point-mass
 gravity, optional J2, RK4 integration, quaternion attitude, and
