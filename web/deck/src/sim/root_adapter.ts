@@ -145,6 +145,34 @@ const norm = (a: Vec3): Vec3 => {
   return scale(a, 1 / l);
 };
 
+type Enu = { east: Vec3; north: Vec3; up: Vec3 };
+
+/** Local east/north/up unit vectors in ECEF at a spherical lat/lon (radians). */
+function enuBasis(lat: number, lon: number): Enu {
+  return {
+    east: { x: -Math.sin(lon), y: Math.cos(lon), z: 0 },
+    north: {
+      x: -Math.sin(lat) * Math.cos(lon),
+      y: -Math.sin(lat) * Math.sin(lon),
+      z: Math.cos(lat),
+    },
+    up: {
+      x: Math.cos(lat) * Math.cos(lon),
+      y: Math.cos(lat) * Math.sin(lon),
+      z: Math.sin(lat),
+    },
+  };
+}
+
+/** ECEF vector → deck components (x = east, y = up, z = north) in a local basis. */
+function toEnu(e: Vec3, b: Enu): Vec3 {
+  return {
+    x: e.x * b.east.x + e.y * b.east.y + e.z * b.east.z,
+    y: e.x * b.up.x + e.y * b.up.y + e.z * b.up.z,
+    z: e.x * b.north.x + e.y * b.north.y + e.z * b.north.z,
+  };
+}
+
 /** Wings-level body basis in ECI: nose along the Earth-relative velocity. */
 function levelBasis(r: Vec3, v: Vec3): { xb: Vec3; yb: Vec3; zb: Vec3 } {
   const up = norm(r);
@@ -221,13 +249,11 @@ export class RootAdapter {
   private terminalAnchor: TerminalAnchor | null = null;
   private lastRootPhase = "";
 
-  // Local ENU anchor: geodetic origin + orthonormal basis in ECEF.
+  // Scenario anchor (geodetic origin of the deck's x/z grid).
   private anchorLat = 0;
   private anchorLon = 0;
-  private aPos: Vec3 = v3();
-  private aEast: Vec3 = v3(1, 0, 0);
-  private aNorth: Vec3 = v3(0, 0, 1);
-  private aUp: Vec3 = v3(0, 1, 0);
+  /** Unwrapped longitude offset from the anchor, so x stays continuous across orbits. */
+  private prevDlon = 0;
   private prevYaw = -Math.PI / 2;
   private prevBank = 0;
 
@@ -308,28 +334,11 @@ export class RootAdapter {
     this.lastRootPhase = this.rootPhase();
   }
 
-  /** Local ENU anchor from a geodetic origin (spherical Earth, display only). */
+  /** Scenario anchor from a geodetic origin (spherical Earth, display only). */
   private setAnchor(latDeg: number, lonDeg: number): void {
     this.anchorLat = latDeg;
     this.anchorLon = lonDeg;
-    const lat = (latDeg * Math.PI) / 180;
-    const lon = (lonDeg * Math.PI) / 180;
-    this.aPos = {
-      x: EARTH_R * Math.cos(lat) * Math.cos(lon),
-      y: EARTH_R * Math.cos(lat) * Math.sin(lon),
-      z: EARTH_R * Math.sin(lat),
-    };
-    this.aEast = { x: -Math.sin(lon), y: Math.cos(lon), z: 0 };
-    this.aNorth = {
-      x: -Math.sin(lat) * Math.cos(lon),
-      y: -Math.sin(lat) * Math.sin(lon),
-      z: Math.cos(lat),
-    };
-    this.aUp = {
-      x: Math.cos(lat) * Math.cos(lon),
-      y: Math.cos(lat) * Math.sin(lon),
-      z: Math.sin(lat),
-    };
+    this.prevDlon = 0;
   }
 
   /**
@@ -347,17 +356,7 @@ export class RootAdapter {
       y: rad * Math.cos(lat) * Math.sin(lon),
       z: rad * Math.sin(lat),
     };
-    const east: Vec3 = { x: -Math.sin(lon), y: Math.cos(lon), z: 0 };
-    const north: Vec3 = {
-      x: -Math.sin(lat) * Math.cos(lon),
-      y: -Math.sin(lat) * Math.sin(lon),
-      z: Math.cos(lat),
-    };
-    const up: Vec3 = {
-      x: Math.cos(lat) * Math.cos(lon),
-      y: Math.cos(lat) * Math.sin(lon),
-      z: Math.sin(lat),
-    };
+    const { east, north, up } = enuBasis(lat, lon);
     const vEcef = add(add(scale(east, ve), scale(north, vn)), scale(up, vu));
     const jd = clock.julian_date();
     const r = Frames.ecef_to_eci(rEcef, jd);
@@ -554,14 +553,6 @@ export class RootAdapter {
     return new Array(n).fill(0);
   }
 
-  private dotEcef(e: Vec3): { x: number; y: number; z: number } {
-    return {
-      x: e.x * this.aEast.x + e.y * this.aEast.y + e.z * this.aEast.z,
-      y: e.x * this.aUp.x + e.y * this.aUp.y + e.z * this.aUp.z,
-      z: e.x * this.aNorth.x + e.y * this.aNorth.y + e.z * this.aNorth.z,
-    };
-  }
-
   /** Re-read every instrument from its authoritative bus channel. */
   refresh(): void {
     const r = this.arr("dyn.r_eci_m", 3);
@@ -569,21 +560,35 @@ export class RootAdapter {
     const q = this.arr("dyn.q_body_from_eci", 4);
     const jd = clock.julian_date();
     const rEcef = Frames.eci_to_ecef({ x: r[0], y: r[1], z: r[2] }, jd);
-    const d = { x: rEcef.x - this.aPos.x, y: rEcef.y - this.aPos.y, z: rEcef.z - this.aPos.z };
-    const p = this.dotEcef(d);
+    // Position: the inverse of eciFromLocal (spherical Earth). y is height
+    // above the sphere and x/z are arc lengths from the anchor, so the deck
+    // stays meaningful thousands of km downrange. A tangent plane fixed at
+    // the anchor drops below the vehicle as the Earth curves away: on orbit
+    // it read ALT as millions of metres negative and tilted the attitude.
+    const rad = Math.hypot(rEcef.x, rEcef.y, rEcef.z);
+    const lat = rad > 1 ? Math.asin(clamp(rEcef.z / rad, -1, 1)) : 0;
+    const lon = Math.atan2(rEcef.y, rEcef.x);
+    const lat0 = (this.anchorLat * Math.PI) / 180;
+    const lon0 = (this.anchorLon * Math.PI) / 180;
+    let dlon = lon - lon0;
+    dlon += 2 * Math.PI * Math.round((this.prevDlon - dlon) / (2 * Math.PI));
+    this.prevDlon = dlon;
+    const p = { x: dlon * EARTH_R * Math.cos(lat0), y: rad - EARTH_R, z: (lat - lat0) * EARTH_R };
+    // Velocity and attitude are read against the local vertical at the vehicle.
+    const local = enuBasis(lat, lon);
     // Deck instruments read Earth-relative velocity (the old deck's flat
     // frame was Earth-relative; the root publishes inertial dyn.speed_mps).
     const rV = { x: r[0], y: r[1], z: r[2] };
     const vI = { x: v[0], y: v[1], z: v[2] };
     const vr = v_rel(rV, vI);
     const vEcef = Frames.eci_to_ecef(vr, jd);
-    const vv = this.dotEcef(vEcef);
+    const vv = toEnu(vEcef, local);
     const relSpeed = Math.hypot(vr.x, vr.y, vr.z);
 
     const nEcef = Frames.eci_to_ecef(noseEci(q), jd);
     const wEcef = Frames.eci_to_ecef(rightEci(q), jd);
-    const n = this.dotEcef(nEcef);
-    const rw = this.dotEcef(wEcef);
+    const n = toEnu(nEcef, local);
+    const rw = toEnu(wEcef, local);
     let { yaw, bank } = { yaw: this.prevYaw, bank: this.prevBank };
     const nh = Math.hypot(n.x, n.z);
     if (nh > 1e-3) {
