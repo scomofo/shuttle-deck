@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { bodyBasis, getSimVersion, sim, subscribeSim } from "@/sim/runtime";
 import { useSurfaceMaterial } from "@/game/materials";
 import { attachLookControls, lookState, resetLook } from "./look";
+import { formatEventTime } from "./mission-time";
 
 import { getPanelLight } from "./panel-lighting";
 
@@ -36,21 +37,6 @@ function useSimTick() {
 
 function headingDeg() {
   return Math.round((((-sim.yaw * 180) / Math.PI) % 360 + 360) % 360);
-}
-
-// Local mission clock for the EVENT TIME / MET readouts (the sim publishes
-// no master clock). Seconds since the deck module loaded.
-const MET_T0 = typeof performance !== "undefined" ? performance.now() : 0;
-function metSeconds() {
-  return Math.max(0, Math.floor((performance.now() - MET_T0) / 1000));
-}
-function fmtMET(total: number) {
-  const d = Math.floor(total / 86400);
-  const h = Math.floor((total % 86400) / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  const p2 = (n: number) => String(n).padStart(2, "0");
-  return `${String(d).padStart(3, "0")}:${p2(h)}:${p2(m)}:${p2(s)}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -459,7 +445,10 @@ function paintMeStrip(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.fillRect(W / 2 - 78, etY + 14, 156, 44);
   g.fillStyle = GREEN;
   g.font = "600 30px 'IBM Plex Mono', monospace";
-  g.fillText(fmtMET(metSeconds()), W / 2, etY + 38);
+  // Read the root 50 Hz clock: pause, time acceleration, restart, and
+  // checkpoint restore must all be reflected here. Wall time is not vehicle
+  // truth and must never drive a flight-deck instrument.
+  g.fillText(formatEventTime(sim.get), W / 2, etY + 38);
   g.fillStyle = "#c8cfd6";
   g.font = "600 11px 'IBM Plex Mono', monospace";
   g.fillText("MIN", W / 2 - 52, etY + 70);
@@ -543,10 +532,10 @@ function paintAftLeft(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
   g.fillRect(24, 252, W - 48, 96);
   g.fillStyle = GREEN;
   g.font = "600 34px 'IBM Plex Mono', monospace";
-  g.fillText(fmtMET(metSeconds()), W / 2, 290);
+  g.fillText(formatEventTime(sim.get), W / 2, 290);
   g.fillStyle = "#8a939b";
   g.font = "500 14px 'IBM Plex Mono', monospace";
-  g.fillText("MISSION ELAPSED · EVENT TIME (local clock)", W / 2, 326);
+  g.fillText("MISSION ELAPSED · EVENT TIME", W / 2, 326);
 
   ohLabel(g, "A6U · ADI / FLT CNTLR", W / 4, 392, 16);
   ohSub(g, "aft attitude indicator selector", W / 4, 416);
