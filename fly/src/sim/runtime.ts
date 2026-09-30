@@ -646,7 +646,15 @@ export class ShuttleRuntime {
     }
 
     // Aileron-rudder interconnect: +roll (left wing down) increases yaw.
-    const yawK = this.phase === "taem" ? 0.28 : 0.72;
+    // Gated to phases with airflow. In vacuum (orbit/pad) there is no
+    // aileron or rudder authority; a latched bank would otherwise spin
+    // the heading forever.
+    const yawK =
+      this.phase === "orbit" || this.phase === "pad"
+        ? 0
+        : this.phase === "taem"
+          ? 0.28
+          : 0.72;
     this.yaw += Math.sin(this.bank) * yawK * dt;
     this.yaw += roll * 0.22 * dt;
     this.yaw += yawStick * 0.55 * dt;
@@ -1075,3 +1083,4 @@ export function attachControlsProbe() {
     },
   };
 }
+
