@@ -737,6 +737,7 @@
 }
 
 .mid {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(14rem, 18rem) 1fr;
   gap: 0.75rem;
@@ -749,6 +750,66 @@
   overflow: auto;
   max-height: 100%;
   align-self: start;
+  display: none;
+}
+
+.sheet[data-open="true"] { display: block; }
+
+.hud[data-view="cockpit"][data-checklist-open="true"] .mid {
+  display: grid;
+  position: relative;
+  z-index: 6;
+}
+
+.procedure-focus {
+  background: #e5e2d4;
+  color: #26332f;
+  border: 1px solid #a4ada2;
+  border-top: 4px solid #537369;
+  border-radius: 3px;
+  padding: 1rem;
+  box-shadow: 0 3px 12px #0005, inset 0 1px #fff9;
+}
+
+.procedure-kicker, .procedure-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.procedure-focus h3 { margin: 0.6rem 0; font-size: 1.2rem; line-height: 1.25; }
+.procedure-progress { padding-bottom: 0.8rem; border-bottom: 1px solid #a4ada2; }
+.procedure-progress span { white-space: nowrap; }
+.procedure-progress progress { width: 100%; min-width: 2rem; height: 5px; accent-color: #42695a; }
+.procedure-progress progress::-webkit-progress-bar { background: #b9c1b5; }
+.procedure-progress progress::-webkit-progress-value { background: #42695a; }
+.procedure-progress progress::-moz-progress-bar { background: #42695a; }
+.procedure-mode { margin: 0.85rem 0 0.3rem; color: #795020; font: 0.65rem var(--font-mono); letter-spacing: 0.07em; }
+.procedure-focus h4 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.procedure-instruction { margin: 0.65rem 0; font-size: 0.87rem; line-height: 1.55; }
+.procedure-state { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin: 0.8rem 0; }
+.procedure-state div { padding: 0.5rem; background: #cdd3c8; border: 1px solid #adb7aa; border-radius: 2px; }
+.procedure-state dt { color: #4e5d53; font: 0.62rem var(--font-mono); letter-spacing: 0.1em; }
+.procedure-state dd { margin: 0.2rem 0 0; font: 0.85rem var(--font-mono); font-weight: 600; }
+.procedure-action { width: 100%; min-height: 42px; padding: 0.55rem; color: #f2f1e6; background: #365a4e; border: 1px solid #264537; border-radius: 3px; font-size: 0.85rem; }
+.procedure-action:hover { background: #284739; }
+.procedure-action:disabled { cursor: wait; background: #67766d; color: #e3e5db; }
+.procedure-action:active:not(:disabled) { background: #203f32; }
+.procedure-wait { margin: 0.65rem 0; color: #795020; font-size: 0.8rem; line-height: 1.45; }
+.procedure-action:focus-visible { outline: 3px solid #a95c17; outline-offset: 3px; }
+.procedure-auto { margin: 0; color: #526254; font-size: 0.75rem; line-height: 1.4; }
+.procedure-complete { color: #365a4e; font-size: 0.9rem; }
+.procedure-overview { margin-top: 0.9rem; }
+.procedure-overview summary { cursor: pointer; color: var(--color-muted); font-size: 0.8rem; padding: 0.25rem 0 0.7rem; }
+.procedure-overview .step { grid-template-columns: auto 1fr auto; }
+.procedure-overview .step button { grid-column: 2 / -1; min-height: 36px; }
+
+@media (min-width: 801px) {
+  .mid { grid-template-columns: minmax(16rem, 21rem) 1fr; }
 }
 
 .sheet h2 {
@@ -1197,11 +1258,11 @@
   .sheet[data-open="true"] {
     display: block;
     position: absolute;
-    left: 0.75rem;
-    right: 0.75rem;
-    top: 4.5rem;
-    max-height: 46dvh;
-    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 0;
+    max-height: min(60dvh, calc(100dvh - 9rem));
+    z-index: 6;
   }
 
   .tapes {
@@ -1277,21 +1338,21 @@
 
 /* Preserve an outside view above the scrollable console in portrait. */
 @media (max-width: 600px) and (min-height: 650px) {
-  .hud[data-view="cockpit"] .topbar {
+  .hud .topbar {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.35rem;
     padding: 0.4rem;
   }
-  .hud[data-view="cockpit"] .brand b { font-size: 0.8rem; }
-  .hud[data-view="cockpit"] .phase-pill { font-size: 0.8rem; }
-  .hud[data-view="cockpit"] .topbar .row {
+  .hud .brand b { font-size: 0.8rem; }
+  .hud .phase-pill { font-size: 0.8rem; }
+  .hud .topbar .row {
     grid-column: 1 / -1;
     flex-wrap: nowrap;
     justify-content: space-between;
     gap: 0.2rem;
   }
-  .hud[data-view="cockpit"] .topbar button {
+  .hud .topbar button {
     min-width: 2rem;
     padding-inline: 0.35rem;
     font-size: 0.65rem;

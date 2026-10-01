@@ -1,6 +1,6 @@
 import { useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { getSimVersion, sim, subscribeSim } from "@/sim/runtime";
-import { activeCard } from "@/sim/procedures";
+import { activeCard, procedureActionLabel } from "@/sim/procedures";
 
 import { setPanelLight, usePanelLight } from "./panel-lighting";
 
@@ -297,7 +297,7 @@ export function FlightDeck() {
         <Face
           code="L2"
           label="Panel L2"
-          about="Commander's left console, outboard of the seat. The rotational hand controller is pitch and roll. The translational controller's forward axis is +X. On orbit, holding +X is the OMS retrograde burn. Hold it until the deorbit card on C3 reads 95 m/s, and only with the bay doors closed."
+          about="Commander's left console, outboard of the seat. The rotational hand controller is pitch and roll. The translational controller's forward axis is +X. On orbit, holding +X is the OMS retrograde burn. With the bay doors latched, follow C3's periapsis target, release the burn input, then select Begin deorbit coast in the checklist."
         >
           <div
             className="rhc"
@@ -321,7 +321,7 @@ export function FlightDeck() {
         <Face
           code="C3"
           label="Center console C3"
-          about="Center console, between the seats, aft of the keyboards. The card clipped here is the flight data file: the open system procedure, the call, the response the vehicle is actually giving, and Do when that step is a switch on this deck."
+          about="Center console, between the seats, aft of the keyboards. The card clipped here is the flight data file: the open system procedure and the vehicle's live indications. Open Checklist for the current instruction and required indication."
         >
           {card ? (
             <div className="deck-proc">
@@ -333,10 +333,10 @@ export function FlightDeck() {
                 {card.steps.map((step) => (
                   <li key={step.id} data-current={step.current} data-done={step.done}>
                     <span>{step.call}</span>
-                    <em>{step.response}</em>
+                    <em title={`Live: ${step.response} · Required: ${step.expected}`}>{step.response}</em>
                     {step.action ? (
-                      <button type="button" onClick={() => live.perform(step.action!)}>
-                        Do
+                      <button type="button" disabled={!!step.waiting || live.paused} aria-label={procedureActionLabel(step.action)} onClick={() => live.perform(step.action!)}>
+                        Set
                       </button>
                     ) : null}
                   </li>

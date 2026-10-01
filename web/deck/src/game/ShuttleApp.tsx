@@ -6,7 +6,7 @@ import { beep, unlockAudio } from "@/game/audio";
 import { attachControlsProbe, sim, type StartMode } from "@/sim/runtime";
 
 export function ShuttleApp() {
-  const [listOpen, setListOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(true);
   const stick = useRef<HTMLDivElement>(null);
   const knob = useRef<HTMLDivElement>(null);
   const lastCall = useRef("");
@@ -17,7 +17,13 @@ export function ShuttleApp() {
       // Native form controls own their keys; adjusting panel light must not fly the vehicle.
       const target = event.target;
       if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
+      if (event.ctrlKey || event.altKey || event.metaKey) return;
       if (event.repeat && event.code !== "KeyB") return;
+      if (event.code === "KeyC") {
+        setListOpen((value) => !value);
+        event.preventDefault();
+        return;
+      }
       sim.onKey(event.code, true);
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
         event.preventDefault();
@@ -73,6 +79,7 @@ export function ShuttleApp() {
     unlockAudio();
     beep(640);
     sim.start(mode);
+    setListOpen(true);
   }
 
   function moveStick(clientX: number, clientY: number) {

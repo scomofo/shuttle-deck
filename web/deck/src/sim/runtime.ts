@@ -242,6 +242,15 @@ export class ShuttleRuntime {
   get burnActive(): boolean {
     return this.adapter.view().burnActive;
   }
+  get burnCommand(): boolean {
+    return this.adapter.readBool("ctl.oms.burn");
+  }
+  get periapsisAlt(): number {
+    return this.adapter.readNum("dyn.periapsis_alt_m", Infinity);
+  }
+  get deorbitCommitted(): boolean {
+    return this.adapter.readText("mission.phase", "") === "deorbit";
+  }
   get terminalAnchor(): TerminalAnchor | null {
     return this.adapter.view().terminalAnchor;
   }
@@ -287,6 +296,9 @@ export class ShuttleRuntime {
   get apu(): boolean {
     return this.apuCount > 0;
   }
+  get apuStarting(): boolean {
+    return [1, 2, 3].some((unit) => this.adapter.readText(`apu.${unit}.state`, "off") === "starting");
+  }
   set apu(v: boolean) {
     // One representative switch drives all three units (cf. fuelCell).
     const a = this.adapter;
@@ -299,7 +311,7 @@ export class ShuttleRuntime {
     const a = this.adapter;
     a.setApu(2, true);
     a.setApu(3, true);
-    a.say("APUs 2 and 3 running.");
+    a.say("APUs 2 and 3 starting. Wait for RUN.");
   }
   get smokeAlarm(): boolean {
     return this.adapter.readBool("sys.fire.smoke_flt_dk");
@@ -527,6 +539,10 @@ export class ShuttleRuntime {
     } else if (action === "gear") {
       this.toggleGear();
       return;
+    } else if (action === "deorbit") {
+      if (this.phase !== "orbit" || this.periapsisAlt >= 110_000 || !this.doorsLatched || this.burnCommand) return;
+      a.runtime.controls.press("Deorbit");
+      a.say("Deorbit sequence selected. Coast to entry interface with the burn off.");
     }
     emit();
   }
