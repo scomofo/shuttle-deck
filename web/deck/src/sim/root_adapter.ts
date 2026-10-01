@@ -324,12 +324,12 @@ export class RootAdapter {
     this.refresh();
     this.say(
       mode === "launch"
-        ? "Main engines at throttle. Tower cleared when you are."
+        ? "Launch underway. Follow the ascent checklist."
         : mode === "orbit"
-          ? "On orbit. Hold B for the deorbit burn."
+          ? "On orbit. Follow the bay-door checklist before configuring deorbit."
           : mode === "entry"
             ? "Entry interface. Hold the corridor with bank."
-            : "Final. Gear below 160 meters per second.",
+            : "Final approach. Start APUs, then arm and lower gear at or below 190 m/s.",
     );
     this.lastRootPhase = this.rootPhase();
   }

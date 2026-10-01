@@ -356,6 +356,8 @@ export class ShuttleRuntime {
 
   blur(): void {
     this.physical.clear();
+    this.analog.roll = 0;
+    this.analog.pitch = 0;
   }
 
   /** Test/replay hook: drive the key set directly. */
@@ -412,6 +414,7 @@ export class ShuttleRuntime {
     this.mode = mode;
     this.adapter.start(mode);
     this.inject = null;
+    this.physical.clear();
     this.analog.roll = 0;
     this.analog.pitch = 0;
     this.procedureLatch.clear();

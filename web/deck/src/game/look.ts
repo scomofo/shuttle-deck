@@ -1,3 +1,5 @@
+import { inspectCockpit } from "./cockpit-navigation";
+
 /**
  * Seated-eye look state for the cockpit view.
  *
@@ -10,7 +12,7 @@
 
 export const LOOK_YAW_MAX = (160 * Math.PI) / 180;
 export const LOOK_PITCH_MIN = (-55 * Math.PI) / 180;
-export const LOOK_PITCH_MAX = (40 * Math.PI) / 180;
+export const LOOK_PITCH_MAX = (75 * Math.PI) / 180;
 
 const SENSITIVITY = 0.0038;
 
@@ -57,7 +59,7 @@ export function attachLookControls(el: HTMLElement): () => void {
   const onUp = () => {
     dragging = false;
   };
-  const onDblClick = () => resetLook();
+  const onDblClick = () => { inspectCockpit(null); resetLook(); };
 
   el.addEventListener("pointerdown", onDown);
   el.addEventListener("pointermove", onMove);

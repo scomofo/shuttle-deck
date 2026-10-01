@@ -1357,11 +1357,6 @@
     padding-inline: 0.35rem;
     font-size: 0.65rem;
   }
-  .deck:has(.hud[data-view="cockpit"]) .flight-viewport {
-    position: absolute !important;
-    top: 6.6rem;
-    height: calc(38dvh - 6.6rem) !important;
-  }
 }
 
 .deck-light-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
@@ -1378,3 +1373,61 @@
 }
 .face-read > div, .mdu > * { filter: brightness(var(--display-level, 1)); }
 @media (max-width: 600px) { .deck-light-row { flex-wrap: wrap; gap: 0; } .deck-light-row .deck-call { flex-basis: 100%; } .panel-light { margin-left: auto; } }
+
+/* The cabin is the primary instrument view. Flat controls are an optional aid. */
+.cockpit-tools {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 5;
+  pointer-events: auto;
+  padding: 0.5rem 0.65rem;
+  background: #131b21ed;
+  border: 1px solid #576366;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+}
+.cockpit-view-buttons { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.cockpit-tools button {
+  min-height: 36px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #5b6b6d;
+  border-radius: 3px;
+  background: #243035;
+  color: #e4e7df;
+  font: 0.74rem var(--font-mono);
+}
+.cockpit-tools button[aria-pressed="true"], .cockpit-tools button[aria-expanded="true"] { background: #d5d6c7; color: #24352f; }
+.cockpit-tools button:focus-visible { outline: 2px solid #efc16a; outline-offset: 2px; }
+.cockpit-tools-detail { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 0.3rem; }
+.cockpit-tools-detail > span { color: #c0c8c5; font: 0.68rem var(--font-mono); }
+.deck-helper-label { color: #bcc6bf; font: 0.62rem var(--font-mono); white-space: nowrap; }
+.flightdeck { bottom: 6.5rem; left: 0.75rem; right: 0.75rem; max-height: calc(100dvh - 13rem); overflow: auto; }
+.hud[data-view="cockpit"] .mid { display: grid; grid-template-columns: 1fr minmax(16rem, 21rem); padding-bottom: 6rem; }
+.hud[data-view="cockpit"] .sheet { grid-column: 2; grid-row: 1; }
+.hud[data-view="cockpit"] .mid > div { grid-column: 1; grid-row: 1; }
+.hud[data-view="cockpit"] .callout { font-size: 0.95rem; background: #10191fbb; border-radius: 3px; padding: 0.4rem; margin-top: 0; width: fit-content; }
+.procedure-find { width: 100%; text-align: left; padding: 0.45rem 0.5rem; min-height: 36px; border: 1px solid #80968a; background: #d7dfd2; color: #284b3c; font-size: 0.75rem; border-radius: 3px; }
+.procedure-find:hover { background: #c4d2c0; }
+.procedure-find:focus-visible { outline: 2px solid #a95c17; outline-offset: 2px; }
+
+@media (max-width: 800px) {
+  .hud[data-view="cockpit"] .mid { display: block; padding-bottom: 8rem; }
+  .hud[data-view="cockpit"] .sheet { top: 0; max-height: min(55dvh, calc(100dvh - 16rem)); }
+  .cockpit-tools { padding: 0.4rem; }
+  .cockpit-tools button { flex: 1; padding: 0.3rem; font-size: 0.65rem; }
+  .cockpit-tools-detail { flex-wrap: wrap; }
+  .cockpit-tools .panel-light { margin-left: auto; }
+  .flightdeck { bottom: 9rem; max-height: calc(100dvh - 16rem); }
+  .hud[data-view="cockpit"][data-inspecting="true"] .sheet { max-height: 29dvh; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-kicker,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-focus h3,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-progress,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-instruction,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-find,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-overview { display: none; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-mode { margin-top: 0; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-state { margin: 0.5rem 0; }
+  .hud[data-view="cockpit"] .callout { display: none; }
+}

@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react";
 import { procedureActionLabel, type ProcedureAction, type ProcedureCard } from "@/sim/procedures";
+import { COCKPIT_TARGETS, type CockpitTarget } from "./cockpit-navigation";
 
 /** A flight-data-file reading aid. Completion always comes from the live procedure. */
-export function ProcedureFocus({ card, perform, paused, resume, holdBurn }: {
+export function ProcedureFocus({ card, perform, paused, resume, holdBurn, findControl }: {
   card: ProcedureCard;
   perform: (action: ProcedureAction) => void;
   paused: boolean;
   resume: () => void;
   holdBurn: (held: boolean) => void;
+  findControl: (target: CockpitTarget) => void;
 }) {
   const current = card.steps.find((step) => step.current);
   const completed = card.steps.filter((step) => step.done).length;
@@ -34,6 +36,8 @@ export function ProcedureFocus({ card, perform, paused, resume, holdBurn }: {
         <p className="procedure-mode">{current.waiting ? "WAITING" : current.action || current.hold ? "CREW ACTION" : "MONITOR / VERIFY"} · STEP {card.steps.indexOf(current) + 1}</p>
         <h4>{current.call}</h4>
         <p className="procedure-instruction">{current.instruction}</p>
+        {current.action && current.action in COCKPIT_TARGETS ? <button className="procedure-find" type="button"
+          onClick={() => findControl(current.action as CockpitTarget)}>Find in cockpit · {COCKPIT_TARGETS[current.action as CockpitTarget].label}</button> : null}
         <dl className="procedure-state">
           <div><dt>LIVE</dt><dd>{current.response}</dd></div>
           <div><dt>REQUIRED</dt><dd>{current.expected}</dd></div>

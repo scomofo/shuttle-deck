@@ -4,9 +4,11 @@ import { Hud } from "@/game/hud";
 import { FlightDeck } from "@/game/flightdeck";
 import { beep, unlockAudio } from "@/game/audio";
 import { attachControlsProbe, sim, type StartMode } from "@/sim/runtime";
+import { inspectCockpit } from "./cockpit-navigation";
 
 export function ShuttleApp() {
   const [listOpen, setListOpen] = useState(true);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const stick = useRef<HTMLDivElement>(null);
   const knob = useRef<HTMLDivElement>(null);
   const lastCall = useRef("");
@@ -17,10 +19,23 @@ export function ShuttleApp() {
       // Native form controls own their keys; adjusting panel light must not fly the vehicle.
       const target = event.target;
       if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
+      if (target instanceof HTMLElement && target.closest("button, [role='button']") &&
+          (event.code === "Space" || event.code === "Enter")) return;
       if (event.ctrlKey || event.altKey || event.metaKey) return;
       if (event.repeat && event.code !== "KeyB") return;
       if (event.code === "KeyC") {
         setListOpen((value) => !value);
+        event.preventDefault();
+        return;
+      }
+      if (event.code === "KeyX") {
+        setControlsOpen((value) => !value);
+        event.preventDefault();
+        return;
+      }
+      if (event.code === "Escape") {
+        inspectCockpit(null);
+        setControlsOpen(false);
         event.preventDefault();
         return;
       }
@@ -79,7 +94,10 @@ export function ShuttleApp() {
     unlockAudio();
     beep(640);
     sim.start(mode);
+    sim.setView("cockpit");
+    inspectCockpit(null);
     setListOpen(true);
+    setControlsOpen(false);
   }
 
   function moveStick(clientX: number, clientY: number) {
@@ -111,8 +129,10 @@ export function ShuttleApp() {
   return (
     <main className="deck">
       <FlightScene />
-      <Hud onStart={start} checklistOpen={listOpen} onChecklist={() => setListOpen((v) => !v)} />
-      <FlightDeck />
+      <Hud onStart={start} checklistOpen={listOpen} onChecklist={() => setListOpen((v) => !v)}
+        controlsOpen={controlsOpen} onControls={() => setControlsOpen((v) => !v)}
+        onFind={() => setControlsOpen(false)} />
+      <FlightDeck open={controlsOpen} />
       <div
         className="stick"
         ref={stick}

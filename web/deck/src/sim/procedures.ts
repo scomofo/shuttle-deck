@@ -190,7 +190,7 @@ const PROCEDURES: ProcDef[] = [
         id: "burn",
         call: "Lower orbital periapsis",
         expected: "<110 km",
-        instruction: "With bay doors latched, hold the burn button or B (THC +X in the cabin). Release when periapsis falls below 110 km; then begin the deorbit coast.",
+        instruction: "With bay doors latched, hold the burn button, B, or OMS BURN in Controls. Release when periapsis falls below 110 km; then begin the deorbit coast.",
         response: (s) => `${(s.periapsisAlt / 1000).toFixed(1)} km · ${s.burnActive ? "BURNING" : "IDLE"}`,
         ok: (s) => s.periapsisAlt < 110_000 || s.deorbitCommitted,
         latch: true,

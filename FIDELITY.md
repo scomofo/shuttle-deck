@@ -20,15 +20,28 @@ dimensionally reconstructed flight deck with historically located panels,
 switches, guards, talkbacks, breakers, sightlines, or crew reach
 constraints.
 
+The 3D cabin uses the later MEDS configuration, while the reference mission
+data uses STS-1. These are different eras. New scenarios now begin in the
+commander-seat view; the flat console is an optional simulator aid. Forward
+window, overhead/side-console and seat overlaps have been corrected within
+the estimated geometry, and checklist Find actions locate real scene controls.
+This establishes desktop usability, not a measured historical cabin.
+
 ### Procedural fidelity — improving
 Phase-specific procedure cards exist and the procedure runner enforces
 real rules (it rejects writes to state channels and momentary misuse).
 Crew actions previously performed by adapter automation (deorbit burn,
 gear, ET sep) are now explicit crew steps — e.g. the deorbit card says
-"Retro burn (hold B)" and its APU step starts APUs 2+3 per the STS-1
+"Lower orbital periapsis" and its APU step starts APUs 2+3 per the STS-1
 sequence. Ascent is still a scripted trajectory through MECO rather than
 a force-integrated stack simulation, which is acceptable for a procedural
 trainer and is documented as such.
+
+The deorbit card separates held burn, cutoff, deliberate coast selection and
+entry-interface monitoring. Its burn input is a simulator helper, not a
+reconstruction of THC translation commanding. Physical bay-door, fuel-cell,
+APU and gear controls operate the existing crew-command paths; their grouped
+presentation and exact locations remain estimates.
 
 ### Systems fidelity — shallow but honest
 The electrical system models genuine causality: switch command →
@@ -107,5 +120,9 @@ presented as authoritative.
 - **P4** — Systems depth: real causality behind every visible switch. Done
   2026-09-26 (APU/hydraulics, doors, gear, OMS/RCS, reactants, smoke
   detection; adapter stopgaps removed).
-- **P5** — Visual geometry: light touch, only after the above. Deferred —
-  no visual changes were made without a way to verify them.
+- **P5** — Visual geometry: partially implemented. Local sourced/generated
+  materials, estimated orbiter/cabin geometry, lighting and cockpit usability
+  have rendered browser evidence. The remaining gate is a dimensioned,
+  era-consistent reconstruction with reference-matched sightlines and panel
+  locations; the current MEDS cabin is not an STS-1 cockpit. See
+  `web/deck/COCKPIT_VIEW.md` for the current usability slice and its limits.
