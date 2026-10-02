@@ -3,6 +3,7 @@ import { Stars, useProgress } from "@react-three/drei";
 import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
+import { CabinReadout } from "@/game/cabin-shell";
 import { Orbiter } from "@/game/orbiter";
 import { dryLakeMaterial } from "./ground-materials";
 import { LANDING_STRIP, landingCoordinates, landingRotation } from "./landing-layout";
@@ -382,10 +383,16 @@ function LandingReadout() {
     if (cabin?.visible) cabin.traverse(node => {
       if (node instanceof THREE.Mesh && node.name === "forward-glazing") THREE.Mesh.prototype.raycast.call(node,ray,hits);
     });
+    const glazingDistance = Math.min(...hits.map(hit => hit.distance));
+    hits.length = 0;
+    if (cabin?.visible) cabin.traverse(node => {
+      if (node instanceof THREE.Mesh && node.name.startsWith("cabin-opaque-")) THREE.Mesh.prototype.raycast.call(node,ray,hits);
+    });
+    const windowClear = Number.isFinite(glazingDistance) && hits.every(hit => hit.distance > glazingDistance + 0.001);
     const rect = gl.domElement.getBoundingClientRect();
     window.__landingReadout = { site:"Rogers Dry Lake · 23", surface:"dry-lake", guides,
       rotation:ground.rotation.y,
-      windowClear:hits.length>0,
+      windowClear,
       x:rect.left+(projectedPoint.x+1)*rect.width/2,
       y:rect.top+(1-projectedPoint.y)*rect.height/2,
       visible:Math.abs(projectedPoint.x)<=1 && Math.abs(projectedPoint.y)<=1 && Math.abs(projectedPoint.z)<=1 };
@@ -425,6 +432,7 @@ export function FlightScene() {
         <Suspense fallback={null}>
           <World />
           <CabinInterior />
+          <CabinReadout />
           <LandingReadout />
         </Suspense>
       </Canvas>

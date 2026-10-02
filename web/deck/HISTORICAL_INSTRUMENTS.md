@@ -107,6 +107,11 @@ walkthrough checks report no page errors. Captures were visually inspected.
 This does not establish full-mission historical calibration or native/headset
 acceptance.
 
+The subsequent [cabin enclosure review](CABIN_ENCLOSURE.md) adds opaque walls,
+roof and floor around actual apertures and clears the overhead panels. Its
+saved-state captures supersede the open-assembly appearance in these earlier
+instrument captures without extending the historical dimensional claim.
+
 ## Remaining gate
 
 Obtain a mission-specific 1981 panel inventory and dimensioned cabin/crew-eye

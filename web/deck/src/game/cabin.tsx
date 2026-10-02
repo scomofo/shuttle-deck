@@ -6,6 +6,8 @@ import { useSurfaceMaterial } from "@/game/materials";
 import { attachLookControls, lookState, resetLook } from "./look";
 import { formatEventTime } from "./mission-time";
 import { instrumentReadouts, paintInstrument, type InstrumentKind } from "./legacy-instruments";
+import { CABIN, FORWARD_PANES } from "./cabin-layout";
+import { CabinShell } from "./cabin-shell";
 
 import { getPanelLight, usePanelLight } from "./panel-lighting";
 import { COCKPIT_TARGETS, getCockpitInspection, portraitReadingLens, subscribeCockpitInspection, type CockpitTarget } from "./cockpit-navigation";
@@ -52,8 +54,6 @@ const DECK_DIMS = {
   crtScreenW: 0.24, crtScreenH: 0.18, // landscape legacy CRT [estimated]
   crtBezelW: 0.285, crtBezelH: 0.225, // enclosure [estimated]
   fwdWindowH: 0.36, // W1–W6 [estimated]
-  ohWindow: 0.508, // 20×20 in — later SCOM §1.2 [sourced]
-  aftWindowW: 0.368, aftWindowH: 0.279, // 14.5×11 in — later SCOM §1.2
 };
 
 /* F7 C/W annunciator matrix legends, transcribed from the SCOM Appendix A
@@ -644,18 +644,20 @@ function PlateLabel({ label, x = 0, y, scale = 1, z = 0.016, color = "#d4d8cc" }
 }
 
 function Bar({
+  name,
   position,
   args,
   rotation,
   material = matShell,
 }: {
+  name?: string;
   position: [number, number, number];
   args: [number, number, number];
   rotation?: [number, number, number];
   material?: THREE.Material;
 }) {
   return (
-    <mesh position={position} rotation={rotation} raycast={() => null} material={material}>
+    <mesh name={name} position={position} rotation={rotation} raycast={() => null} material={material}>
       <boxGeometry args={args} />
     </mesh>
   );
@@ -692,7 +694,7 @@ function PanelPlate({ width, height, material }: { width: number; height: number
   return (
     <group>
       <Bar position={[0, 0, -0.012]} args={[width + 0.009, height + 0.009, 0.012]} material={matGasket} />
-      <Bar position={[0, 0, 0]} args={[width, height, 0.025]} material={material} />
+      <Bar name="cabin-panel-opaque" position={[0, 0, 0]} args={[width, height, 0.025]} material={material} />
       <PanelFasteners width={width} height={height} />
     </group>
   );
@@ -921,23 +923,10 @@ function RcsCmdLamps({ x, y = -0.17 }: { x: number; y?: number }) {
 const OVERHEAD_REDS = [2, 3, 16, 17, 44];
 const SIDE_REDS = [4, 9];
 
-// Commander-eye composition. Six forward windows W1–W6, numbered left to
-// right facing forward (SCOM §1.2) [sourced]. These separated trapezoids
-// replace overlapping rectangles; coordinates/sightlines remain estimated.
-const FORWARD_PANES: [number, number][][] = [
-  [[-1.4, -0.02], [-1.24, -0.02], [-1.26, 0.34], [-1.35, 0.3]],
-  [[-1.18, -0.02], [-1.02, -0.02], [-1.05, 0.34], [-1.16, 0.34]],
-  // Principal openings straddle the estimated CDR/PLT eye stations ±0.6.
-  // Previously the commander looked directly into W2/W3's shared post.
-  [[-0.96, -0.02], [-0.1, -0.02], [-0.14, 0.34], [-0.93, 0.34]],
-  [[0.1, -0.02], [0.96, -0.02], [0.93, 0.34], [0.14, 0.34]],
-  [[1.02, -0.02], [1.18, -0.02], [1.16, 0.34], [1.05, 0.34]],
-  [[1.24, -0.02], [1.4, -0.02], [1.35, 0.3], [1.26, 0.34]],
-];
 function WindowFrame({ points }: { points: [number,number][] }) {
   const glazing=useMemo(()=>new THREE.ShapeGeometry(new THREE.Shape(points.map(p=>new THREE.Vector2(...p)))),[points]);
   useEffect(()=>()=>glazing.dispose(),[glazing]);
-  return <group position={[0,0,-1.08]}>
+  return <group position={[0,0,CABIN.forward]}>
     <mesh name="forward-glazing" geometry={glazing} material={matWindow} raycast={()=>null}/>
     {points.map(([x,y],i)=>{
       const [ex,ey]=points[(i+1)%points.length];
@@ -1186,6 +1175,7 @@ export function CabinInterior() {
 
   return (
     <group ref={root} name="cockpit-interior" visible={false}>
+      <CabinShell glazing={matWindow} />
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#8dbc81" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.36} distance={2.4} decay={2} color="#dae5ed" />
       {/* Cabin floodlight: ceiling-mounted above the crew station, so it
@@ -1211,31 +1201,6 @@ export function CabinInterior() {
           ))}
         </group>
       </group>
-
-      {/* Overhead windows W7/W8: 20×20 in clear view each, numbered
-          left-to-right facing aft (SCOM §1.2) [sourced]. Ceiling plate and
-          window positions [estimated]. */}
-      <Bar position={[0, 0.86, -0.05]} args={[1.7, 0.04, 1.0]} material={matHead} />
-      {[
-        { x: 0.38, id: "W7" },
-        { x: -0.38, id: "W8" },
-      ].map(({ x, id }) => (
-        <group key={id} position={[x, 0.83, -0.05]} rotation={[0.45, 0, 0]}>
-          <mesh raycast={() => null} material={matWindow}>
-            <planeGeometry args={[DECK_DIMS.ohWindow, DECK_DIMS.ohWindow]} />
-          </mesh>
-          <Bar position={[0, DECK_DIMS.ohWindow / 2 + 0.015, 0.01]} args={[DECK_DIMS.ohWindow + 0.06, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[0, -DECK_DIMS.ohWindow / 2 - 0.015, 0.01]} args={[DECK_DIMS.ohWindow + 0.06, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[-DECK_DIMS.ohWindow / 2 - 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.ohWindow + 0.06, 0.03]} material={matGasket} />
-          <Bar position={[DECK_DIMS.ohWindow / 2 + 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.ohWindow + 0.06, 0.03]} material={matGasket} />
-          <PlateLabel label={id} x={0} y={-DECK_DIMS.ohWindow / 2 - 0.05} scale={0.55} />
-        </group>
-      ))}
-
-      <Bar position={[0, 0.58, -0.72]} args={[2.2, 0.07, 0.9]} />
-      <Bar position={[-1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
-      <Bar position={[1.05, 0.02, -0.62]} args={[0.08, 0.85, 0.85]} />
-      <Bar position={[0, -0.55, -0.48]} args={[1.6, 0.06, 0.9]} material={matHead} />
 
       {FORWARD_PANES.map((points,i)=><WindowFrame key={i} points={points}/>)}
 
@@ -1426,8 +1391,9 @@ export function CabinInterior() {
         <MasterAlarm x={-0.24} y={0.24} />
       </group>
 
-      {/* A8 — RMS mode/joint panel (attested labels only) */}
-      <group position={[-0.66, -0.05, 0.16]} rotation={[-0.15, 2.6, 0]}>
+      {/* A8 — RMS mode/joint panel (attested labels only). Estimated aft
+          placement clears the window pair from the fixed commander eye. */}
+      <group position={[-0.94, -0.26, 1.02]} rotation={[-0.15, 2.6, 0]}>
         <PanelPlate width={0.4} height={0.3} material={panelMaterial} />
         <mesh position={[0, 0, 0.015]} raycast={() => null}>
           <planeGeometry args={[0.36, 0.26]} />
@@ -1477,20 +1443,6 @@ export function CabinInterior() {
             <planeGeometry args={[0.19, 0.46]} />
             <meshBasicMaterial map={side < 0 ? tex.aftSideL.map : tex.aftSideR.map} toneMapped={false} />
           </mesh>
-        </group>
-      ))}
-
-      {/* Aft-facing payload-bay windows: 14.5×11 in clear view each
-          (SCOM §1.2) [sourced]. Positions [estimated]. */}
-      {[-0.3, 0.3].map((x) => (
-        <group key={x} position={[x, 0.58, 0.62]} rotation={[0.5, Math.PI, 0]}>
-          <mesh raycast={() => null} material={matWindow}>
-            <planeGeometry args={[DECK_DIMS.aftWindowW, DECK_DIMS.aftWindowH]} />
-          </mesh>
-          <Bar position={[0, DECK_DIMS.aftWindowH / 2 + 0.015, 0.01]} args={[DECK_DIMS.aftWindowW + 0.06, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[0, -DECK_DIMS.aftWindowH / 2 - 0.015, 0.01]} args={[DECK_DIMS.aftWindowW + 0.06, 0.03, 0.03]} material={matGasket} />
-          <Bar position={[-DECK_DIMS.aftWindowW / 2 - 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.aftWindowH + 0.06, 0.03]} material={matGasket} />
-          <Bar position={[DECK_DIMS.aftWindowW / 2 + 0.015, 0, 0.01]} args={[0.03, DECK_DIMS.aftWindowH + 0.06, 0.03]} material={matGasket} />
         </group>
       ))}
 

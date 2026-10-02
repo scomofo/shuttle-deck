@@ -1,16 +1,12 @@
 # Commander-view refinement
 
-The current instrument follow-up is documented in
-[HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md). It supersedes the MEDS
-presentation described in the earlier review history below; dimensioned
-historical acceptance remains open.
-
-The next follow-up targets Columbia on STS-1, corrects the landing environment
-and verifies that the threshold ray passes through a main window rather than a
-post, fixes clipped phone checklists and makes Esc work from the dimmer. See
-[LANDING_VIEW.md](LANDING_VIEW.md). Main-pane coordinates changed to
-straddle the estimated crew eye positions; the later MEDS instrument layout and
-the need for measured historical geometry remain unchanged.
+The current cabin has a continuous interior with ten real window apertures.
+The new shell, exposed overhead panels and fixed-state review are documented
+in [CABIN_ENCLOSURE.md](CABIN_ENCLOSURE.md). The four-CRT/discrete-instrument
+conversion is documented in [HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md),
+and the dry-lake landing/phone work is in [LANDING_VIEW.md](LANDING_VIEW.md).
+These supersede the earlier MEDS/open-assembly review history below.
+Dimensioned STS-1 reconstruction remains open.
 
 ## Sources and limits
 

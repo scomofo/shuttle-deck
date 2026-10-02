@@ -6,7 +6,10 @@ CRTs and dedicated flight instruments now replace the later MEDS presentation.
 This is a partial era conversion: geometry, scales and crew-control positions
 remain estimates, and other panel sections still use later references. See
 [HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md) for NASA evidence, captures
-and the remaining historical gates.
+and the remaining historical gates. The enclosed cabin now has opaque walls,
+roof and floor around six forward, two overhead and two aft apertures. See
+[CABIN_ENCLOSURE.md](CABIN_ENCLOSURE.md) for the fixed-state comparison and
+source limits.
 
 The landing scene presents Rogers Dry Lake runway 23. The synthetic approach
 placement, surface finish and markings remain estimates. See
@@ -149,6 +152,14 @@ saved history, APU/door command continuity, held-burn release, and missing,
 corrupt, legacy and blocked-storage feedback. It uses real inputs and the same
 CLI options. `npm test` includes owner-backed checkpoint tests as well as the
 existing exhaust, timer, procedure and render-frame checks.
+
+`python3 tests/cabin-shell-browser.py` reuses committed GUI checkpoints for
+fixed forward, overhead, aft and phone views. Ordinary pointer look exposes
+both roof and aft apertures. It raycasts the actual opaque shell to check all
+ten windows and the crew controls/instruments, retains the commander eye,
+and checks landing visibility and short-phone recovery. Use the same browser
+options; `--record-fixture --fixture <path>` records new GUI checkpoints.
+`npm test` includes 2,400-direction cabin-continuity ray tests.
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.
