@@ -20,9 +20,13 @@ dimensionally reconstructed flight deck with historically located panels,
 switches, guards, talkbacks, breakers, sightlines, or crew reach
 constraints.
 
-The 3D cabin uses the later MEDS configuration, while the reference mission
-data uses STS-1. These are different eras. New scenarios now begin in the
-commander-seat view; the flat console is an optional simulator aid. Forward
+The 3D cabin now replaces eleven MEDS displays with four monochrome CRTs and
+estimated dedicated flight instruments, using NASA STS-1 photographs and a
+pre-MEDS baseline layout. This partially addresses the mission/era mismatch;
+it does not reconstruct all 32 original gauges or certify a 1981 panel set.
+Other panel sections still use later references. See
+`web/deck/HISTORICAL_INSTRUMENTS.md`. New scenarios begin in the commander-seat
+view; the flat console is an optional simulator aid. Forward
 window, overhead/side-console and seat overlaps have been corrected within
 the estimated geometry, and checklist Find actions locate real scene controls.
 This establishes desktop usability, not a measured historical cabin.
@@ -32,7 +36,8 @@ presentation now uses a dry lakebed and runway 23, consistent with the mission
 identity, and rotates the estimated layout along the recorded approach heading.
 Simulator HAC/glide-slope guides are optional. Lakebed finish, paint coordinates
 and the synthetic scenario placement remain estimates; the early cockpit
-reconstruction still needs source evidence. See `web/deck/LANDING_VIEW.md`.
+still needs mission-specific dimensions, a complete inventory and calibrated
+reference views. See `web/deck/LANDING_VIEW.md`.
 
 ### Procedural fidelity — improving
 Phase-specific procedure cards exist and the procedure runner enforces
@@ -140,5 +145,6 @@ presented as authoritative.
   materials, estimated orbiter/cabin geometry, lighting and cockpit usability
   have rendered browser evidence. The remaining gate is a dimensioned,
   era-consistent reconstruction with reference-matched sightlines and panel
-  locations; the current MEDS cabin is not an STS-1 cockpit. See
-  `web/deck/COCKPIT_VIEW.md` for the current usability slice and its limits.
+  locations. The CRT/discrete-instrument conversion is supported by NASA
+  evidence, but it is not a complete STS-1 cockpit. See
+  `web/deck/HISTORICAL_INSTRUMENTS.md` for the current slice and its limits.

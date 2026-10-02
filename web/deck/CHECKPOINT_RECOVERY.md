@@ -71,6 +71,7 @@ an older saved view or lost historical verification.
 This pass changes control persistence and browser presentation. It does not
 change guidance/dynamics laws, mechanism timings, mission data or historical
 cockpit fidelity. The selected target remains Columbia on STS-1 (1981); the
-current cabin still uses later MEDS displays. Historical panel conversion needs
-primary reference evidence and fixed-camera acceptance. The existing root
+instrument follow-up now partially replaces MEDS; see
+[HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md). Historical acceptance still needs
+mission-specific dimensions and matched camera references. The existing root
 electrical TypeScript diagnostics and build chunk-size warning remain.
