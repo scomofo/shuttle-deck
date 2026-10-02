@@ -33,6 +33,10 @@ assembly around six forward, two roof and two aft apertures, and exposes the
 overhead controls. Checklist Find actions locate real scene controls. Fixed
 saved-state review and enclosure-ray acceptance are in
 `web/deck/CABIN_ENCLOSURE.md`.
+Side panels now share closed sloped consoles that join the floor and walls;
+aft faces are mounted below the aft windows with continuous backing. Source
+limits, fixed-state captures and actual assembly-occlusion checks are in
+`web/deck/WORKSTATIONS.md`. Their coordinates and finishes remain estimates.
 This establishes desktop usability, not a measured historical cabin.
 
 The selected reconstruction target is Columbia on STS-1 (1981). The landing
@@ -151,7 +155,8 @@ presented as authoritative.
   era-consistent reconstruction with reference-matched sightlines and panel
   locations. The CRT/discrete-instrument conversion is supported by NASA
   evidence, but it is not a complete STS-1 cockpit. See
-  `web/deck/HISTORICAL_INSTRUMENTS.md` and `web/deck/CABIN_ENCLOSURE.md` for the
-  current slices and their limits. The cabin is enclosed; exact 1981 dimensions,
-  the complete original inventory, workstation mounting and middeck access
-  remain open.
+  `web/deck/HISTORICAL_INSTRUMENTS.md`, `web/deck/CABIN_ENCLOSURE.md` and
+  `web/deck/WORKSTATIONS.md` for the current slices and their limits. The cabin
+  is enclosed and its side/aft plates have continuous mounting geometry.
+  Exact 1981 dimensions and mounting hardware, the complete original inventory,
+  exterior aft-window bay sightlines and middeck access remain open.

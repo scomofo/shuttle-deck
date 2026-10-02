@@ -10,6 +10,9 @@ and the remaining historical gates. The enclosed cabin now has opaque walls,
 roof and floor around six forward, two overhead and two aft apertures. See
 [CABIN_ENCLOSURE.md](CABIN_ENCLOSURE.md) for the fixed-state comparison and
 source limits.
+Side and aft plates now share continuous floor/wall console backing; see
+[WORKSTATIONS.md](WORKSTATIONS.md) for the remaining inventory and dimensional
+limits, fixed captures and physical control validation.
 
 The landing scene presents Rogers Dry Lake runway 23. The synthetic approach
 placement, surface finish and markings remain estimates. See
@@ -159,7 +162,11 @@ both roof and aft apertures. It raycasts the actual opaque shell to check all
 ten windows and the crew controls/instruments, retains the commander eye,
 and checks landing visibility and short-phone recovery. Use the same browser
 options; `--record-fixture --fixture <path>` records new GUI checkpoints.
-`npm test` includes 2,400-direction cabin-continuity ray tests.
+The probe also checks console housings, panel plates and seats for obstruction
+of all named crew controls and instrument centers, and of the roof/aft window
+centers. `npm test` includes 2,400-direction cabin-continuity rays, closed
+floor-connected workstation volumes and backing/visibility samples across
+all eleven mounted faces. See [workstation evidence](WORKSTATIONS.md).
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.

@@ -40,6 +40,9 @@ with sync_playwright() as p:
         assert all(w['clear'] for w in data['windows']), data
         assert all(w['panelClear'] for w in data['windows'] if w['family'] != 'forward'), data['windows']
         assert all(data['crewRays'].values()), data['crewRays']
+        assert sorted(data['housings']) == ['cabin-console-opaque-aft', 'cabin-console-opaque-port', 'cabin-console-opaque-starboard']
+        assert all(data['assemblyRays'].values()), data['assemblyRays']
+        assert all(w['assemblyClear'] for w in data['windows'] if w['family'] != 'forward'), data['windows']
         assert sorted(w['id'] for w in data['windows']) == sorted(f'W{i}' for i in range(1, 11))
         assert abs(data['eye'][0] + 0.6) < 1e-6 and abs(data['eye'][1]) < 1e-6 and abs(data['eye'][2]) < 1e-6
         return data
@@ -123,5 +126,5 @@ with sync_playwright() as p:
     (out / 'capture-state.json').write_text(json.dumps(records, indent=2) + '\n')
     assert not errors, errors
     assert not resources, resources
-    print('Cabin enclosure: 10 real open windows, clear crew rays, fixed saved-state views, pointer-look roof/aft apertures and short-phone recovery passed; zero browser/resource errors.', flush=True)
+    print('Cabin assembly: 10 shell apertures, clear control/instrument rays through housing, panel and seat geometry, unobstructed roof/aft centers, fixed saved-state views and short-phone recovery passed; zero browser/resource errors.', flush=True)
     browser.close()
