@@ -197,7 +197,7 @@ export function FlightDeck({ open }: { open: boolean }) {
           code="F6"
           who="CDR"
           label="Panel F6"
-          about="Commander's forward panel, left of the centerline. The ball is the attitude director indicator. Altitude and alpha/Mach are the dedicated instruments beside it, the set fed by the commander's display driver on main bus A. Landing gear is two guarded pushbuttons: ARM latches the extend valves and the door pyros, then DN fires them. DN does nothing until ARM, and it still will not drop the gear if you are fast."
+          about="Simulator controls for the commander's forward station. The cabin has separate attitude, heading, alpha/Mach and altitude/vertical-speed instruments. This helper shows altitude in metres; the cabin instruments use feet. For gear, select ARM before DN. The down-lock indication follows the modeled extension transit, and deployment is blocked above 190 m/s."
         >
           <div className="adi-ball">
             <div className="adi-ball-inner" style={{ transform: `translateY(${pitchPx}px) rotate(${bankDeg}deg)` }}>
@@ -248,7 +248,7 @@ export function FlightDeck({ open }: { open: boolean }) {
         <Face
           code="F7"
           label="Panel F7"
-          about="Center forward panel, between the two seats. The caution-and-warning matrix lives here, with the g-meter. A lamp means that condition is true now: fuel-cell bus, APU when hydraulics are required, bay doors open off orbit, gear still up on short final, off the heading-alignment cylinder, off the entry corridor, or no air-to-ground in blackout. A dark C&W is a quiet board."
+          about="Simulator alert summary for the center forward station. The cabin's three CRTs show flight, systems and trajectory readouts. These helper alerts report current conditions such as bus power, required APUs, open bay doors, gear and the simplified entry/approach corridor. They are not a reproduction of the original warning-panel inventory."
         >
           <div className="cw" aria-label="Caution and warning">
             {legends.map((lamp) => (
@@ -272,7 +272,7 @@ export function FlightDeck({ open }: { open: boolean }) {
           code="F8"
           who="PLT"
           label="Panel F8"
-          about="Pilot's forward panel, the right-hand mirror of F6. Heading, main-bus voltage, and OMS quantity are the instruments. Fuel cell, APU, and gear are talkbacks only. On the orbiter the pilot has a second ARM and DN pair here. This deck keeps the switches on F6 and the indication on F8."
+          about="Simulator readout summary for the pilot station. The cabin has a corresponding set of dedicated flight instruments. This helper groups heading, bus voltage, OMS quantity and system indications for reading; the physical representative gear controls are on F6."
         >
           <strong className="hdg">HDG {heading()}</strong>
           <dl className="face-read">

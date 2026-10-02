@@ -1458,3 +1458,13 @@
   .hud[data-view="cockpit"][data-inspecting="true"] .procedure-state { margin: 0.5rem 0; }
   .hud[data-view="cockpit"] .callout { display: none; }
 }
+
+@media (max-width: 600px) and (max-height: 650px) {
+  /* Retain the current call, both indications and the full action button in
+     the compact inspection card; do not require a scroll to Resume. */
+  .hud[data-view="cockpit"][data-inspecting="true"] .sheet { padding: 0.4rem; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-focus { padding: 0.55rem; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-focus h4 { font-size: 1rem; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-state { margin: 0.35rem 0; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-state div { padding: 0.3rem; }
+}

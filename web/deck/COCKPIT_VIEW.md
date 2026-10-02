@@ -1,5 +1,10 @@
 # Commander-view refinement
 
+The current instrument follow-up is documented in
+[HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md). It supersedes the MEDS
+presentation described in the earlier review history below; dimensioned
+historical acceptance remains open.
+
 The next follow-up targets Columbia on STS-1, corrects the landing environment
 and verifies that the threshold ray passes through a main window rather than a
 post, fixes clipped phone checklists and makes Esc work from the dimmer. See

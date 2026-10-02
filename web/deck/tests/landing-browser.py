@@ -44,7 +44,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(out/'dry-lake-guides.png'))
 
     # Esc must work even from a native range input in an inspection view.
-    page.get_by_role('button',name='Flight displays',exact=True).click()
+    page.get_by_role('button',name='Flight instruments',exact=True).click()
     page.wait_for_function('window.__cockpitReadout?.target === "displays"')
     page.get_by_role('slider',name='Panel lighting').focus()
     page.keyboard.press('Escape')

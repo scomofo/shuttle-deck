@@ -10,7 +10,8 @@ export function CockpitTools({ controlsOpen, onControls, terminal }: { controlsO
   return <nav className="cockpit-tools" aria-label="Cockpit navigation">
     <div className="cockpit-view-buttons">
       <button type="button" aria-pressed={!target} onClick={() => inspectCockpit(null)}>Forward view</button>
-      <button type="button" aria-pressed={target === "displays"} onClick={() => inspectCockpit("displays")}>Flight displays</button>
+      <button type="button" aria-pressed={target === "displays"} onClick={() => inspectCockpit("displays")}>Flight instruments</button>
+      <button type="button" aria-pressed={target === "crts"} onClick={() => inspectCockpit("crts")}>Center CRTs</button>
       <button type="button" aria-pressed={target === "overhead"} onClick={() => inspectCockpit("overhead")}>Overhead</button>
       <button type="button" aria-pressed={target === "aft"} onClick={() => inspectCockpit("aft")}>Aft station</button>
       <button type="button" aria-expanded={controlsOpen} aria-controls="cockpit-controls" onClick={onControls}>Controls [X]</button>

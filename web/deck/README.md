@@ -1,14 +1,15 @@
 # Browser flight deck
 
-A seated view of the forward station, driven by the root simulation. The cabin
-represents the later MEDS cockpit; the STS-1 mission baseline is not a claim of
-an STS-1-era cockpit. Panel groupings are sourced, while geometry and control
-positions remain estimates.
+A seated view of the forward station, driven by the root simulation. The
+selected reconstruction target is **Columbia on STS-1 (1981)**. Four monochrome
+CRTs and dedicated flight instruments now replace the later MEDS presentation.
+This is a partial era conversion: geometry, scales and crew-control positions
+remain estimates, and other panel sections still use later references. See
+[HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md) for NASA evidence, captures
+and the remaining historical gates.
 
-The selected historical reconstruction target is **Columbia on STS-1 (1981)**.
-The landing scene now presents Rogers Dry Lake runway 23; the later MEDS cockpit
-still needs conversion using early-flight reference evidence. The synthetic
-approach placement, surface finish and markings remain estimates. See
+The landing scene presents Rogers Dry Lake runway 23. The synthetic approach
+placement, surface finish and markings remain estimates. See
 [LANDING_VIEW.md](LANDING_VIEW.md) for provenance and review captures.
 
 Do not fold pitch, phase, and meshes back into `src/`. This folder does
@@ -16,7 +17,7 @@ not write `dyn.*` and it does not replace an owner.
 
 ## What is on the deck
 
-New scenarios open in the commander-seat cabin. **Flight displays**,
+New scenarios open in the commander-seat cabin. **Flight instruments**, **Center CRTs**,
 **Overhead** and **Aft station** turn the seated eye toward the existing
 geometry; **Forward view**, **Esc** or a double-click returns it. Drag to look
 around. These are reading aids, not calibrated crew reach or lens settings.

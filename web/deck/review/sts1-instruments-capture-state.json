@@ -1,0 +1,870 @@
+{
+  "orbit-forward": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5998145442,
+      "verticalSpeedFpm": -2.1538016921947083,
+      "headingDegrees": 90,
+      "pitchDegrees": 89.94632308487843,
+      "bankDegrees": 0,
+      "alphaDegrees": 0,
+      "mach": 25.06911779746336,
+      "get": 514.7999999999993,
+      "readingRevision": 4,
+      "sourceAltitudeMeters": 245999.99562347308,
+      "sourceVerticalSpeedMps": -0.010941312596349118,
+      "faces": {
+        "F6-adi": {
+          "x": 802.456002230263,
+          "y": 561.2438446153916,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 802.8220834430932,
+          "y": 734.1921947281205,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 630.7095385253829,
+          "y": 596.5578894257093,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 965.7985631621405,
+          "y": 615.9709919984492,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1132.694029701077,
+          "y": 422.3247751007985,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1374.6533240291328,
+          "y": 422.3247751007986,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1475.618889979869,
+          "y": 921.9991128237255,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 1853.5626640542835,
+          "y": 561.2438446153924,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2010.602219270161,
+          "y": 734.1921947281213,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 1703.9798908270577,
+          "y": 615.9709919984496,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2095.396728859497,
+          "y": 596.5578894257103,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -1285.5110490366737,
+          "y": 559.9180022583262,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 744.6088840537766,
+          "y": 340.6828441492362,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null
+  },
+  "orbit-center-crts": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5998145442,
+      "verticalSpeedFpm": -2.1538016921947083,
+      "headingDegrees": 90,
+      "pitchDegrees": 89.94632308487843,
+      "bankDegrees": 0,
+      "alphaDegrees": 0,
+      "mach": 25.06911779746336,
+      "get": 514.7999999999993,
+      "readingRevision": 6,
+      "sourceAltitudeMeters": 245999.99562347308,
+      "sourceVerticalSpeedMps": -0.010941312596349118,
+      "faces": {
+        "F6-adi": {
+          "x": 156.08176440885737,
+          "y": 439.63194872791246,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 189.0986070257358,
+          "y": 679.6462263459342,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": -198.39997327758638,
+          "y": 531.3272121829815,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 417.4497271502048,
+          "y": 486.5404838050013,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 606.0398548238308,
+          "y": 238.02055391940885,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT2": {
+          "x": 832.3696092592421,
+          "y": 243.00122282810605,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 898.3729871138047,
+          "y": 684.4133309291598,
+          "visible": true,
+          "format": "flight"
+        },
+        "F8-adi": {
+          "x": 1118.982693481016,
+          "y": 356.89075768214906,
+          "visible": true
+        },
+        "F8-hsi": {
+          "x": 1177.6686373096709,
+          "y": 470.08912466247017,
+          "visible": true
+        },
+        "F8-ami": {
+          "x": 1041.8273503165824,
+          "y": 407.3847982478142,
+          "visible": true
+        },
+        "F8-avvi": {
+          "x": 1218.152512774857,
+          "y": 372.11998799119664,
+          "visible": true
+        },
+        "CRT4": {
+          "x": 4246.472228562362,
+          "y": 90.28128820538358,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": -11.897482728564768,
+          "y": 83.04760905855699,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "crts",
+      "revision": 6,
+      "x": 800.0000000000003,
+      "y": 450,
+      "visible": true,
+      "fov": 52
+    }
+  },
+  "orbit-aft": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5998145442,
+      "verticalSpeedFpm": -2.1538016921947083,
+      "headingDegrees": 90,
+      "pitchDegrees": 89.94632308487843,
+      "bankDegrees": 0,
+      "alphaDegrees": 0,
+      "mach": 25.06911779746336,
+      "get": 514.7999999999993,
+      "readingRevision": 7,
+      "sourceAltitudeMeters": 245999.99562347308,
+      "sourceVerticalSpeedMps": -0.010941312596349118,
+      "faces": {
+        "F6-adi": {
+          "x": 2354.411939413505,
+          "y": 166.25839765577007,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 2386.498239811459,
+          "y": -246.80728620576406,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 1737.6406824890846,
+          "y": 193.09741903490087,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 3973.253337194577,
+          "y": -283.87930392447964,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 19322.950184878253,
+          "y": 1049.7510782642305,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT2": {
+          "x": -2970.800395335231,
+          "y": 310.5280021707499,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": -1687.1296381423133,
+          "y": 1633.9937398979464,
+          "visible": false,
+          "format": "flight"
+        },
+        "F8-adi": {
+          "x": -577.5299457597716,
+          "y": 558.1807684636149,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": -380.8112653987935,
+          "y": 701.6586576823601,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": -850.3921116413053,
+          "y": 679.2323058690986,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": -313.8987057414571,
+          "y": 554.6575715670903,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 715.1753346495785,
+          "y": 385.8339671534334,
+          "visible": true,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 2062.8650934328525,
+          "y": 636.6704587724695,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "aft",
+      "revision": 7,
+      "x": 799.9999999999999,
+      "y": 450.0000000000001,
+      "visible": true,
+      "fov": 62
+    }
+  },
+  "approach-forward": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 3,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 802.4560022302635,
+          "y": 561.2438446153918,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 802.822083443094,
+          "y": 734.1921947281202,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 630.7095385253837,
+          "y": 596.5578894257096,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 965.7985631621408,
+          "y": 615.9709919984489,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1132.694029701077,
+          "y": 422.3247751007987,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1374.6533240291337,
+          "y": 422.3247751007983,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1475.618889979869,
+          "y": 921.9991128237245,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 1853.562664054285,
+          "y": 561.2438446153919,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2010.6022192701603,
+          "y": 734.1921947281202,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 1703.9798908270577,
+          "y": 615.9709919984489,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2095.396728859498,
+          "y": 596.5578894257096,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -1285.5110490366724,
+          "y": 559.9180022583267,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 744.6088840537769,
+          "y": 340.68284414923625,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null
+  },
+  "approach-instruments": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 4,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 803.8611453544718,
+          "y": 243.5862104681283,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 804.1335008331705,
+          "y": 498.0088064301808,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 537.7810633237116,
+          "y": 298.523863782568,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 1054.7439245109626,
+          "y": 328.03957606125294,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1355.7798756507498,
+          "y": 10.503127864019984,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1759.9834215785688,
+          "y": 10.503127864019534,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1721.2200458976433,
+          "y": 737.6298989500704,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 2456.333425040082,
+          "y": 243.58621046812928,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2573.167017522907,
+          "y": 498.0088064301808,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2188.9347451284816,
+          "y": 328.03957606125294,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2806.47780067875,
+          "y": 298.5238637825695,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -2480.5310176531825,
+          "y": 241.49154525493057,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 703.9323474320945,
+          "y": -140.61335076481032,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 4,
+      "x": 800,
+      "y": 449.99999999999875,
+      "visible": true,
+      "fov": 42
+    }
+  },
+  "approach-instruments-dim": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 4,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 803.8611453544718,
+          "y": 243.5862104681283,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 804.1335008331705,
+          "y": 498.0088064301808,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 537.7810633237116,
+          "y": 298.523863782568,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 1054.7439245109626,
+          "y": 328.03957606125294,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1355.7798756507498,
+          "y": 10.503127864019984,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1759.9834215785688,
+          "y": 10.503127864019534,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1721.2200458976433,
+          "y": 737.6298989500704,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 2456.333425040082,
+          "y": 243.58621046812928,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2573.167017522907,
+          "y": 498.0088064301808,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2188.9347451284816,
+          "y": 328.03957606125294,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2806.47780067875,
+          "y": 298.5238637825695,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -2480.5310176531825,
+          "y": 241.49154525493057,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 703.9323474320945,
+          "y": -140.61335076481032,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 4,
+      "x": 800,
+      "y": 449.99999999999875,
+      "visible": true,
+      "fov": 42
+    }
+  },
+  "approach-instruments-bright": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 4,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 803.8611453544718,
+          "y": 243.5862104681283,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 804.1335008331705,
+          "y": 498.0088064301808,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 537.7810633237116,
+          "y": 298.523863782568,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 1054.7439245109626,
+          "y": 328.03957606125294,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1355.7798756507498,
+          "y": 10.503127864019984,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1759.9834215785688,
+          "y": 10.503127864019534,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1721.2200458976433,
+          "y": 737.6298989500704,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 2456.333425040082,
+          "y": 243.58621046812928,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2573.167017522907,
+          "y": 498.0088064301808,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2188.9347451284816,
+          "y": 328.03957606125294,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2806.47780067875,
+          "y": 298.5238637825695,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -2480.5310176531825,
+          "y": 241.49154525493057,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 703.9323474320945,
+          "y": -140.61335076481032,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 4,
+      "x": 800,
+      "y": 449.99999999999875,
+      "visible": true,
+      "fov": 42
+    }
+  },
+  "mobile-instruments-checklist": {
+    "viewport": [
+      390,
+      844
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 5.209826600492442,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 6,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 196.46361541092944,
+          "y": 431.4125229055748,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 196.56685515957366,
+          "y": 527.8545881874404,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 95.60263431614439,
+          "y": 452.23732711507967,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 291.5638688849368,
+          "y": 463.4256268007187,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 405.67530911386234,
+          "y": 343.05946690595505,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 558.8937157421262,
+          "y": 343.05946690595493,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 544.1999736480755,
+          "y": 618.685958570761,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 822.8538889292562,
+          "y": 431.4125229055753,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 867.141122579777,
+          "y": 527.8545881874404,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 721.4930768252651,
+          "y": 463.4256268007187,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 955.5804913197888,
+          "y": 452.23732711508023,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -1048.5262888791597,
+          "y": 430.6185138731971,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 158.5843554484783,
+          "y": 285.7768767257141,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 6,
+      "x": 195,
+      "y": 509.65624999999955,
+      "visible": true,
+      "fov": 87.04170445736244
+    }
+  },
+  "short-mobile-instruments-checklist": {
+    "viewport": [
+      390,
+      600
+    ],
+    "instruments": {
+      "altitudeFeet": 6485.637948928362,
+      "verticalSpeedFpm": -5304.043101428873,
+      "headingDegrees": 89.99966895090199,
+      "pitchDegrees": -9.919215052348134,
+      "bankDegrees": 1.3436824192586461e-05,
+      "alphaDegrees": 5.209826600492442,
+      "mach": 0.5094493377432453,
+      "get": 0.12000000000000001,
+      "readingRevision": 6,
+      "sourceAltitudeMeters": 1976.8224468333647,
+      "sourceVerticalSpeedMps": -26.94453895525868,
+      "faces": {
+        "F6-adi": {
+          "x": 195.59036644334782,
+          "y": 335.86916242348616,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 195.63200940690507,
+          "y": 374.77020066372575,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 154.9069066786793,
+          "y": 344.2690914641159,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 233.95016915222305,
+          "y": 348.78202337450443,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 279.97835702875267,
+          "y": 300.23092095656983,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 341.78079850420926,
+          "y": 300.2309209565698,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 335.8539052816067,
+          "y": 411.4080993064803,
+          "visible": true,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 448.2522304570834,
+          "y": 335.8691624234864,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 466.11600561326816,
+          "y": 374.77020066372575,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 407.3671579921275,
+          "y": 348.78202337450443,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 501.7890623364193,
+          "y": 344.2690914641161,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -306.5909144526316,
+          "y": 335.54888956701683,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 180.31132263601486,
+          "y": 277.12531631622073,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 6,
+      "x": 195,
+      "y": 367.4296874999998,
+      "visible": true,
+      "fov": 118.2855219836675
+    }
+  }
+}

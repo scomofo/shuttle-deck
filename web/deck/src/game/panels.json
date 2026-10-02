@@ -1,1 +1,204 @@
-{"aft":{"A1":"communications (S-band PM/FM, Ku-band)","A10":{"contents":"unattested"},"A11":"label per JSC-26419","A12":"label per JSC-26419","A13":{"contents":"unattested"},"A14":"label per JSC-26419","A15":"label per JSC-26419","A16":{"contents":"unattested"},"A17":{"contents":"unattested"},"A2":"RMS arm-translation controller (T-handle, port station)","A4":"mission/event time","A5":{"contents":"unattested"},"A6":"aft DAP control set","A6U":"aft ADI / flight controller selector","A7":"payload bay floodlight + CCTV/video controls","A8":{"labels":["ORB UNL","SHOULDER PITCH","SHOULDER YAW"],"rms":"mode/joint controls"},"AFD1":"aft flight deck display — exact panel unresolved","R11L":"DPS keyboard (see C2)","R11U":"fuel cell purge","R12":{"mdu":"CRT4","note":"tenth format-cycling MDU"},"R13":"payload bay door switches","R14":"MDU circuit breakers","R15":"ADC circuit breakers"},"configuration":"MEDS (glass cockpit, post-STS-101 fleet)","consoles":{"C1":{"contents":"unattested"},"C2":"DPS keyboards (32-key faces on center-console flanks)","C3":"forward DAP control set","L1":"fire/smoke","L10":{"contents":"unattested"},"L11":{"contents":"unattested"},"L12":{"contents":"unattested"},"L13":{"contents":"unattested"},"L14":{"contents":"unattested"},"L15":{"contents":"unattested"},"L16":{"contents":"unattested"},"L17":{"contents":"unattested"},"L2":"emergency oxygen","L3":{"contents":"unattested"},"L4":{"contents":"unattested"},"L9":{"contents":"unattested"},"R1":"emergency electrical","R10":{"contents":"unattested"},"R16":{"contents":"unattested"},"R17":{"contents":"unattested"},"R18":{"contents":"unattested"},"R2":"APU/water spray boiler","R3":{"contents":"unattested"},"R4":{"contents":"unattested"}},"crew":{"commander":"vehicle RHC + vehicle THC (commander's left)","pilot":"vehicle RHC only","windows":{"aft":2,"forward":6,"overhead":2,"total":10}},"forward":{"F1":{"contents":"unattested"},"F5":{"contents":"unattested"},"F6":{"mdus":["CDR1","CDR2"],"retained":["ADI attitude selector","ATT REF","RCS COMMAND lamps"],"station":"commander"},"F7":{"mdus":{"bottom":["MFD1","MFD2"],"middle":["CRT3"],"top":["CRT1","CRT2"]},"retained":["caution/warning annunciator strip (top)","GPC C/W light","event time","CRT3 DPS/SYS/TRAJ format selects","CRT1/CRT2 vent grille (purpose unattested)"]},"F8":{"mdus":["PLT1","PLT2"],"retained":["ADI attitude selector","ATT REF","RCS COMMAND lamps"],"station":"pilot"},"F9":{"contents":"unattested"}},"note":"Panel numbering and section contents per JSC-26419. Entries marked unattested are placeholders, not research.","overhead":{"O1":"cabin pressure","O10":"absent per SCOM","O11":"absent per SCOM","O12":"absent per SCOM","O13":"circuit breakers","O14":"circuit breakers (MDU power)","O15":"circuit breakers (MDU power)","O16":"circuit breakers","O2":"cryo","O3":"RCS/OMS","O4":"absent per SCOM","O5":"commander audio","O6":"GPC/DPS (O17 within O6)","O7":"TACAN/GPS","O8":"MLS/radar altimeter","O9":"pilot audio"},"sources":["JSC-26419 Rev. B — Space Shuttle Systems Handbook, Flight Deck panels","Space Shuttle Operator's Manual (OCR)","SCOM CPN-2 MEDS section (SFOC-FL0884 Rev. B)","SCOM OI-27"]}
+{
+  "aft": {
+    "A1": "communications (S-band PM/FM, Ku-band)",
+    "A10": {
+      "contents": "unattested"
+    },
+    "A11": "label per JSC-26419",
+    "A12": "label per JSC-26419",
+    "A13": {
+      "contents": "unattested"
+    },
+    "A14": "label per JSC-26419",
+    "A15": "label per JSC-26419",
+    "A16": {
+      "contents": "unattested"
+    },
+    "A17": {
+      "contents": "unattested"
+    },
+    "A2": "RMS arm-translation controller (T-handle, port station)",
+    "A4": "mission/event time",
+    "A5": {
+      "contents": "unattested"
+    },
+    "A6": "aft DAP control set",
+    "A6U": "aft ADI / flight controller selector",
+    "A7": "payload bay floodlight + CCTV/video controls",
+    "A8": {
+      "labels": [
+        "ORB UNL",
+        "SHOULDER PITCH",
+        "SHOULDER YAW"
+      ],
+      "rms": "mode/joint controls"
+    },
+    "R11L": "DPS keyboard (see C2)",
+    "R11U": "fuel cell purge",
+    "R12": {
+      "crt": "CRT4",
+      "note": "single aft CRT; later panel grouping retained, exact STS-1 placement unresolved"
+    },
+    "R13": "payload bay door switches",
+    "R14": "breaker group (later source; original panel inventory unresolved)",
+    "R15": "ADC circuit breakers",
+    "presentation": "extra MEDS display removed; discrete ADI on existing A6U group, coordinates estimated"
+  },
+  "configuration": "Columbia / STS-1 target: CRT/discrete-instrument presentation; remaining section geometry uses later references",
+  "consoles": {
+    "C1": {
+      "contents": "unattested"
+    },
+    "C2": "DPS keyboards (32-key faces on center-console flanks)",
+    "C3": "forward DAP control set",
+    "L1": "fire/smoke",
+    "L10": {
+      "contents": "unattested"
+    },
+    "L11": {
+      "contents": "unattested"
+    },
+    "L12": {
+      "contents": "unattested"
+    },
+    "L13": {
+      "contents": "unattested"
+    },
+    "L14": {
+      "contents": "unattested"
+    },
+    "L15": {
+      "contents": "unattested"
+    },
+    "L16": {
+      "contents": "unattested"
+    },
+    "L17": {
+      "contents": "unattested"
+    },
+    "L2": "emergency oxygen",
+    "L3": {
+      "contents": "unattested"
+    },
+    "L4": {
+      "contents": "unattested"
+    },
+    "L9": {
+      "contents": "unattested"
+    },
+    "R1": "emergency electrical",
+    "R10": {
+      "contents": "unattested"
+    },
+    "R16": {
+      "contents": "unattested"
+    },
+    "R17": {
+      "contents": "unattested"
+    },
+    "R18": {
+      "contents": "unattested"
+    },
+    "R2": "APU/water spray boiler",
+    "R3": {
+      "contents": "unattested"
+    },
+    "R4": {
+      "contents": "unattested"
+    }
+  },
+  "crew": {
+    "commander": "vehicle RHC + vehicle THC (commander's left)",
+    "pilot": "vehicle RHC only",
+    "windows": {
+      "aft": 2,
+      "forward": 6,
+      "overhead": 2,
+      "total": 10
+    }
+  },
+  "forward": {
+    "F1": {
+      "contents": "unattested"
+    },
+    "F5": {
+      "contents": "unattested"
+    },
+    "F6": {
+      "station": "commander",
+      "instruments": [
+        "ADI",
+        "HSI",
+        "AMI",
+        "AVVI"
+      ],
+      "geometry": "estimated",
+      "source_behavior": "local-horizon/heading and root SI telemetry; real source selectors not modeled",
+      "retained": [
+        "ADI attitude selector (inert)",
+        "ATT REF (inert)",
+        "RCS COMMAND lamps"
+      ]
+    },
+    "F7": {
+      "crts": [
+        "CRT1",
+        "CRT2",
+        "CRT3"
+      ],
+      "topology": "three forward CRTs per NASA pre-MEDS baseline Figure 2; individual coordinates estimated",
+      "readouts": "simulator flight/systems/trajectory data, not historical GPC pages",
+      "retained": [
+        "caution/warning matrix",
+        "main-engine/event-time strip"
+      ]
+    },
+    "F8": {
+      "station": "pilot",
+      "instruments": [
+        "ADI",
+        "HSI",
+        "AMI",
+        "AVVI"
+      ],
+      "geometry": "estimated",
+      "source_behavior": "local-horizon/heading and root SI telemetry; real source selectors not modeled",
+      "retained": [
+        "ADI attitude selector (inert)",
+        "ATT REF (inert)",
+        "RCS COMMAND lamps"
+      ]
+    },
+    "F9": {
+      "contents": "unattested"
+    }
+  },
+  "note": "Four legacy CRTs and estimated discrete instruments replace MEDS. This is a partial era conversion, not an exact 1981 panel inventory. Other section labels still come from later JSC-26419/SCOM. Coordinates, face scales, source behavior and grouped crew commands are estimates. See HISTORICAL_INSTRUMENTS.md.",
+  "overhead": {
+    "O1": "cabin pressure",
+    "O10": "absent per SCOM",
+    "O11": "absent per SCOM",
+    "O12": "absent per SCOM",
+    "O13": "circuit breakers",
+    "O14": "circuit breakers (later display-power source; exact 1981 inventory unresolved)",
+    "O15": "circuit breakers (later display-power source; exact 1981 inventory unresolved)",
+    "O16": "circuit breakers",
+    "O2": "cryo",
+    "O3": "RCS/OMS",
+    "O4": "absent per SCOM",
+    "O5": "commander audio",
+    "O6": "GPC/DPS (O17 within O6)",
+    "O7": "TACAN/GPS",
+    "O8": "MLS/radar altimeter",
+    "O9": "pilot audio"
+  },
+  "sources": [
+    "JSC-26419 Rev. B \u2014 Space Shuttle Systems Handbook, Flight Deck panels",
+    "Space Shuttle Operator's Manual (OCR)",
+    "SCOM CPN-2 MEDS section (SFOC-FL0884 Rev. B)",
+    "SCOM OI-27",
+    "NASA Columbia OV-102 fact sheet: 32 analog gauges/four CRTs replaced by 11 MEDS displays in 1999\u20132001",
+    "NASA STS-1 photo S81-30419; October 1980 Columbia crew photo",
+    "NASA NTRS 19960050290: Orbiter Flight Deck Redesign, baseline Figure 2 (1995 mockup, not an STS-1 drawing)"
+  ]
+}

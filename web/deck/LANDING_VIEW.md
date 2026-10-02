@@ -79,7 +79,8 @@ retains its large-chunk warning. These results do not establish root-source
 type cleanliness or native/headset acceptance.
 
 The major remaining cockpit gate is a dimensioned STS-1 instrument/cabin record
-and matched camera evidence. The current flight deck still has later MEDS
-displays; selecting STS-1 and fixing the landing scene does not close that gap.
+and matched camera evidence. The earlier MEDS presentation has been partially
+converted; see [HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md). A complete
+mission-specific instrument inventory and display/source behavior remain open.
 Surveyed lake contours, historical markings, weather/exposure matching, full
 mission flight calibration and headset acceptance remain unverified.

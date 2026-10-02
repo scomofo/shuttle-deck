@@ -68,7 +68,7 @@ with sync_playwright() as p:
     dismiss()
 
     # Native range focus must not turn F5 into a browser reload or swallow F9.
-    page.get_by_role('button', name='Flight displays', exact=True).click()
+    page.get_by_role('button', name='Flight instruments', exact=True).click()
     page.wait_for_function('window.__cockpitReadout?.target === "displays"')
     page.get_by_role('slider', name='Panel lighting').focus()
     page.keyboard.press('F5')

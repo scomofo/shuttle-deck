@@ -90,7 +90,7 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     page.keyboard.press('c')
     page.screenshot(path=str(out/'forward-orbit.png'))
-    for button, target in [('Flight displays','displays'), ('Overhead','overhead'), ('Aft station','aft')]:
+    for button, target in [('Flight instruments','displays'), ('Overhead','overhead'), ('Aft station','aft')]:
         page.get_by_role('button',name=button,exact=True).click()
         page.wait_for_function('(target) => window.__cockpitReadout?.target === target', arg=target)
         page.screenshot(path=str(out/f'{target}.png'))
