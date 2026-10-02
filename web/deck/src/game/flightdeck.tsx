@@ -1,8 +1,8 @@
-import { useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { getSimVersion, sim, subscribeSim } from "@/sim/runtime";
-import { activeCard } from "@/sim/procedures";
+import { activeCard, procedureActionLabel } from "@/sim/procedures";
 
-import { setPanelLight, usePanelLight } from "./panel-lighting";
+import { usePanelLight } from "./panel-lighting";
 
 function useSim() {
   useSyncExternalStore(subscribeSim, getSimVersion, getSimVersion);
@@ -87,6 +87,7 @@ function Paddle({
   onClick,
   hold,
   cued,
+  disabled,
 }: {
   label: string;
   on: boolean;
@@ -94,24 +95,33 @@ function Paddle({
   onClick?: () => void;
   hold?: boolean;
   cued?: boolean;
+  disabled?: boolean;
 }) {
+  const held = useRef(false);
+  function burn(on: boolean) { held.current = on; sim.onKey("KeyB", on); }
+  useEffect(() => () => { if (held.current) burn(false); }, []);
   return (
     <button
       type="button"
       className="paddle"
       data-on={on}
       data-cue={cued || undefined}
+      disabled={disabled}
       onClick={hold ? undefined : onClick}
       onPointerDown={
         hold
           ? (event) => {
               event.currentTarget.setPointerCapture(event.pointerId);
-              sim.onKey("KeyB", true);
+              burn(true);
             }
           : undefined
       }
-      onPointerUp={hold ? () => sim.onKey("KeyB", false) : undefined}
-      onPointerCancel={hold ? () => sim.onKey("KeyB", false) : undefined}
+      onPointerUp={hold ? () => burn(false) : undefined}
+      onPointerCancel={hold ? () => burn(false) : undefined}
+      onLostPointerCapture={hold ? () => burn(false) : undefined}
+      onBlur={hold ? () => burn(false) : undefined}
+      onKeyDown={hold ? event => { if (event.code === "Space" || event.code === "Enter") { event.preventDefault(); burn(true); } } : undefined}
+      onKeyUp={hold ? event => { if (event.code === "Space" || event.code === "Enter") { event.preventDefault(); burn(false); } } : undefined}
     >
       <span>{label}</span>
       <i />
@@ -120,16 +130,16 @@ function Paddle({
   );
 }
 
-export function FlightDeck() {
+export function FlightDeck({ open }: { open: boolean }) {
   const live = useSim();
   const panelLight = usePanelLight();
   const stick = useRef<HTMLDivElement>(null);
   const knob = useRef<HTMLDivElement>(null);
-  if (live.view !== "cockpit" || !live.running || live.phase === "landed" || live.phase === "lost") return null;
+  if (!open || live.view !== "cockpit" || !live.running || live.phase === "landed" || live.phase === "lost") return null;
 
   const bankDeg = (-live.bank * 180) / Math.PI;
   const pitchPx = live.pitch * 64;
-  const busHot = live.fuelCell && live.busVolts > 18;
+  const busHot = live.fuelCell && live.busVolts > 24;
   const cards = live.procedures();
   const card = activeCard(cards);
   const cue = card?.steps.find((step) => step.current) ?? null;
@@ -177,14 +187,10 @@ export function FlightDeck() {
   }
 
   return (
-    <section className="flightdeck" aria-label="Flight deck" style={{ "--display-level": 0.65 + panelLight * 0.35 } as CSSProperties}>
+    <section id="cockpit-controls" className="flightdeck" aria-label="Flight deck controls" style={{ "--display-level": 0.65 + panelLight * 0.35 } as CSSProperties}>
       <div className="deck-light-row">
       <p className="deck-call">{live.callout && live.calloutT < 7 ? live.callout : "\u00a0"}</p>
-      <label className="panel-light">PANEL LIGHT
-        <input aria-label="Panel lighting" type="range" min="25" max="100" step="5" value={Math.round(panelLight * 100)}
-          onChange={event => setPanelLight(Number(event.target.value) / 100)} />
-        <output>{Math.round(panelLight * 100)}%</output>
-      </label>
+      <span className="deck-helper-label">SIMULATOR CONTROLS · X / ESC TO CLOSE</span>
       </div>
       <div className="station">
         <Face
@@ -284,20 +290,20 @@ export function FlightDeck() {
             </div>
             <div>
               <dt>APU</dt>
-              <dd data-on={live.apu}>{live.apu ? "ON" : "OFF"}</dd>
+              <dd data-on={live.apu}>{live.apu ? "RUN" : live.apuStarting ? "STARTING" : "OFF"}</dd>
             </div>
             <div>
               <dt>GEAR</dt>
-              <dd data-on={live.gear}>{live.gear ? "DN" : "UP"}</dd>
+              <dd data-on={live.gear}>{live.gearTalkback}</dd>
             </div>
           </dl>
         </Face>
       </div>
       <div className="side-row">
         <Face
-          code="L2"
-          label="Panel L2"
-          about="Commander's left console, outboard of the seat. The rotational hand controller is pitch and roll. The translational controller's forward axis is +X. On orbit, holding +X is the OMS retrograde burn. Hold it until the deorbit card on C3 reads 95 m/s, and only with the bay doors closed."
+          code="CREW INPUT"
+          label="Crew input helpers"
+          about="Use the stick for pitch and roll. OMS BURN is the simulator's held deorbit input. With bay doors latched, follow the checklist's live periapsis target, release the burn input, then select Begin deorbit coast. This helper is not a physical THC translation controller."
         >
           <div
             className="rhc"
@@ -316,12 +322,12 @@ export function FlightDeck() {
             <div className="rhc-knob" ref={knob} />
             <span>RHC</span>
           </div>
-          <Paddle label="THC" on={live.burning()} talk={live.burning() ? "+X" : "OFF"} hold cued={cue?.id === "oms:burn"} />
+          <Paddle label="OMS BURN" on={live.burning()} talk={live.burning() ? "FIRING" : "IDLE"} hold cued={cue?.id === "oms:burn"} />
         </Face>
         <Face
           code="C3"
           label="Center console C3"
-          about="Center console, between the seats, aft of the keyboards. The card clipped here is the flight data file: the open system procedure, the call, the response the vehicle is actually giving, and Do when that step is a switch on this deck."
+          about="Center console, between the seats, aft of the keyboards. The card clipped here is the flight data file: the open system procedure and the vehicle's live indications. Open Checklist for the current instruction and required indication."
         >
           {card ? (
             <div className="deck-proc">
@@ -333,10 +339,10 @@ export function FlightDeck() {
                 {card.steps.map((step) => (
                   <li key={step.id} data-current={step.current} data-done={step.done}>
                     <span>{step.call}</span>
-                    <em>{step.response}</em>
+                    <em title={`Live: ${step.response} · Required: ${step.expected}`}>{step.response}</em>
                     {step.action ? (
-                      <button type="button" onClick={() => live.perform(step.action!)}>
-                        Do
+                      <button type="button" disabled={!!step.waiting || live.paused} aria-label={procedureActionLabel(step.action)} onClick={() => live.perform(step.action!)}>
+                        Set
                       </button>
                     ) : null}
                   </li>
@@ -367,11 +373,12 @@ export function FlightDeck() {
           <Paddle
             label="APU"
             on={live.apu}
-            talk={live.apu ? "RUN" : "OFF"}
+            talk={live.apu ? "RUN" : live.apuStarting ? "STARTING" : "OFF"}
             cued={ask === "apu"}
+            disabled={live.apuStarting}
             onClick={() => {
-              live.apu = !live.apu;
-              live.notify();
+              if (live.apu) { live.apu = false; live.notify(); }
+              else live.perform("apu");
             }}
           />
           <Tip

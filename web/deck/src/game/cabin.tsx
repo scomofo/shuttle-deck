@@ -6,12 +6,14 @@ import { useSurfaceMaterial } from "@/game/materials";
 import { attachLookControls, lookState, resetLook } from "./look";
 import { formatEventTime } from "./mission-time";
 
-import { getPanelLight } from "./panel-lighting";
+import { getPanelLight, usePanelLight } from "./panel-lighting";
+import { COCKPIT_TARGETS, getCockpitInspection, subscribeCockpitInspection, type CockpitTarget } from "./cockpit-navigation";
 
 const AMBER = "#e8a15a";
 const GREEN = "#8fefb0";
 const PLASMA = "#ff6b3d";
 const VOID = "#07090d";
+const NO_REDS: number[] = [];
 
 /**
  * Seated-eye reconstruction of the late-orbiter (MEDS) flight deck.
@@ -24,7 +26,6 @@ const matMullion = new THREE.MeshStandardMaterial({ color: "#454a4b", roughness:
 const matGasket = new THREE.MeshStandardMaterial({ color: "#171a1b", roughness: 0.94 });
 const matHardware = new THREE.MeshStandardMaterial({ color: "#87918e", roughness: 0.38, metalness: 0.7 });
 const matHead = new THREE.MeshStandardMaterial({ color: "#202324", roughness: 0.82 });
-const matRed = new THREE.MeshStandardMaterial({ color: "#8b3529", roughness: 0.57 });
 const matSeam = new THREE.MeshStandardMaterial({ color: "#385d82", roughness: 1 });
 const matWindow = new THREE.MeshPhysicalMaterial({
   color: "#c0d0ce", transparent: true, opacity: 0.075, depthWrite: false,
@@ -76,7 +77,6 @@ const CRT3_LABELS = ["DPS", "SYS", "TRAJ"];
 const DECK_DIMS = {
   mduScreen: 0.170, // 6.7-in-square AMLCD active area — SCOM §2.6 [sourced]
   mduBezel: 0.205, // ~8-in-square enclosure — FlightGlobal [estimated, non-authoritative]
-  fwdWindowW: 0.66, // forward window clear width, W1–W6 [estimated]
   fwdWindowH: 0.36, // forward window clear height, W1–W6 [estimated]
   ohWindow: 0.508, // overhead windows W7/W8 clear view, 20×20 in — SCOM §1.2 [sourced]
   aftWindowW: 0.368, // aft payload-bay windows, 14.5 in — SCOM §1.2 [sourced]
@@ -177,19 +177,21 @@ function drawTape(
 }
 
 function drawTalk(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  const rows: [string, boolean][] = [
-    ["GEAR", sim.gear],
-    ["BAY", sim.doorsOpen],
-    ["FC", sim.fuelCell && sim.busVolts > 18],
-    ["APU", sim.apu],
+  const rows: [string, string][] = [
+    ["GEAR", sim.gearTalkback],
+    ["BAY", sim.doorTalkback],
+    ["FC", sim.fuelCell && sim.busVolts > 24 ? "ON" : "OFF"],
+    ["APU", sim.apu ? "RUN" : sim.apuStarting ? "STARTING" : "OFF"],
   ];
   rows.forEach((row, i) => {
     const yy = y + 22 + i * ((h - 20) / rows.length);
     g.fillStyle = "#d7ecff";
     g.font = "500 11px 'IBM Plex Mono', monospace";
     g.fillText(row[0], x + 8, yy);
-    g.fillStyle = row[1] ? "#1f8f4e" : "#5a6570";
-    g.fillRect(x + w - 54, yy - 14, 42, 18);
+    g.fillStyle = row[1] === "TRANSIT" || row[1] === "STARTING" ? AMBER : GREEN;
+    g.textAlign = "right";
+    g.fillText(row[1], x + w - 8, yy);
+    g.textAlign = "left";
   });
 }
 
@@ -221,7 +223,7 @@ function drawGreen(
       ? ["GNC SYS", `ALT  ${alt}`, `M    ${sim.mach.toFixed(2)}`, `Q    ${(sim.qbar / 1000).toFixed(1)}`]
       : kind === "traj"
         ? ["TRAJ", `HDG  ${headingDeg()}`, `α    ${((sim.alpha * 180) / Math.PI).toFixed(0)}`, `G    ${sim.gLoad.toFixed(2)}`]
-        : ["SM SYS", `BUS  ${sim.busVolts.toFixed(1)}`, `FC   ${sim.fuelCell ? "ON" : "OFF"}`, `APU  ${sim.apu ? "ON" : "OFF"}`];
+        : ["SM SYS", `BUS  ${sim.busVolts.toFixed(1)}`, `FC   ${sim.fuelCell ? "ON" : "OFF"}`, `APU  ${sim.apu ? "RUN" : sim.apuStarting ? "STARTING" : "OFF"}`];
   g.fillStyle = GREEN;
   g.font = "500 17px 'IBM Plex Mono', monospace";
   lines.forEach((line, i) => g.fillText(line, x + 14, y + 23 + i * 25));
@@ -268,6 +270,9 @@ function paintMdu(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture, id: MduId
   g.fillText(id, 8, 13);
   g.textAlign = "right";
   g.fillText(format.toUpperCase(), W - 8, 13);
+  // The format header must not right-align and clip the live body readouts.
+  g.textAlign = "left";
+  g.textBaseline = "alphabetic";
   drawScreen(g, 4, 28, W - 8, H - 32, format);
   tex.needsUpdate = true;
 }
@@ -708,16 +713,17 @@ function Switch({
   label,
   hot,
   onDown,
-  onUp,
+  target,
 }: {
   position: [number, number, number];
   label: string;
   hot: boolean;
   onDown: () => void;
-  onUp?: () => void;
+  target?: CockpitTarget;
 }) {
+  const { target: selected } = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
   return (
-    <group position={position}>
+    <group position={position} name={target ? COCKPIT_TARGETS[target].node : undefined}>
       <mesh position={[0, -0.01, 0]} raycast={() => null} material={matGasket}>
         <boxGeometry args={[0.068, 0.008, 0.04]} />
       </mesh>
@@ -729,20 +735,40 @@ function Switch({
         rotation={[hot ? -0.65 : 0.65, 0, 0]}
         onPointerDown={(event) => {
           event.stopPropagation();
-          onDown();
         }}
-        onPointerUp={(event) => {
-          event.stopPropagation();
-          onUp?.();
-        }}
-        onPointerLeave={() => onUp?.()}
+        onClick={(event) => { event.stopPropagation(); if (event.button === 0 && event.delta < 6) onDown(); }}
       >
         <boxGeometry args={[0.07, 0.055, 0.016]} />
         <meshStandardMaterial color={hot ? "#d4b27c" : "#dddcd4"} roughness={0.58} metalness={0.12} />
       </mesh>
+      {target === selected ? <ControlCue /> : null}
       <SwitchLabel label={label} />
     </group>
   );
+}
+
+function ControlCue() {
+  return <mesh position={[0, 0.012, 0.03]} raycast={() => null}>
+    <ringGeometry args={[0.052, 0.055, 32]} />
+    <meshBasicMaterial color="#f1c16f" toneMapped={false} side={THREE.DoubleSide} />
+  </mesh>;
+}
+
+/** ARM/DN are modeled crew pushbuttons, not the old center-console lever. */
+function GearButton({ position, target, label, active, onPress }: {
+  position: [number, number, number]; target: "gear-arm" | "gear";
+  label: string; active: boolean; onPress: () => void;
+}) {
+  const { target: selected } = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
+  return <group position={position} name={COCKPIT_TARGETS[target].node}>
+    <Bar position={[0, 0, -0.006]} args={[0.085, 0.06, 0.035]} material={matGasket} />
+    <mesh position={[0, 0, 0.016]} onClick={event => { event.stopPropagation(); if (event.button === 0 && event.delta < 6) onPress(); }}>
+      <boxGeometry args={[0.064, 0.045, 0.016]} />
+      <meshStandardMaterial color={active ? "#adc3ad" : "#d9d7c9"} roughness={0.7} />
+    </mesh>
+    <PlateLabel label={label} y={0} z={0.027} scale={0.42} color="#27312e" />
+    {target === selected ? <ControlCue /> : null}
+  </group>;
 }
 
 function SwitchLabel({ label }: { label: string }) {
@@ -772,7 +798,7 @@ function SwitchLabel({ label }: { label: string }) {
 }
 
 /** Engraved panel code / section label, sized to fit its text. */
-function PlateLabel({ label, x = 0, y, scale = 1, z = 0.016 }: { label: string; x?: number; y: number; scale?: number; z?: number }) {
+function PlateLabel({ label, x = 0, y, scale = 1, z = 0.016, color = "#d4d8cc" }: { label: string; x?: number; y: number; scale?: number; z?: number; color?: string }) {
   const map = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
@@ -786,13 +812,13 @@ function PlateLabel({ label, x = 0, y, scale = 1, z = 0.016 }: { label: string; 
         g.font = `600 ${size}px 'IBM Plex Mono', monospace`;
         size -= 2;
       } while (g.measureText(label).width > 480 && size > 10);
-      g.fillStyle = "#2a3038";
+      g.fillStyle = color;
       g.fillText(label, 256, 34);
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
-  }, [label]);
+  }, [label, color]);
   useEffect(() => () => map.dispose(), [map]);
   const h = 0.024 * scale;
   return (
@@ -928,6 +954,11 @@ function MduUnit({
   onCycle: () => void;
   edgekeys?: "bottom" | "right";
 }) {
+  const panelLight = usePanelLight();
+  const screenColor = useMemo(() => {
+    const brightness = 0.4 + 0.6 * panelLight;
+    return new THREE.Color().setRGB(brightness, brightness, brightness, THREE.SRGBColorSpace);
+  }, [panelLight]);
   const downPos = useRef<[number, number] | null>(null);
   const B = DECK_DIMS.mduBezel;
   const S = DECK_DIMS.mduScreen;
@@ -950,7 +981,7 @@ function MduUnit({
         }}
       >
         <planeGeometry args={[S, S]} />
-        <meshBasicMaterial map={map} toneMapped={false} />
+        <meshBasicMaterial color={screenColor} map={map} toneMapped={false} />
       </mesh>
       {edgekeys === "bottom"
         ? ek.map((kx) => (
@@ -1128,15 +1159,16 @@ const OVERHEAD_REDS = [2, 3, 16, 17, 44];
 const SIDE_REDS = [4, 9];
 
 // Commander-eye composition. Six forward windows W1–W6, numbered left to
-// right facing forward (SCOM §1.2) [sourced]; each pane ≈0.66×0.36 m clear
-// [estimated] photo-scaled in flight-deck-visual-references.md.
-const FWD_PANE_CENTERS = [-1.05, -0.63, -0.21, 0.21, 0.63, 1.05];
-const FORWARD_PANES: [number, number][][] = FWD_PANE_CENTERS.map((cx) => [
-  [cx - DECK_DIMS.fwdWindowW / 2, 0.24],
-  [cx + DECK_DIMS.fwdWindowW / 2, 0.24],
-  [cx + DECK_DIMS.fwdWindowW / 2 - 0.025, 0.24 + DECK_DIMS.fwdWindowH],
-  [cx - DECK_DIMS.fwdWindowW / 2 + 0.025, 0.24 + DECK_DIMS.fwdWindowH],
-]);
+// right facing forward (SCOM §1.2) [sourced]. These separated trapezoids
+// replace overlapping rectangles; coordinates/sightlines remain estimated.
+const FORWARD_PANES: [number, number][][] = [
+  [[-1.4, -0.02], [-1.08, -0.02], [-1.1, 0.34], [-1.35, 0.3]],
+  [[-1.02, -0.02], [-0.66, -0.02], [-0.69, 0.34], [-1.0, 0.34]],
+  [[-0.6, -0.02], [-0.04, -0.02], [-0.08, 0.34], [-0.57, 0.34]],
+  [[0.04, -0.02], [0.6, -0.02], [0.57, 0.34], [0.08, 0.34]],
+  [[0.66, -0.02], [1.02, -0.02], [1.0, 0.34], [0.69, 0.34]],
+  [[1.08, -0.02], [1.4, -0.02], [1.35, 0.3], [1.1, 0.34]],
+];
 function WindowFrame({ points }: { points: [number,number][] }) {
   const glazing=useMemo(()=>new THREE.ShapeGeometry(new THREE.Shape(points.map(p=>new THREE.Vector2(...p)))),[points]);
   useEffect(()=>()=>glazing.dispose(),[glazing]);
@@ -1167,11 +1199,12 @@ const SEVEN_DEG = (7 * Math.PI) / 180;
 
 export function CabinInterior() {
   useSimTick();
+  const inspection = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
+  const aimedRevision = useRef(-1);
+  const targetPoint = useMemo(() => new THREE.Vector3(), []);
   const root = useRef<THREE.Group>(null);
   const glass = useRef<THREE.Mesh>(null);
   const veil = useRef<THREE.Mesh>(null);
-  const sticks = useRef<THREE.Group>(null);
-  const gearHandle = useRef<THREE.Group>(null);
   const displaySpill = useRef<THREE.PointLight>(null);
   const floodLight = useRef<THREE.PointLight>(null);
   const { camera, gl } = useThree();
@@ -1310,6 +1343,9 @@ export function CabinInterior() {
       .addScaledVector(_d, 2.4 * scale)
       .addScaledVector(_r, -0.45 * scale);
     rig.position.copy(_eye);
+    // Panels use a cabin-center origin. Put the eye at the commander station,
+    // rather than accidentally centering the view on F7. Offset is estimated.
+    rig.position.addScaledVector(_r, 0.6);
     _nNeg.copy(_n).negate();
     _m.makeBasis(_r, _d, _nNeg);
     rig.quaternion.setFromRotationMatrix(_m);
@@ -1317,10 +1353,37 @@ export function CabinInterior() {
     // baseline pitch the camera had when the rig used to follow it.
     rig.rotateX(-SEVEN_DEG);
 
+    rig.updateWorldMatrix(true, true);
+    const target = inspection.target ? rig.getObjectByName(COCKPIT_TARGETS[inspection.target].node) : undefined;
+    if (aimedRevision.current !== inspection.revision) {
+      aimedRevision.current = inspection.revision;
+      resetLook();
+      if (target) {
+        target.getWorldPosition(targetPoint);
+        camera.worldToLocal(targetPoint);
+        lookState.yaw = Math.atan2(-targetPoint.x, -targetPoint.z);
+        lookState.pitch = Math.atan2(targetPoint.y, Math.hypot(targetPoint.x, targetPoint.z));
+      }
+    }
+
     // The eye looks around the fixed cabin (scene's useFrame runs first and
     // leaves the camera on the 7° baseline).
     camera.rotateY(lookState.yaw);
     camera.rotateX(lookState.pitch);
+    const perspective = camera as THREE.PerspectiveCamera;
+    perspective.fov = inspection.target ? COCKPIT_TARGETS[inspection.target].fov : 62;
+    perspective.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+    if (target && inspection.target) {
+      target.getWorldPosition(targetPoint).project(camera);
+      const rect = gl.domElement.getBoundingClientRect();
+      window.__cockpitReadout = { target: inspection.target,
+        revision: inspection.revision,
+        x: rect.left + (targetPoint.x + 1) * rect.width / 2,
+        y: rect.top + (1 - targetPoint.y) * rect.height / 2,
+        visible: Math.abs(targetPoint.x) <= 1 && Math.abs(targetPoint.y) <= 1 && Math.abs(targetPoint.z) <= 1,
+        fov: perspective.fov };
+    } else window.__cockpitReadout = null;
 
     if (displaySpill.current) displaySpill.current.intensity = 0.025 * getPanelLight();
     if (floodLight.current) floodLight.current.intensity = flood ? 0.5 : 0;
@@ -1340,18 +1403,12 @@ export function CabinInterior() {
     }
     const veilMat = veil.current?.material as THREE.MeshBasicMaterial | undefined;
     if (veilMat) veilMat.opacity = sim.blackout ? 0.72 : 0;
-    if (sticks.current) {
-      sticks.current.rotation.z = THREE.MathUtils.clamp(-sim.bank * 0.4, -0.5, 0.5);
-      sticks.current.rotation.x = THREE.MathUtils.clamp(sim.pitch * 0.3, -0.35, 0.55);
-    }
   });
-
-  const live = sim.burning();
 
   return (
     <group ref={root} name="cockpit-interior" visible={false}>
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#80bac7" />
-      <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.22} distance={2.4} decay={2} color="#dae5ed" />
+      <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.36} distance={2.4} decay={2} color="#dae5ed" />
       {/* Cabin floodlight: ceiling-mounted above the crew station, so it
           washes the forward panels rather than lighting from behind the
           crew. Toggled by the FLD FWD / FLD AFT switches on the aft port
@@ -1359,7 +1416,7 @@ export function CabinInterior() {
       <pointLight ref={floodLight} position={[0, 0.72, -0.1]} intensity={0} distance={3.2} decay={2} color="#fff1d7" />
 
       {/* Overhead panels O1–O3, O5–O9 + O13–O16 breaker strip (O17 in O6) */}
-      <group position={[0, 0.48, -0.74]} rotation={[0.85, 0, 0]}>
+      <group name="view-overhead" position={[0, 0.85, -0.45]} rotation={[1.2, 0, 0]}>
         <PanelPlate width={1.94} height={0.44} material={panelMaterial} />
         <mesh position={[0, 0, 0.015]} raycast={() => null}>
           <planeGeometry args={[1.88, 0.41]} />
@@ -1403,7 +1460,7 @@ export function CabinInterior() {
 
       {FORWARD_PANES.map((points,i)=><WindowFrame key={i} points={points}/>)}
 
-      <mesh ref={glass} position={[0, 0.42, -1.12]} raycast={() => null}>
+      <mesh ref={glass} position={[0, 0.16, -1.12]} raycast={() => null}>
         <planeGeometry args={[2.9, 0.44]} />
         <meshBasicMaterial color="#b7d4ee" transparent opacity={0.04} depthWrite={false} />
       </mesh>
@@ -1436,12 +1493,14 @@ export function CabinInterior() {
       </group>
 
       {/* F6 — commander MEDS: CDR1/CDR2 + retained ADI/RCS cluster */}
-      <group position={[-0.6, -0.26, -0.78]} rotation={[-0.62, 0.14, 0]}>
+      <group name="view-displays" position={[-0.6, -0.26, -0.78]} rotation={[-0.62, 0.14, 0]}>
         <PanelPlate width={0.56} height={0.52} material={panelMaterial} />
         {mduUnits("F6")}
         <AdiAttRotary x={-0.17} y={-0.15} />
         <AttRefButton x={0} y={-0.15} />
         <RcsCmdLamps x={0.17} y={-0.15} />
+        <GearButton position={[-0.12, -0.2, 0.042]} target="gear-arm" label="ARM" active={sim.gearArmed} onPress={() => sim.armGear()} />
+        <GearButton position={[0.12, -0.2, 0.042]} target="gear" label="DN" active={sim.gear} onPress={() => sim.toggleGear()} />
         {/* Commander's THC — Operator's Manual: on the left (outboard) side
             of the commander's forward panel. No pilot THC. Rendered inert:
             the sim has no translation-command model behind it, so the
@@ -1516,19 +1575,27 @@ export function CabinInterior() {
       ))}
 
       {/* Forward side consoles, section-level */}
-      <group position={[-0.92, -0.08, -0.7]} rotation={[-0.2, 0.65, 0]}>
+      <group position={[-1.12, -0.34, -0.27]} rotation={[-0.2, 1.15, 0]}>
         <PanelPlate width={0.42} height={0.55} material={panelMaterial} />
         <PlateLabel label="L1 · FIRE / SMOKE" x={0} y={0.19} scale={0.62} />
         <Bar position={[0, 0, 0.014]} args={[0.36, 0.008, 0.004]} material={matGasket} />
         <PlateLabel label="L2 · EMER O2" x={0} y={-0.19} scale={0.62} />
         <SwitchField rows={6} cols={4} width={0.34} height={0.42} reds={SIDE_REDS} />
       </group>
-      <group position={[0.92, -0.08, -0.7]} rotation={[-0.2, -0.65, 0]}>
+      <group position={[1.12, -0.34, -0.27]} rotation={[-0.2, -1.15, 0]}>
         <PanelPlate width={0.42} height={0.55} material={panelMaterial} />
         <PlateLabel label="R1 · EMER ELEC" x={0} y={0.19} scale={0.62} />
         <Bar position={[0, 0, 0.014]} args={[0.36, 0.008, 0.004]} material={matGasket} />
         <PlateLabel label="R2 · APU / SPRAY BOILER" x={0} y={-0.19} scale={0.62} />
         <SwitchField rows={6} cols={4} width={0.34} height={0.42} reds={SIDE_REDS} />
+        {/* Representative commands on the documented R1/R2 panel groups.
+            Exact switch locations and this grouped presentation are estimated. */}
+        <Switch target="fuel-cells" position={[-0.05, 0.11, 0.05]} label="FC / MN" hot={sim.fuelCell}
+          onDown={() => { sim.fuelCell = !sim.fuelCell; sim.notify(); }} />
+        <PlateLabel label={sim.busVolts > 24 && sim.fuelCell ? "ON" : "OFF"} x={0.09} y={0.11} z={0.057} scale={0.5} />
+        <Switch target="apu" position={[-0.05, -0.11, 0.05]} label="APU START" hot={sim.apu || sim.apuStarting}
+          onDown={() => { if (sim.apuStarting) return; if (sim.apu) { sim.apu = false; sim.notify(); } else sim.perform("apu"); }} />
+        <PlateLabel label={sim.apu ? "RUN" : sim.apuStarting ? "STARTING" : "OFF"} x={0.09} y={-0.11} z={0.057} scale={0.4} />
       </group>
 
       {/* Center console: C3 forward DAP set + C2 DPS keyboards */}
@@ -1541,32 +1608,7 @@ export function CabinInterior() {
         </mesh>
         <group position={[0, 0.05, -0.14]} rotation={[-0.7, 0, 0]}>
           <PanelPlate width={0.32} height={0.18} material={panelMaterial} />
-          <Switch
-            position={[-0.1, 0.04, 0.04]}
-            label="BURN"
-            hot={live}
-            onDown={() => sim.onKey("KeyB", true)}
-            onUp={() => sim.onKey("KeyB", false)}
-          />
-          <Switch position={[0.02, 0.04, 0.04]} label="BAY" hot={sim.doorsOpen} onDown={() => sim.toggleDoors()} />
-          <Switch
-            position={[0.12, 0.04, 0.04]}
-            label="FC"
-            hot={sim.fuelCell}
-            onDown={() => {
-              sim.fuelCell = !sim.fuelCell;
-              sim.notify();
-            }}
-          />
-          <Switch
-            position={[0.12, -0.05, 0.04]}
-            label="APU"
-            hot={sim.apu}
-            onDown={() => {
-              sim.apu = !sim.apu;
-              sim.notify();
-            }}
-          />
+          <SwitchField rows={2} cols={6} width={0.28} height={0.12} reds={NO_REDS} />
         </group>
         <group position={[0, 0.13, -0.175]} rotation={[-0.55, 0, 0]}>
           <PlateLabel label="C3 · FWD DAP" x={0} y={0} scale={0.7} />
@@ -1581,28 +1623,12 @@ export function CabinInterior() {
             <PlateLabel label="C2 · DPS KEY" x={0} y={-0.068} scale={0.5} />
           </group>
         ))}
-        <group
-          ref={gearHandle}
-          position={[-0.1, 0.02, 0.12]}
-          rotation={[sim.gearCommand ? -0.9 : 0.7, 0, 0]}
-          onPointerDown={(event) => {
-            event.stopPropagation();
-            sim.toggleGear();
-          }}
-        >
-          <mesh position={[0, 0.06, 0]} material={matRed}>
-            <boxGeometry args={[0.028, 0.12, 0.02]} />
-          </mesh>
-          <mesh position={[0, 0.12, 0]} material={matHead}>
-            <boxGeometry args={[0.05, 0.02, 0.03]} />
-          </mesh>
-        </group>
       </group>
 
       {/* Aft station — starboard: R12 CRT4 (tilted per SCOM §2.6) + AFD1,
           R13 PLBD, R11/R14/R15. R11L DPS keyboard (SCOM §2.6) [sourced];
           positions [estimated]. */}
-      <group position={[0.66, -0.05, 0.62]} rotation={[-0.15, -2.32, 0]}>
+      <group name="view-aft" position={[0.66, -0.05, 0.62]} rotation={[-0.15, -2.32, 0]}>
         <PanelPlate width={0.62} height={0.72} material={panelMaterial} />
         <PlateLabel label="AFT · STBD" x={0} y={0.325} scale={0.8} />
         {mduUnits("R12")}
@@ -1619,21 +1645,20 @@ export function CabinInterior() {
           <PlateLabel label="R11L · DPS KEY" x={0} y={-0.068} scale={0.45} />
         </group>
         <Switch
+          target="doors-open"
           position={[-0.06, -0.3, 0.03]}
           label="PLBD OP"
           hot={sim.doorsOpen}
-          onDown={() => {
-            if (!sim.doorsOpen) sim.toggleDoors();
-          }}
+          onDown={() => sim.perform("doors-open")}
         />
         <Switch
+          target="doors-close"
           position={[0.06, -0.3, 0.03]}
           label="PLBD CL"
-          hot={!sim.doorsOpen}
-          onDown={() => {
-            if (sim.doorsOpen) sim.toggleDoors();
-          }}
+          hot={sim.doorsLatched}
+          onDown={() => sim.perform("doors-close")}
         />
+        <PlateLabel label={sim.doorTalkback} x={0} y={-0.38} z={0.05} scale={0.6} />
       </group>
 
       {/* Aft station — port: A1 comm, A4 time, A6U ADI, A7 floodlight +
@@ -1719,8 +1744,9 @@ export function CabinInterior() {
         </group>
       ))}
 
-      <group ref={sticks}>
-        {[-0.28, 0.28].map((x) => (
+      {/* RHC geometry is inert; vehicle attitude must not animate crew input. */}
+      <group>
+        {[-0.6, 0.6].map((x) => (
           <group key={x} position={[x, -0.28, -0.32]}>
             <mesh position={[0, -0.035, 0]} raycast={() => null} material={matGasket}>
               <cylinderGeometry args={[0.022, 0.038, 0.045, 12]} />
@@ -1738,7 +1764,7 @@ export function CabinInterior() {
       </group>
 
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * 0.46, -0.36, -0.4]}>
+        <group key={side} position={[side * 0.6, -0.36, 0.08]}>
           <Bar position={[0, -0.07, 0.02]} args={[0.32, 0.07, 0.34]} material={seatMaterial} />
           <Bar position={[0, -0.1, -0.12]} args={[0.3, 0.045, 0.08]} material={seatMaterial} />
           <Bar position={[side * 0.15, 0, 0.02]} args={[0.055, 0.11, 0.32]} material={seatMaterial} />

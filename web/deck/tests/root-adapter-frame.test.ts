@@ -43,3 +43,15 @@ function run(mode: AdapterStartMode, frames: number): RootAdapter {
 }
 
 console.log("Root adapter reads altitude and attitude in the vehicle's local frame");
+
+// A held OMS command cannot illuminate a plume after propellant exhaustion.
+{
+  const a = new RootAdapter();
+  a.start("orbit");
+  for (let i = 0; i < 1400; i++) a.step(0.05, { ...step, burnKey: true });
+  assert.equal(bus.get_value("ctl.oms.burn"), true, "crew input remains held");
+  assert.equal(bus.get_value("prop.oms.qty_kg"), 0, "consume the real model's tanks");
+  assert.equal(a.view().burnActive, false, "an empty engine is not firing");
+  assert.equal(a.view().plume, 0, "visual exhaust follows engine thrust");
+}
+console.log("OMS indication and plume reflect actual engine firing");

@@ -737,6 +737,7 @@
 }
 
 .mid {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(14rem, 18rem) 1fr;
   gap: 0.75rem;
@@ -749,6 +750,66 @@
   overflow: auto;
   max-height: 100%;
   align-self: start;
+  display: none;
+}
+
+.sheet[data-open="true"] { display: block; }
+
+.hud[data-view="cockpit"][data-checklist-open="true"] .mid {
+  display: grid;
+  position: relative;
+  z-index: 6;
+}
+
+.procedure-focus {
+  background: #e5e2d4;
+  color: #26332f;
+  border: 1px solid #a4ada2;
+  border-top: 4px solid #537369;
+  border-radius: 3px;
+  padding: 1rem;
+  box-shadow: 0 3px 12px #0005, inset 0 1px #fff9;
+}
+
+.procedure-kicker, .procedure-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.procedure-focus h3 { margin: 0.6rem 0; font-size: 1.2rem; line-height: 1.25; }
+.procedure-progress { padding-bottom: 0.8rem; border-bottom: 1px solid #a4ada2; }
+.procedure-progress span { white-space: nowrap; }
+.procedure-progress progress { width: 100%; min-width: 2rem; height: 5px; accent-color: #42695a; }
+.procedure-progress progress::-webkit-progress-bar { background: #b9c1b5; }
+.procedure-progress progress::-webkit-progress-value { background: #42695a; }
+.procedure-progress progress::-moz-progress-bar { background: #42695a; }
+.procedure-mode { margin: 0.85rem 0 0.3rem; color: #795020; font: 0.65rem var(--font-mono); letter-spacing: 0.07em; }
+.procedure-focus h4 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.procedure-instruction { margin: 0.65rem 0; font-size: 0.87rem; line-height: 1.55; }
+.procedure-state { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin: 0.8rem 0; }
+.procedure-state div { padding: 0.5rem; background: #cdd3c8; border: 1px solid #adb7aa; border-radius: 2px; }
+.procedure-state dt { color: #4e5d53; font: 0.62rem var(--font-mono); letter-spacing: 0.1em; }
+.procedure-state dd { margin: 0.2rem 0 0; font: 0.85rem var(--font-mono); font-weight: 600; }
+.procedure-action { width: 100%; min-height: 42px; padding: 0.55rem; color: #f2f1e6; background: #365a4e; border: 1px solid #264537; border-radius: 3px; font-size: 0.85rem; }
+.procedure-action:hover { background: #284739; }
+.procedure-action:disabled { cursor: wait; background: #67766d; color: #e3e5db; }
+.procedure-action:active:not(:disabled) { background: #203f32; }
+.procedure-wait { margin: 0.65rem 0; color: #795020; font-size: 0.8rem; line-height: 1.45; }
+.procedure-action:focus-visible { outline: 3px solid #a95c17; outline-offset: 3px; }
+.procedure-auto { margin: 0; color: #526254; font-size: 0.75rem; line-height: 1.4; }
+.procedure-complete { color: #365a4e; font-size: 0.9rem; }
+.procedure-overview { margin-top: 0.9rem; }
+.procedure-overview summary { cursor: pointer; color: var(--color-muted); font-size: 0.8rem; padding: 0.25rem 0 0.7rem; }
+.procedure-overview .step { grid-template-columns: auto 1fr auto; }
+.procedure-overview .step button { grid-column: 2 / -1; min-height: 36px; }
+
+@media (min-width: 801px) {
+  .mid { grid-template-columns: minmax(16rem, 21rem) 1fr; }
 }
 
 .sheet h2 {
@@ -1197,11 +1258,11 @@
   .sheet[data-open="true"] {
     display: block;
     position: absolute;
-    left: 0.75rem;
-    right: 0.75rem;
-    top: 4.5rem;
-    max-height: 46dvh;
-    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 0;
+    max-height: min(60dvh, calc(100dvh - 9rem));
+    z-index: 6;
   }
 
   .tapes {
@@ -1277,29 +1338,24 @@
 
 /* Preserve an outside view above the scrollable console in portrait. */
 @media (max-width: 600px) and (min-height: 650px) {
-  .hud[data-view="cockpit"] .topbar {
+  .hud .topbar {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.35rem;
     padding: 0.4rem;
   }
-  .hud[data-view="cockpit"] .brand b { font-size: 0.8rem; }
-  .hud[data-view="cockpit"] .phase-pill { font-size: 0.8rem; }
-  .hud[data-view="cockpit"] .topbar .row {
+  .hud .brand b { font-size: 0.8rem; }
+  .hud .phase-pill { font-size: 0.8rem; }
+  .hud .topbar .row {
     grid-column: 1 / -1;
     flex-wrap: nowrap;
     justify-content: space-between;
     gap: 0.2rem;
   }
-  .hud[data-view="cockpit"] .topbar button {
+  .hud .topbar button {
     min-width: 2rem;
     padding-inline: 0.35rem;
     font-size: 0.65rem;
-  }
-  .deck:has(.hud[data-view="cockpit"]) .flight-viewport {
-    position: absolute !important;
-    top: 6.6rem;
-    height: calc(38dvh - 6.6rem) !important;
   }
 }
 
@@ -1317,3 +1373,61 @@
 }
 .face-read > div, .mdu > * { filter: brightness(var(--display-level, 1)); }
 @media (max-width: 600px) { .deck-light-row { flex-wrap: wrap; gap: 0; } .deck-light-row .deck-call { flex-basis: 100%; } .panel-light { margin-left: auto; } }
+
+/* The cabin is the primary instrument view. Flat controls are an optional aid. */
+.cockpit-tools {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 5;
+  pointer-events: auto;
+  padding: 0.5rem 0.65rem;
+  background: #131b21ed;
+  border: 1px solid #576366;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+}
+.cockpit-view-buttons { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.cockpit-tools button {
+  min-height: 36px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #5b6b6d;
+  border-radius: 3px;
+  background: #243035;
+  color: #e4e7df;
+  font: 0.74rem var(--font-mono);
+}
+.cockpit-tools button[aria-pressed="true"], .cockpit-tools button[aria-expanded="true"] { background: #d5d6c7; color: #24352f; }
+.cockpit-tools button:focus-visible { outline: 2px solid #efc16a; outline-offset: 2px; }
+.cockpit-tools-detail { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 0.3rem; }
+.cockpit-tools-detail > span { color: #c0c8c5; font: 0.68rem var(--font-mono); }
+.deck-helper-label { color: #bcc6bf; font: 0.62rem var(--font-mono); white-space: nowrap; }
+.flightdeck { bottom: 6.5rem; left: 0.75rem; right: 0.75rem; max-height: calc(100dvh - 13rem); overflow: auto; }
+.hud[data-view="cockpit"] .mid { display: grid; grid-template-columns: 1fr minmax(16rem, 21rem); padding-bottom: 6rem; }
+.hud[data-view="cockpit"] .sheet { grid-column: 2; grid-row: 1; }
+.hud[data-view="cockpit"] .mid > div { grid-column: 1; grid-row: 1; }
+.hud[data-view="cockpit"] .callout { font-size: 0.95rem; background: #10191fbb; border-radius: 3px; padding: 0.4rem; margin-top: 0; width: fit-content; }
+.procedure-find { width: 100%; text-align: left; padding: 0.45rem 0.5rem; min-height: 36px; border: 1px solid #80968a; background: #d7dfd2; color: #284b3c; font-size: 0.75rem; border-radius: 3px; }
+.procedure-find:hover { background: #c4d2c0; }
+.procedure-find:focus-visible { outline: 2px solid #a95c17; outline-offset: 2px; }
+
+@media (max-width: 800px) {
+  .hud[data-view="cockpit"] .mid { display: block; padding-bottom: 8rem; }
+  .hud[data-view="cockpit"] .sheet { top: 0; max-height: min(55dvh, calc(100dvh - 16rem)); }
+  .cockpit-tools { padding: 0.4rem; }
+  .cockpit-tools button { flex: 1; padding: 0.3rem; font-size: 0.65rem; }
+  .cockpit-tools-detail { flex-wrap: wrap; }
+  .cockpit-tools .panel-light { margin-left: auto; }
+  .flightdeck { bottom: 9rem; max-height: calc(100dvh - 16rem); }
+  .hud[data-view="cockpit"][data-inspecting="true"] .sheet { max-height: 29dvh; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-kicker,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-focus h3,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-progress,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-instruction,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-find,
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-overview { display: none; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-mode { margin-top: 0; }
+  .hud[data-view="cockpit"][data-inspecting="true"] .procedure-state { margin: 0.5rem 0; }
+  .hud[data-view="cockpit"] .callout { display: none; }
+}

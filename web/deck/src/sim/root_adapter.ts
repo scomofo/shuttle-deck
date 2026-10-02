@@ -324,12 +324,12 @@ export class RootAdapter {
     this.refresh();
     this.say(
       mode === "launch"
-        ? "Main engines at throttle. Tower cleared when you are."
+        ? "Launch underway. Follow the ascent checklist."
         : mode === "orbit"
-          ? "On orbit. Hold B for the deorbit burn."
+          ? "On orbit. Follow the bay-door checklist before configuring deorbit."
           : mode === "entry"
             ? "Entry interface. Hold the corridor with bank."
-            : "Final. Gear below 160 meters per second.",
+            : "Final approach. Start APUs, then arm and lower gear at or below 190 m/s.",
     );
     this.lastRootPhase = this.rootPhase();
   }
@@ -611,7 +611,7 @@ export class RootAdapter {
     const get = clock.get_seconds;
     const speed = relSpeed;
     const thrust = this.num("prop.thrust_n", 0);
-    const burnSwitch = this.bool("ctl.oms.burn", false);
+    const burningOms = this.num("prop.oms.eng_l.thrust_n", 0) + this.num("prop.oms.eng_r.thrust_n", 0) > 0;
     const fuelCell =
       this.bool("elec.source.fuel_cell_1.on", false) ||
       this.bool("elec.source.fuel_cell_2.on", false) ||
@@ -631,7 +631,7 @@ export class RootAdapter {
       qbar: this.num("aero.q_dyn_pa", 0),
       alpha: (this.num("aero.alpha_deg", 0) * Math.PI) / 180,
       gLoad: this.num("dyn.accel_g", 1),
-      plume: phase === "ascent" ? clamp(thrust / 24e6, 0, 1) : burnSwitch && phase === "orbit" ? 0.45 : 0,
+      plume: phase === "ascent" ? clamp(thrust / 24e6, 0, 1) : burningOms && phase === "orbit" ? 0.45 : 0,
       plasma: clamp(this.num("aero.plasma", 0) / 3, 0, 1),
       blackout: this.bool("aero.blackout", false),
       busVolts: this.num("elec.main_bus.volts", 0),
@@ -647,7 +647,7 @@ export class RootAdapter {
       lat: this.num("dyn.lat_deg", 0),
       lon: this.num("dyn.lon_deg", 0),
       terminalAnchor: this.terminalAnchor,
-      burnActive: burnSwitch,
+      burnActive: burningOms,
       fdBank: (this.num("guid.fd.bank_deg", 0) * Math.PI) / 180,
       fdPitch: (this.num("guid.fd.pitch_deg", 0) * Math.PI) / 180,
       altErr: this.num("guid.fd.alt_err_m", 0),

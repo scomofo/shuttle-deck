@@ -1,6 +1,10 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { Eye, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { getSimVersion, sim, subscribeSim, type StartMode } from "@/sim/runtime";
+import { activeCard, procedureActionLabel } from "@/sim/procedures";
+import { ProcedureFocus } from "./procedure-focus";
+import { CockpitTools } from "./cockpit-tools";
+import { getCockpitInspection, subscribeCockpitInspection, inspectCockpit } from "./cockpit-navigation";
 
 function useSim() {
   useSyncExternalStore(subscribeSim, getSimVersion, getSimVersion);
@@ -17,7 +21,7 @@ function met(seconds: number) {
 function phaseLabel() {
   if (!sim.running) return "PREFLIGHT";
   if (sim.phase === "ascent") return sim.srbAttached ? "ASCENT · SRB" : "ASCENT · SSME";
-  if (sim.phase === "orbit") return "ORBIT";
+  if (sim.phase === "orbit") return sim.deorbitCommitted ? "DEORBIT · COAST" : "ORBIT";
   if (sim.phase === "entry") return sim.blackout ? "ENTRY · BLACKOUT" : "ENTRY";
   if (sim.phase === "taem") return "TAEM · HAC";
   if (sim.phase === "approach") return "APPROACH";
@@ -36,19 +40,32 @@ export function Hud({
   onStart,
   checklistOpen,
   onChecklist,
+  controlsOpen,
+  onControls,
+  onFind,
 }: {
   onStart: (mode: StartMode) => void;
   checklistOpen: boolean;
   onChecklist: () => void;
+  controlsOpen: boolean;
+  onControls: () => void;
+  onFind: () => void;
 }) {
   const live = useSim();
+  const inspection = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
   const cards = live.procedures();
+  const currentCard = activeCard(cards);
+  const sheet = useRef<HTMLElement>(null);
+  const stepId = currentCard?.steps.find((step) => step.current)?.id;
+  useEffect(() => { sheet.current?.scrollTo(0, 0); }, [stepId, checklistOpen]);
+  useEffect(() => { inspectCockpit(null); }, [stepId]);
+  useEffect(() => { if (live.view !== "cockpit") inspectCockpit(null); }, [live.view]);
   const showMenu = !live.running || live.phase === "lost" || live.phase === "landed";
   const bankDeg = (-live.bank * 180) / Math.PI;
   const pitchPx = live.pitch * 90;
 
   return (
-    <div className="hud" data-menu={showMenu} data-view={live.view}>
+    <div className="hud" data-menu={showMenu} data-view={live.view} data-checklist-open={checklistOpen} data-controls-open={controlsOpen} data-inspecting={!!inspection.target}>
       <header className="topbar">
         <div className="brand">
           <b>SHUTTLE DECK</b>
@@ -71,15 +88,23 @@ export function Hud({
           <button className="icon-btn" type="button" onClick={() => live.toggleMute()} aria-label="Mute">
             {live.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
-          <button className="ghost" type="button" onClick={onChecklist}>
-            List
+          <button className="ghost" type="button" onClick={onChecklist} aria-expanded={checklistOpen} aria-controls="flight-checklist">
+            Checklist [C]
           </button>
         </div>
       </header>
 
       <div className="mid">
-        <aside className="sheet" data-open={checklistOpen}>
-          <h2>PROCEDURES</h2>
+        <aside ref={sheet} id="flight-checklist" className="sheet" data-open={checklistOpen} aria-label="Flight checklist">
+          {checklistOpen && currentCard ? <ProcedureFocus card={currentCard} perform={(action) => live.perform(action)} paused={live.paused}
+            resume={() => live.togglePause()} holdBurn={(held) => live.onKey("KeyB", held)}
+            findControl={(action) => {
+              live.setView("cockpit");
+              onFind();
+              inspectCockpit(action);
+            }} /> : null}
+          <details className="procedure-overview">
+          <summary>All procedures · {cards.length}</summary>
           {cards.map((card) => (
             <section className="proc" key={card.id}>
               <header>
@@ -94,14 +119,15 @@ export function Hud({
                   </span>
                   <em>{step.response}</em>
                   {step.action ? (
-                    <button type="button" className="choice" onClick={() => live.perform(step.action!)}>
-                      Do
+                    <button type="button" className="choice" disabled={!!step.waiting || live.paused} onClick={() => live.perform(step.action!)}>
+                      {procedureActionLabel(step.action)}
                     </button>
                   ) : null}
                 </div>
               ))}
             </section>
           ))}
+          </details>
         </aside>
         <div>
           {live.callout && live.calloutT < 7 ? (
@@ -196,6 +222,8 @@ export function Hud({
         </div>
       </footer>
 
+      {!showMenu && live.view === "cockpit" ? <CockpitTools controlsOpen={controlsOpen} onControls={onControls} /> : null}
+
       {showMenu ? (
         <section className="menu">
           <h1>{live.phase === "landed" ? "WHEEL STOP" : live.phase === "lost" ? "VEHICLE LOST" : "SHUTTLE DECK"}</h1>
@@ -204,7 +232,7 @@ export function Hud({
               ? "Down on the runway. Launch again, or skip to entry or the approach."
               : live.phase === "lost"
                 ? live.fail
-                : "Auto flies the trajectory. The cabin is the flight deck: the displays, the system procedure, and the switch that procedure is waiting on."}
+                : "Start from the commander seat. Guidance flies the trajectory while you configure the spacecraft. Follow the checklist and use Find in cockpit to locate each modeled control."}
           </p>
           <div className="choices">
             <button className="primary" type="button" onClick={() => onStart("launch")}>
