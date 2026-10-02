@@ -302,6 +302,9 @@ const PROCEDURES: ProcDef[] = [
   },
 ];
 
+export const LATCHED_PROCEDURE_STEPS = new Set(PROCEDURES.flatMap(proc =>
+  proc.steps.filter(step => step.latch).map(step => `${proc.id}:${step.id}`)));
+
 export function buildProcedures(sim: SimView, latched: Set<string>): ProcedureCard[] {
   const cards: ProcedureCard[] = [];
   for (const proc of PROCEDURES) {

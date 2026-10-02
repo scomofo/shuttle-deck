@@ -68,6 +68,27 @@ export interface TerminalAnchor {
   yaw: number;
 }
 
+/** Render/navigation state only. Vehicle truth remains in the root snapshot. */
+export interface DeckFrame {
+  anchorLat: number;
+  anchorLon: number;
+  prevDlon: number;
+  prevYaw: number;
+  prevBank: number;
+  terminalAnchor: TerminalAnchor | null;
+  seenEvents: string[];
+}
+
+export function isDeckFrame(value: unknown): value is DeckFrame {
+  if (!value || typeof value !== "object") return false;
+  const f = value as DeckFrame;
+  if (![f.anchorLat,f.anchorLon,f.prevDlon,f.prevYaw,f.prevBank].every(Number.isFinite)) return false;
+  if (Math.abs(f.anchorLat)>90 || Math.abs(f.anchorLon)>180) return false;
+  if (!Array.isArray(f.seenEvents) || !f.seenEvents.every(id => typeof id === "string")) return false;
+  return f.terminalAnchor === null || (!!f.terminalAnchor &&
+    [f.terminalAnchor.x,f.terminalAnchor.z,f.terminalAnchor.yaw].every(Number.isFinite));
+}
+
 export interface DeckView {
   phase: DeckPhase;
   get: number;
@@ -522,13 +543,64 @@ export class RootAdapter {
     return this.runtime.snapshot();
   }
 
-  restoreRoot(d: ReturnType<SimRuntime["snapshot"]>): boolean {
-    const ok = this.runtime.restore(d);
-    if (ok) {
-      this.lastRootPhase = this.rootPhase();
+  snapshotFrame(): DeckFrame {
+    return { anchorLat:this.anchorLat, anchorLon:this.anchorLon, prevDlon:this.prevDlon,
+      prevYaw:this.prevYaw, prevBank:this.prevBank,
+      terminalAnchor:this.terminalAnchor ? {...this.terminalAnchor} : null,
+      seenEvents:[...this.seenEvents] };
+  }
+
+  restoreRoot(d: ReturnType<SimRuntime["snapshot"]>, frame?: DeckFrame, mode: AdapterStartMode = "orbit"): boolean {
+    if (frame !== undefined && !isDeckFrame(frame)) return false;
+    // Partial/invalid numeric flight data can reach owner restore without
+    // throwing, then put NaNs in the scene. Reject it before touching truth.
+    const flight = d.dynamics;
+    if (!d.clock || ![d.clock.get_s, d.clock.liftoff_jd].every(Number.isFinite) ||
+        !d.mission || !Object.hasOwn(ROOT_PHASE_TO_DECK, d.mission.phase) || !flight ||
+        !Number.isFinite(flight.mass) || flight.mass <= 0 ||
+        ![[flight.r_eci,3],[flight.v_eci,3],[flight.q,4],[flight.omega_body,3]].every(([v,n]) =>
+          Array.isArray(v) && v.length === n && v.every(Number.isFinite))) return false;
+    const previous = this.snapshotRoot();
+    const wasPaused = this.paused;
+    try {
+      if (!this.runtime.restore(d)) return false;
+    } catch {
+      // An incomplete local save can throw after the owner begins restoring.
+      // Return to the trusted pre-load snapshot before reporting the failure.
+      this.runtime.restore(previous);
+      this.setPaused(wasPaused);
+      this.refresh();
+      return false;
+    }
+    if (frame) {
+      this.anchorLat = frame.anchorLat;
+      this.anchorLon = frame.anchorLon;
+      this.prevDlon = frame.prevDlon;
+      this.prevYaw = frame.prevYaw;
+      this.prevBank = frame.prevBank;
+      this.terminalAnchor = frame.terminalAnchor ? {...frame.terminalAnchor} : null;
+      this.seenEvents = new Set(frame.seenEvents);
+    } else {
+      // v3 saves made before render-frame persistence retain their known
+      // scenario origin. Missing terminal placement is regenerated below.
+      this.setAnchor(mode === "entry" ? 25 : 28.6, mode === "entry" ? -60 : -80.6);
+      this.prevYaw = -Math.PI/2;
+      this.prevBank = 0;
+      this.terminalAnchor = mode === "approach" ? {x:0,z:0,yaw:-Math.PI/2} : null;
+      this.seenEvents = new Set(["liftoff","srb_sep","meco","et_sep","entry_interface","weight_on_wheels","wheel_stop"]
+        .filter(id => this.bool(`mission.event.${id}`, false)));
+    }
+    this.running = true;
+    this.fail = "";
+    this.shake = 0;
+    this.lastRootPhase = this.rootPhase();
+    this.refresh();
+    if (!frame && !this.terminalAnchor && ["taem","approach"].includes(this.lastRootPhase)) {
+      this.recordTerminalAnchor(11_000, this.lastRootPhase === "taem" ? 5_000 : 0);
       this.refresh();
     }
-    return ok;
+    this.setPaused(true);
+    return true;
   }
 
   // ---------------------------------------------------------------- view

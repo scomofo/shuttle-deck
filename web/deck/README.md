@@ -71,6 +71,26 @@ The card reports **PAUSED** and offers **Resume flight**. Moving doors and gear
 show a wait message, and the gear-down button waits for the existing 190 m/s
 speed limit. Each new step returns the reading area to the top.
 
+The header's **Save checkpoint** and **Restore checkpoint** buttons work on
+desktop and phones; **F5** and **F9** also work from a focused panel-light slider.
+There is one checkpoint in this browser's site storage. Saving replaces it.
+Restoring works after a reload or a different scenario, preserves the saved
+runway placement, switch commands and verified checklist history, and opens
+the checklist **paused**. Review the current instruction, then select **Resume
+flight**. Recovery returns to the top of the current instruction and closes
+the expanded procedure overview, even when the saved step is unchanged.
+Held burn, hand-control and momentary-button inputs are released;
+the Controls drawer closes and the seated view returns from inspection.
+APU spool and door transit continue from their saved states when resumed.
+
+Older v3 checkpoints remain readable but omitted the render frame, switch
+positions and checklist history. They restore paused with a warning: check
+the indications and configure the controls before resuming. Their scenario
+origin is recovered; any missing terminal placement is estimated again.
+Missing, incomplete, incompatible and blocked-storage saves report a visible
+message. A failed restore keeps the current flight and does not delete the save.
+See [checkpoint evidence and captures](CHECKPOINT_RECOVERY.md).
+
 For deorbit, open and then close/latch the bay doors, start the APUs, and hold
 **Hold deorbit burn**, **B**, or **OMS BURN** in Controls until live periapsis falls below
 110 km. Release the input, select **Begin deorbit coast**, and monitor entry
@@ -121,6 +141,13 @@ forward window, default/persisted approach-guide preference, slider-focused Esc,
 desktop/mobile rendering, and the final-approach checklist through wheel stop.
 It also checks browser/shader errors and failed asset requests, using the same
 CLI options and time-advance probe.
+
+`python3 tests/checkpoint-browser.py` checks desktop/phone recovery, a different
+scenario and fresh-page restore, slider-focused F5/F9, checklist rewind and
+saved history, APU/door command continuity, held-burn release, and missing,
+corrupt, legacy and blocked-storage feedback. It uses real inputs and the same
+CLI options. `npm test` includes owner-backed checkpoint tests as well as the
+existing exhaust, timer, procedure and render-frame checks.
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.

@@ -100,13 +100,34 @@
 }
 
 .topbar {
+  position: relative;
+  z-index: 7;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.55rem 0.75rem;
   pointer-events: auto;
 }
+
+.checkpoint-feedback {
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  background: #17222b;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-panel);
+  color: var(--color-tile);
+  font: 0.75rem/1.4 var(--font-mono);
+  box-shadow: 0 4px 16px #0008;
+}
+.checkpoint-feedback[data-error="true"] { border-color: var(--color-amber); }
+.checkpoint-feedback .icon-btn { flex: 0 0 2.75rem; }
 
 .brand {
   display: flex;
@@ -187,7 +208,7 @@
   padding: 0 1.3rem;
 }
 
-.view-btn {
+.view-btn, .checklist-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -1358,6 +1379,10 @@
     padding-inline: 0.35rem;
     font-size: 0.65rem;
   }
+  .hud .topbar .view-btn span,
+  .hud .topbar .checklist-btn span { display: none; }
+  .hud .topbar .view-btn,
+  .hud .topbar .checklist-btn { justify-content: center; }
 }
 
 .deck-light-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }

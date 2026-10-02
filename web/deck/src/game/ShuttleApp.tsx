@@ -13,9 +13,25 @@ export function ShuttleApp() {
   const knob = useRef<HTMLDivElement>(null);
   const lastCall = useRef("");
 
+  function restoreCheckpoint() {
+    if (!sim.load()) return;
+    inspectCockpit(null);
+    setListOpen(true);
+    setControlsOpen(false);
+    endStick();
+  }
+
   useEffect(() => {
     attachControlsProbe();
     const down = (event: KeyboardEvent) => {
+      // Recovery shortcuts also work from a focused slider; F5 must not reload.
+      if ((event.code === "F5" || event.code === "F9") && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        event.preventDefault();
+        if (event.repeat) return;
+        if (event.code === "F5") sim.save();
+        else restoreCheckpoint();
+        return;
+      }
       // Recenter is also available while a reading/preference control is focused.
       if (event.code === "Escape" && !event.ctrlKey && !event.altKey && !event.metaKey) {
         inspectCockpit(null);
@@ -50,14 +66,6 @@ export function ShuttleApp() {
       if (event.code === "KeyG") sim.toggleGear();
       if (event.code === "KeyO") sim.toggleDoors();
       if (event.code === "KeyM") sim.toggleMute();
-      if (event.code === "F5") {
-        event.preventDefault();
-        sim.save();
-      }
-      if (event.code === "F9") {
-        event.preventDefault();
-        if (!sim.load()) sim.notify();
-      }
       if (event.code === "BracketRight") sim.setRate(sim.timeRate < 4 ? 4 : 16);
       if (event.code === "BracketLeft") sim.setRate(sim.timeRate > 4 ? 4 : 1);
     };
@@ -132,7 +140,7 @@ export function ShuttleApp() {
       <FlightScene />
       <Hud onStart={start} checklistOpen={listOpen} onChecklist={() => setListOpen((v) => !v)}
         controlsOpen={controlsOpen} onControls={() => setControlsOpen((v) => !v)}
-        onFind={() => setControlsOpen(false)} />
+        onFind={() => setControlsOpen(false)} onSave={() => sim.save()} onRestore={restoreCheckpoint} />
       <FlightDeck open={controlsOpen} />
       <div
         className="stick"

@@ -129,6 +129,34 @@ function test_breaker_rejects_set_control() {
   assert(errs.some((e) => e.includes("pull_breaker")), `got ${errs}`);
 }
 
+function test_checkpoint_retains_switches_and_releases_held_commands() {
+  reset();
+  const rt = new SimRuntime();
+  rt.start("orbit");
+  rt.controls.set("Apu2", true);
+  rt.controls.set("Plbd", true);
+  clock.advance(20);
+  assert(bus.get_value("apu.2.state") === "starting", "APU is still spooling");
+  assert(bus.get_value("mech.plbd.talkback") === "TRANSIT", "doors are in transit");
+  rt.controls.set("OmsBurn", true);
+  rt.controls.set_hand(1, -1, 1);
+  rt.controls.press("Fc1MnA", "OFF");
+  rt.controls.press("Deorbit");
+  const snap = rt.snapshot();
+  rt.controls.set("Apu2", false);
+  rt.controls.set("Plbd", false);
+  assert(rt.restore(snap), rt.last_checkpoint_error);
+  assert(bus.get_value("ctl.apu.2.start") === true, "crew APU switch returns to START/RUN");
+  assert(bus.get_value("ctl.plbd.open") === true, "door switch retains its direction");
+  assert(bus.get_value("ctl.oms.burn") === false, "held burn is released");
+  assert(bus.get_value("ctl.hand.pitch") === 0 && bus.get_value("ctl.hand.roll") === 0, "hand inputs are neutral");
+  assert(bus.get_value("ctl.elec.fc1_mn_a") === "CENTER", "momentary switch springs back");
+  assert(bus.get_value("seq.cmd.deorbit") === false, "button cannot replay on the next tick");
+  clock.advance(45);
+  assert(bus.get_value("apu.2.state") === "running", "restored APU finishes its spool");
+  assert(bus.get_value("mech.plbd.open") === true, "restored doors finish opening");
+}
+
 function test_momentary_rejects_set_control() {
   reset();
   const rt = new SimRuntime();
@@ -169,6 +197,7 @@ const tests = [
   test_contactor_latch_survives_restore,
   test_smoke_breaker_kills_the_load_not_the_bus,
   test_pulled_breaker_survives_restore,
+  test_checkpoint_retains_switches_and_releases_held_commands,
   test_breaker_rejects_set_control,
   test_momentary_rejects_set_control,
   test_wrong_mission_rejected,

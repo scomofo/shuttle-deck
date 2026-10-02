@@ -23,6 +23,8 @@ export type ControlDef = {
   off?: BusValue;
   center?: BusValue;
   panel?: string;
+  /** Held simulator inputs must be released when a checkpoint is restored. */
+  checkpoint?: "release";
 };
 
 export class Controls {
@@ -96,13 +98,28 @@ export class Controls {
   }
 
   snapshot() {
-    return { breakers: Object.fromEntries(this.breaker_closed) };
+    const switches: Record<string, BusValue> = {};
+    for (const c of this.by_id.values()) {
+      // An untouched channel uses its owner's initial configuration (fuel
+      // cells, for example, default ON). Do not invent an OFF command.
+      if (c.kind === "switch" && c.checkpoint !== "release" && bus.has_channel(c.channel)) {
+        switches[c.id] = bus.get_value(c.channel);
+      }
+    }
+    return { breakers: Object.fromEntries(this.breaker_closed), switches };
   }
 
-  restore(d: { breakers?: Record<string, boolean> }): void {
+  restore(d: { breakers?: Record<string, boolean>; switches?: Record<string, BusValue> }): void {
     for (const [id, closed] of Object.entries(d.breakers ?? {})) {
       if (this.breaker_closed.has(id)) this.set_breaker(id, closed);
     }
+    for (const c of this.by_id.values()) {
+      if (c.kind === "switch") {
+        if (c.checkpoint === "release") this.set(c.id, c.off ?? false);
+        else if (d.switches && Object.hasOwn(d.switches, c.id)) this.set(c.id, d.switches[c.id]);
+      } else if (c.kind === "button" || c.kind === "momentary") this.release(c.id);
+    }
+    this.set_hand(0, 0, 0);
   }
 
   private set_breaker(id: string, closed: boolean): void {

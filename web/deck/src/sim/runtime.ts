@@ -12,12 +12,12 @@
  * substep, applyAero, hand-steered HAC/final logic, hand-authored physical
  * phase transitions, the heat model, and the flight-director computation.
  * What remains here is input collection, view state, and thin delegation.
- * Crew/procedure state with no root model yet (doors, gear, APU) lives on
- * the adapter, labeled there as P4 systems depth.
+ * Doors, gear and APUs are root system truth; this facade reads their
+ * indications and keeps only procedure verification history.
  */
 
-import { buildProcedures, type ProcedureAction, type ProcedureCard } from "@/sim/procedures";
-import { RootAdapter, type TerminalAnchor } from "@/sim/root_adapter";
+import { buildProcedures, LATCHED_PROCEDURE_STEPS, type ProcedureAction, type ProcedureCard } from "./procedures.ts";
+import { RootAdapter, isDeckFrame, type DeckFrame, type TerminalAnchor } from "./root_adapter.ts";
 
 export type Phase =
   | "pad"
@@ -44,7 +44,7 @@ export type ChecklistId =
   | "gear"
   | "wheels";
 
-/** v3: vehicle state is the root snapshot; deck keeps view/input state only.
+/** v3: root vehicle state plus deck view/frame and procedure history.
  *  v2 kept doors/gear/APU in the deck; P4 moved them to root truth. */
 export interface ShuttleSnapshot {
   version: 3;
@@ -54,7 +54,7 @@ export interface ShuttleSnapshot {
   muted: boolean;
   timeRate: number;
   rateLock: boolean;
-  deck: { callout: string };
+  deck: { callout: string; frame?: DeckFrame; procedureLatch?: string[] };
   root: ReturnType<RootAdapter["snapshotRoot"]>;
 }
 
@@ -128,6 +128,9 @@ export class ShuttleRuntime {
   muted = false;
   timeRate = 1;
   rateLock = false;
+  checkpointMessage = "";
+  checkpointError = false;
+  recoveryRevision = 0;
   analog = { roll: 0, pitch: 0 };
 
   private physical = new Set<string>();
@@ -418,6 +421,7 @@ export class ShuttleRuntime {
     this.analog.roll = 0;
     this.analog.pitch = 0;
     this.procedureLatch.clear();
+    this.checkpointMessage = "";
     this.rateLock = false;
     this.timeRate = mode === "launch" ? 4 : mode === "orbit" ? 8 : mode === "entry" ? 16 : 1;
     emit();
@@ -576,6 +580,7 @@ export class ShuttleRuntime {
 
   snapshot(): ShuttleSnapshot {
     const a = this.adapter;
+    this.procedures(); // Observe completed steps before saving their history.
     return {
       version: 3,
       mode: this.mode,
@@ -586,13 +591,25 @@ export class ShuttleRuntime {
       rateLock: this.rateLock,
       deck: {
         callout: a.callout,
+        frame: a.snapshotFrame(),
+        procedureLatch: [...this.procedureLatch],
       },
       root: a.snapshotRoot(),
     };
   }
 
-  restore(s: ShuttleSnapshot): void {
-    if (s.version !== 3) return;
+  restore(value: unknown): boolean {
+    if (!value || typeof value !== "object") return false;
+    const s = value as ShuttleSnapshot;
+    if (s.version !== 3 || !["launch", "orbit", "entry", "approach"].includes(s.mode) ||
+        !["chase", "cockpit", "tower"].includes(s.view) ||
+        typeof s.auto !== "boolean" || typeof s.muted !== "boolean" || typeof s.rateLock !== "boolean" ||
+        !Number.isFinite(s.timeRate) || s.timeRate < 1 || s.timeRate > 16 ||
+        !s.deck || typeof s.deck.callout !== "string" || !s.root || typeof s.root !== "object" ||
+        (s.deck.frame !== undefined && !isDeckFrame(s.deck.frame)) ||
+        (s.deck.procedureLatch !== undefined && (!Array.isArray(s.deck.procedureLatch) ||
+          !s.deck.procedureLatch.every(id => LATCHED_PROCEDURE_STEPS.has(id))))) return false;
+    if (!this.adapter.restoreRoot(s.root, s.deck.frame, s.mode)) return false;
     this.mode = s.mode;
     this.view = s.view;
     this.auto = s.auto;
@@ -600,32 +617,51 @@ export class ShuttleRuntime {
     this.timeRate = s.timeRate;
     this.rateLock = s.rateLock;
     this.inject = null;
-    if (this.adapter.restoreRoot(s.root)) {
-      const a = this.adapter;
-      a.setPaused(false);
-      a.say(s.deck.callout || "Checkpoint restored.");
-      emit();
-    }
+    this.blur();
+    this.hudAcc = 0;
+    this.procedureLatch = new Set(s.deck.procedureLatch ?? []);
+    this.recoveryRevision++;
+    this.adapter.say(s.deck.callout);
+    emit();
+    return true;
   }
 
-  save(): void {
-    if (typeof localStorage === "undefined") return;
-    localStorage.setItem("shuttle-deck-save", JSON.stringify(this.snapshot()));
-    this.say("Checkpoint saved.");
+  private checkpointFeedback(message: string, error = false): boolean {
+    this.checkpointMessage = message;
+    this.checkpointError = error;
+    emit();
+    return !error;
+  }
+
+  dismissCheckpointMessage(): void {
+    this.checkpointMessage = "";
     emit();
   }
 
-  load(): boolean {
-    if (typeof localStorage === "undefined") return false;
-    const raw = localStorage.getItem("shuttle-deck-save");
-    if (!raw) return false;
+  save(): boolean {
+    if (!this.running) return this.checkpointFeedback("Start a flight before saving a checkpoint.", true);
     try {
-      this.restore(JSON.parse(raw) as ShuttleSnapshot);
-      this.say("Checkpoint restored.");
-      return true;
+      localStorage.setItem("shuttle-deck-save", JSON.stringify(this.snapshot()));
+      return this.checkpointFeedback("Checkpoint saved.");
     } catch {
-      return false;
+      return this.checkpointFeedback("Could not save checkpoint. Allow site storage and try again.", true);
     }
+  }
+
+  load(): boolean {
+    let raw: string | null;
+    try { raw = localStorage.getItem("shuttle-deck-save"); }
+    catch { return this.checkpointFeedback("Could not read checkpoint. Allow site storage and try again.", true); }
+    if (!raw) return this.checkpointFeedback("No checkpoint saved. Save during a flight first.", true);
+    try {
+      const saved = JSON.parse(raw) as ShuttleSnapshot;
+      if (this.restore(saved)) return this.checkpointFeedback(saved.deck.frame && saved.deck.procedureLatch && saved.root.controls.switches
+        ? "Checkpoint restored · paused. Resume when ready."
+        : "Older checkpoint restored · paused. Verify the checklist before resuming.");
+    } catch {
+      // Keep the saved data and the current flight when a save is unreadable.
+    }
+    return this.checkpointFeedback("This checkpoint is incompatible or incomplete. Start a new flight to save another.", true);
   }
 
   notify(): void {

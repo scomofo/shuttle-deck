@@ -1,5 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { Eye, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { ClipboardList, Eye, Pause, Play, Save, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
 import { getSimVersion, sim, subscribeSim, type StartMode } from "@/sim/runtime";
 import { activeCard, procedureActionLabel } from "@/sim/procedures";
 import { ProcedureFocus } from "./procedure-focus";
@@ -43,6 +43,8 @@ export function Hud({
   controlsOpen,
   onControls,
   onFind,
+  onSave,
+  onRestore,
 }: {
   onStart: (mode: StartMode) => void;
   checklistOpen: boolean;
@@ -50,6 +52,8 @@ export function Hud({
   controlsOpen: boolean;
   onControls: () => void;
   onFind: () => void;
+  onSave: () => void;
+  onRestore: () => void;
 }) {
   const live = useSim();
   const inspection = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
@@ -57,9 +61,14 @@ export function Hud({
   const currentCard = activeCard(cards);
   const sheet = useRef<HTMLElement>(null);
   const stepId = currentCard?.steps.find((step) => step.current)?.id;
-  useEffect(() => { sheet.current?.scrollTo(0, 0); }, [stepId, checklistOpen]);
+  useEffect(() => { sheet.current?.scrollTo(0, 0); }, [stepId, checklistOpen, live.recoveryRevision]);
   useEffect(() => { inspectCockpit(null); }, [stepId]);
   useEffect(() => { if (live.view !== "cockpit") inspectCockpit(null); }, [live.view]);
+  useEffect(() => {
+    if (!live.checkpointMessage || live.checkpointError) return;
+    const timer = window.setTimeout(() => live.dismissCheckpointMessage(), 6000);
+    return () => window.clearTimeout(timer);
+  }, [live.checkpointMessage, live.checkpointError, live.recoveryRevision]);
   const showMenu = !live.running || live.phase === "lost" || live.phase === "landed";
   const bankDeg = (-live.bank * 180) / Math.PI;
   const pitchPx = live.pitch * 90;
@@ -81,17 +90,27 @@ export function Hud({
           <button className="icon-btn" type="button" onClick={() => live.togglePause()} aria-label={live.paused ? "Resume" : "Pause"}>
             {live.paused ? <Play size={16} /> : <Pause size={16} />}
           </button>
-          <button className="ghost view-btn" type="button" onClick={() => live.cycleView()} aria-label="Change view">
+          <button className="ghost view-btn" type="button" onClick={() => live.cycleView()} aria-label="Change view" title={`Change view · ${live.view}`}>
             <Eye size={16} />
-            {live.view === "cockpit" ? "CABIN" : live.view === "tower" ? "TOWER" : "CHASE"}
+            <span>{live.view === "cockpit" ? "CABIN" : live.view === "tower" ? "TOWER" : "CHASE"}</span>
           </button>
           <button className="icon-btn" type="button" onClick={() => live.toggleMute()} aria-label="Mute">
             {live.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
-          <button className="ghost" type="button" onClick={onChecklist} aria-expanded={checklistOpen} aria-controls="flight-checklist">
-            Checklist [C]
+          <button className="icon-btn" type="button" onClick={onSave} disabled={!live.running} aria-label="Save checkpoint" title="Save checkpoint [F5]">
+            <Save size={16} />
+          </button>
+          <button className="icon-btn" type="button" onClick={onRestore} aria-label="Restore checkpoint" title="Restore checkpoint [F9]">
+            <RotateCcw size={16} />
+          </button>
+          <button className="ghost checklist-btn" type="button" onClick={onChecklist} aria-label="Checklist [C]" title="Checklist [C]" aria-expanded={checklistOpen} aria-controls="flight-checklist">
+            <ClipboardList size={16} /><span>Checklist [C]</span>
           </button>
         </div>
+        {live.checkpointMessage ? <div className="checkpoint-feedback" data-error={live.checkpointError}>
+          <span role={live.checkpointError ? "alert" : "status"}>{live.checkpointMessage}</span>
+          <button className="icon-btn" type="button" aria-label="Dismiss checkpoint message" onClick={() => live.dismissCheckpointMessage()}><X size={16} /></button>
+        </div> : null}
       </header>
 
       <div className="mid">
@@ -103,7 +122,7 @@ export function Hud({
               onFind();
               inspectCockpit(action);
             }} /> : null}
-          <details className="procedure-overview">
+          <details key={live.recoveryRevision} className="procedure-overview">
           <summary>All procedures · {cards.length}</summary>
           {cards.map((card) => (
             <section className="proc" key={card.id}>
@@ -255,6 +274,7 @@ export function Hud({
             <span>B deorbit burn</span>
             <span>G gear · O bay doors</span>
             <span>V cabin / chase / tower</span>
+            <span>F5 save checkpoint · F9 restore paused</span>
           </div>
         </section>
       ) : null}
