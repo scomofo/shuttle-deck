@@ -34,6 +34,23 @@ const MASS: Record<ConfigName, number> = {
 
 const RE_M = 6_378_137;
 
+type DynamicsTelemetry = { aero: AeroSample; accel_g: number };
+const EMPTY_AERO: AeroSample = {
+  a_eci: v3(), torque_body: v3(), q_dyn: 0, heating: 0, rho: 0,
+  alpha_deg: 0, beta_deg: 0, bank_deg: 0, lift_to_drag: 0, mach: 0,
+  cl: 0, cd: 0, cm: 0, blackout: false, plasma: 0,
+};
+function copyAero(sample: AeroSample): AeroSample {
+  return { ...sample, a_eci: { ...sample.a_eci }, torque_body: { ...sample.torque_body } };
+}
+function validTelemetry(value: DynamicsTelemetry): boolean {
+  const sample = value?.aero;
+  return Number.isFinite(value?.accel_g) && !!sample && typeof sample.blackout === "boolean" &&
+    ["q_dyn", "heating", "rho", "alpha_deg", "beta_deg", "bank_deg", "lift_to_drag", "mach", "cl", "cd", "cm", "plasma"]
+      .every(key => Number.isFinite(sample[key as keyof AeroSample])) &&
+    [sample.a_eci, sample.torque_body].every(v => !!v && [v.x, v.y, v.z].every(Number.isFinite));
+}
+
 function clamp(v: number, a: number, b: number) {
   return Math.max(a, Math.min(b, v));
 }
@@ -52,23 +69,7 @@ export class Dynamics {
   gear_down = false;
   eff: EffectorDeflection = { ...EFFECTOR_NEUTRAL };
   heat_load_jm2 = 0;
-  last_aero: AeroSample = {
-    a_eci: v3(),
-    torque_body: v3(),
-    q_dyn: 0,
-    heating: 0,
-    rho: 0,
-    alpha_deg: 0,
-    beta_deg: 0,
-    bank_deg: 0,
-    lift_to_drag: 0,
-    mach: 0,
-    cl: 0,
-    cd: 0,
-    cm: 0,
-    blackout: false,
-    plasma: 0,
-  };
+  last_aero: AeroSample = copyAero(EMPTY_AERO);
   last_force_body: Vec3 = v3();
 
   set_configuration(name: ConfigName): void {
@@ -259,6 +260,12 @@ export class Dynamics {
     const v = this.orbit.v;
     const q = this.attitude.q;
     const w = this.attitude.omega;
+    // Preserve the last completed sample, which precedes integration within
+    // a tick. Recomputing it would subtly change a paused saved instrument.
+    // Optional for older schema-2 checkpoints, which did not store telemetry.
+    const telemetry: { telemetry?: DynamicsTelemetry } = {
+      telemetry: { aero: copyAero(this.last_aero), accel_g: this.accel_g },
+    };
     return {
       r_eci: [r.x, r.y, r.z],
       v_eci: [v.x, v.y, v.z],
@@ -273,10 +280,12 @@ export class Dynamics {
       heat_load_jm2: this.heat_load_jm2,
       use_j2: this.orbit.use_j2,
       mass: this.mass,
+      ...telemetry,
     };
   }
 
   restore(d: ReturnType<Dynamics["snapshot"]>): void {
+    if (d.telemetry !== undefined && !validTelemetry(d.telemetry)) throw new Error("Invalid dynamics telemetry");
     this.orbit.r = { x: d.r_eci[0], y: d.r_eci[1], z: d.r_eci[2] };
     this.orbit.v = { x: d.v_eci[0], y: d.v_eci[1], z: d.v_eci[2] };
     this.orbit.use_j2 = Boolean(d.use_j2);
@@ -290,6 +299,17 @@ export class Dynamics {
     if (d.eff) this.eff = { ...EFFECTOR_NEUTRAL, ...d.eff };
     this.heat_load_jm2 = Number(d.heat_load_jm2) || 0;
     this.mass = d.mass;
+    if (d.telemetry) {
+      this.last_aero = copyAero(d.telemetry.aero);
+      this.accel_g = d.telemetry.accel_g;
+    } else {
+      // Old saves recover a coherent sample from saved owner state, without
+      // stepping time, moving effectors or integrating heat/trajectory.
+      this.last_aero = this.config === "entry" && this.orbit.altitude() < this.aero.atmosphere_top_m
+        ? this.aero.accelerations(this.orbit.r, this.orbit.v, this.mass, this.attitude.q, this.attitude.omega, this.eff, this.gear_down)
+        : copyAero(EMPTY_AERO);
+      this.accel_g = len(this.last_aero.a_eci) / 9.80665;
+    }
     this.publish();
   }
 

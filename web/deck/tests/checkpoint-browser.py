@@ -6,7 +6,7 @@ legacy/corrupt saves; no camera, dynamics, mechanism or checklist truth is set.
 import argparse
 from pathlib import Path
 import tempfile
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import sync_playwright, expect, TimeoutError
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--base-url', default='http://127.0.0.1:4173')
@@ -32,7 +32,17 @@ with sync_playwright() as p:
 
     def dismiss():
         button = page.get_by_role('button', name='Dismiss checkpoint message', exact=True)
-        if button.count(): button.click()
+        if button.count():
+            try:
+                # Native keyboard activation also verifies dismissal access
+                # without waiting for software-rendered frames to stabilize.
+                button.focus(timeout=5000)
+                page.keyboard.press('Space')
+            except TimeoutError:
+                # Software rendering can finish a frame after this transient
+                # notification has already dismissed itself.
+                expect(button).not_to_be_visible(timeout=8000)
+            expect(button).not_to_be_visible(timeout=8000)
 
     def packet():
         return page.evaluate('JSON.parse(localStorage.getItem("shuttle-deck-save"))')

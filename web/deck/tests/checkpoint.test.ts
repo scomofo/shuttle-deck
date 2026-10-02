@@ -87,6 +87,8 @@ for (const value of [null, { ...before,version:2 }, { ...before,timeRate:NaN },
   { ...before,root:{ ...before.root,mission_id:"gemini_4" } },
   { ...before,root:{ ...before.root,clock:{ ...before.root.clock,get_s:null } } },
   { ...before,root:{ ...before.root,dynamics:{ ...before.root.dynamics,r_eci:[1] } } },
+  { ...before,root:{ ...before.root,dynamics:{ ...before.root.dynamics,
+    telemetry:{ ...before.root.dynamics.telemetry, aero:{ ...before.root.dynamics.telemetry?.aero, alpha_deg:"corrupt" } } } } },
   { ...before,root:{ ...before.root,systems:null } }]) {
   assert.equal(sim.restore(value), false);
   assert.deepEqual(pose(sim), beforePose);

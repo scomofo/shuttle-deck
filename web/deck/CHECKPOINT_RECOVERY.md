@@ -75,3 +75,13 @@ instrument follow-up now partially replaces MEDS; see
 [HISTORICAL_INSTRUMENTS.md](HISTORICAL_INSTRUMENTS.md). Historical acceptance still needs
 mission-specific dimensions and matched camera references. The existing root
 electrical TypeScript diagnostics and build chunk-size warning remain.
+
+## Aero telemetry follow-up
+
+Root Dynamics now includes its completed aero/g-load sample in new checkpoints.
+Warm and fresh-page restores retain the same paused instrument readings; older
+saves recompute a coherent sample from saved state without advancing time,
+pose, effectors or accumulated heat. Legacy orbital recovery clears stale
+entry heating/blackout. Invalid samples are rejected through the existing
+rollback path. See [CABIN_ENCLOSURE.md](CABIN_ENCLOSURE.md#recovery-telemetry)
+for the fixed-state comparison that exposed this gap.

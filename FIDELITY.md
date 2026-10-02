@@ -28,7 +28,11 @@ Other panel sections still use later references. See
 `web/deck/HISTORICAL_INSTRUMENTS.md`. New scenarios begin in the commander-seat
 view; the flat console is an optional simulator aid. Forward
 window, overhead/side-console and seat overlaps have been corrected within
-the estimated geometry, and checklist Find actions locate real scene controls.
+the estimated geometry. A continuous cabin shell now closes the former open
+assembly around six forward, two roof and two aft apertures, and exposes the
+overhead controls. Checklist Find actions locate real scene controls. Fixed
+saved-state review and enclosure-ray acceptance are in
+`web/deck/CABIN_ENCLOSURE.md`.
 This establishes desktop usability, not a measured historical cabin.
 
 The selected reconstruction target is Columbia on STS-1 (1981). The landing
@@ -147,4 +151,7 @@ presented as authoritative.
   era-consistent reconstruction with reference-matched sightlines and panel
   locations. The CRT/discrete-instrument conversion is supported by NASA
   evidence, but it is not a complete STS-1 cockpit. See
-  `web/deck/HISTORICAL_INSTRUMENTS.md` for the current slice and its limits.
+  `web/deck/HISTORICAL_INSTRUMENTS.md` and `web/deck/CABIN_ENCLOSURE.md` for the
+  current slices and their limits. The cabin is enclosed; exact 1981 dimensions,
+  the complete original inventory, workstation mounting and middeck access
+  remain open.
