@@ -83,23 +83,34 @@ export function CabinReadout() {
     camera.getWorldPosition(vectors.eye);
     const windows: NonNullable<Window["__cabinReadout"]>["windows"] = [];
     const crewRays: Record<string, boolean> = {};
+    const assemblyRays: Record<string, boolean> = {};
     const surfaces: THREE.Mesh[] = [];
     const panels: THREE.Mesh[] = [];
+    const housings: THREE.Mesh[] = [];
+    const assembly: THREE.Mesh[] = [];
     cabin.traverse(node => {
       if (!(node instanceof THREE.Mesh)) return;
       if (node.name.startsWith("cabin-opaque-")) surfaces.push(node);
       if (node.name === "cabin-panel-opaque") panels.push(node);
+      if (node.name.startsWith("cabin-console-opaque-")) housings.push(node);
+      let parent: THREE.Object3D | null = node.parent;
+      while (parent && parent !== cabin) {
+        if (parent.name === "workstation-housings" || parent.name === "crew-seat") { assembly.push(node); break; }
+        parent = parent.parent;
+      }
     });
-    const clearTo = (distance: number) => {
+    assembly.push(...surfaces, ...panels);
+    const clearTo = (distance: number, meshes = surfaces) => {
       ray.set(vectors.eye, vectors.direction.copy(vectors.point).sub(vectors.eye).normalize());
       hits.length = 0;
-      for (const surface of surfaces) THREE.Mesh.prototype.raycast.call(surface, ray, hits);
+      for (const surface of meshes) THREE.Mesh.prototype.raycast.call(surface, ray, hits);
       return hits.every(hit => hit.distance > distance + 0.001);
     };
     cabin.traverse(node => {
       if (node.name.startsWith("control-") || node.name.startsWith("instrument-")) {
         node.getWorldPosition(vectors.point);
         crewRays[node.name] = clearTo(vectors.eye.distanceTo(vectors.point));
+        assemblyRays[node.name] = clearTo(vectors.eye.distanceTo(vectors.point), assembly);
       }
       if (!(node instanceof THREE.Mesh) || !(node.name.startsWith("cabin-window-") || node.name === "forward-glazing")) return;
       node.geometry.computeBoundingBox();
@@ -109,12 +120,14 @@ export function CabinReadout() {
       hits.length = 0;
       for (const panel of panels) THREE.Mesh.prototype.raycast.call(panel, ray, hits);
       const panelClear = hits.every(hit => hit.distance > distance + 0.001);
+      const assemblyClear = clearTo(distance, assembly);
       vectors.projected.copy(vectors.point).project(camera);
       windows.push({ id: node.name === "forward-glazing" ? `W${windows.filter(w => w.family === "forward").length + 1}` : node.name.slice("cabin-window-".length),
         family: node.name === "forward-glazing" ? "forward" : node.name === "cabin-window-W7" || node.name === "cabin-window-W8" ? "overhead" : "aft",
-        clear, panelClear, visible: Math.abs(vectors.projected.x) <= 1 && Math.abs(vectors.projected.y) <= 1 && Math.abs(vectors.projected.z) <= 1 });
+        clear, panelClear, assemblyClear, visible: Math.abs(vectors.projected.x) <= 1 && Math.abs(vectors.projected.y) <= 1 && Math.abs(vectors.projected.z) <= 1 });
     });
-    window.__cabinReadout = { sampleTime: clock.elapsedTime, surfaces: surfaces.map(s => s.name), crewRays,
+    window.__cabinReadout = { sampleTime: clock.elapsedTime, surfaces: surfaces.map(s => s.name), crewRays, assemblyRays,
+      housings: housings.map(s => s.name),
       eye: cabin.worldToLocal(vectors.eye).toArray(), windows };
   });
   return null;
@@ -122,7 +135,8 @@ export function CabinReadout() {
 
 declare global {
   interface Window {
-    __cabinReadout?: { sampleTime: number; surfaces: string[]; eye: number[]; crewRays: Record<string, boolean>;
-      windows: { id: string; family: "forward" | "overhead" | "aft"; clear: boolean; panelClear: boolean; visible: boolean }[] };
+    __cabinReadout?: { sampleTime: number; surfaces: string[]; housings: string[]; eye: number[];
+      crewRays: Record<string, boolean>; assemblyRays: Record<string, boolean>;
+      windows: { id: string; family: "forward" | "overhead" | "aft"; clear: boolean; panelClear: boolean; assemblyClear: boolean; visible: boolean }[] };
   }
 }

@@ -9,6 +9,9 @@ exposed, roof glazing faces downward, and aft glazing sits in the bulkhead.
 The nearby A8/RMS plate is moved into the estimated aft-console area so it
 clears both aft windows from the commander eye.
 
+The subsequent [workstation pass](WORKSTATIONS.md) joins the side panels to
+closed floor/wall housings and mounts the aft faces beneath the windows.
+
 This closes a visible presentation defect. The numerical envelope, finishes,
 seams, window frames and workstation positions remain estimates. It does not
 establish a dimensioned Columbia/STS-1 reconstruction.
@@ -132,12 +135,13 @@ Final review captures were visually inspected.
 
 ## Remaining gate
 
-The next visual gap is the panel assembly itself: side/aft workstations still
-float within the enclosed volume, their mounting and support geometry is
-estimated, and several panels remain section-level placeholders. Reconstruct
-those assemblies against the existing baseline and mission-specific 1981
-inventory, then complete the original gauge set and overhead/side/aft panel
-era conversion. Exterior bay/door sightlines through aft glazing also need
+The [workstation pass](WORKSTATIONS.md) closes the floating side/aft plate
+assembly with shared sloped consoles and bulkhead backing. Its coordinates
+and mounting hardware remain estimates. The next gate is the mission-specific
+1981 inventory, complete original gauge set and overhead/side/aft panel era
+conversion. Several faces still retain later-source grouping or blank sections;
+the assembly pass does not attest their original contents.
+Exterior bay/door sightlines through aft glazing also need
 reconstruction; the seated renderer still hides the exterior orbiter. The real forward structure wraps in three dimensions; this
 planar windshield estimate remains unresolved. Middeck access, ejection-seat
 hardware, measured crew eye/reach, calibrated complete flight and headset

@@ -8,6 +8,8 @@ import { formatEventTime } from "./mission-time";
 import { instrumentReadouts, paintInstrument, type InstrumentKind } from "./legacy-instruments";
 import { CABIN, FORWARD_PANES } from "./cabin-layout";
 import { CabinShell } from "./cabin-shell";
+import { WorkstationHousings } from "./workstations";
+import { aftStation, sideStation, WORKSTATIONS } from "./workstation-layout";
 
 import { getPanelLight, usePanelLight } from "./panel-lighting";
 import { COCKPIT_TARGETS, getCockpitInspection, portraitReadingLens, subscribeCockpitInspection, type CockpitTarget } from "./cockpit-navigation";
@@ -459,9 +461,6 @@ function paintAftSide(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture, codes
     g.font = "600 16px 'IBM Plex Mono', monospace";
     g.fillText(code, W / 2, y);
   });
-  g.fillStyle = "#4a5258";
-  g.font = "400 12px 'IBM Plex Mono', monospace";
-  g.fillText("contents unattested", W / 2, H - 20);
   tex.needsUpdate = true;
 }
 
@@ -484,10 +483,7 @@ function paintAftLower(canvas: HTMLCanvasElement, tex: THREE.CanvasTexture) {
     g.font = "600 17px 'IBM Plex Mono', monospace";
     g.textAlign = "center";
     g.textBaseline = "middle";
-    g.fillText(code, x + w / 2, H / 2 - 10);
-    g.fillStyle = "#4a5258";
-    g.font = "400 11px 'IBM Plex Mono', monospace";
-    g.fillText("unattested", x + w / 2, H / 2 + 14);
+    g.fillText(code, x + w / 2, H / 2);
   });
   tex.needsUpdate = true;
 }
@@ -1176,6 +1172,7 @@ export function CabinInterior() {
   return (
     <group ref={root} name="cockpit-interior" visible={false}>
       <CabinShell glazing={matWindow} />
+      <WorkstationHousings />
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#8dbc81" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.36} distance={2.4} decay={2} color="#dae5ed" />
       {/* Cabin floodlight: ceiling-mounted above the crew station, so it
@@ -1281,19 +1278,18 @@ export function CabinInterior() {
         <group key={side} position={[side * 1.02, -0.2, -0.68]} rotation={[-0.55, side * 0.5, 0]}>
           <PanelPlate width={0.3} height={0.42} material={panelMaterial} />
           <PlateLabel label={side < 0 ? "F1" : "F9"} x={0} y={0.17} scale={0.8} />
-          <PlateLabel label="contents unattested" x={0} y={-0.1} scale={0.55} />
         </group>
       ))}
 
-      {/* Forward side consoles, section-level */}
-      <group position={[-1.12, -0.34, -0.27]} rotation={[-0.2, 1.15, 0]}>
+      {/* Side panel faces share the continuous sloped console mounting. */}
+      <group name="station-port" {...WORKSTATIONS.port}>
         <PanelPlate width={0.42} height={0.55} material={panelMaterial} />
         <PlateLabel label="L1 · FIRE / SMOKE" x={0} y={0.19} scale={0.62} />
         <Bar position={[0, 0, 0.014]} args={[0.36, 0.008, 0.004]} material={matGasket} />
         <PlateLabel label="L2 · EMER O2" x={0} y={-0.19} scale={0.62} />
         <SwitchField rows={6} cols={4} width={0.34} height={0.42} reds={SIDE_REDS} />
       </group>
-      <group position={[1.12, -0.34, -0.27]} rotation={[-0.2, -1.15, 0]}>
+      <group name="station-starboard" {...WORKSTATIONS.starboard}>
         <PanelPlate width={0.42} height={0.55} material={panelMaterial} />
         <PlateLabel label="R1 · EMER ELEC" x={0} y={0.19} scale={0.62} />
         <Bar position={[0, 0, 0.014]} args={[0.36, 0.008, 0.004]} material={matGasket} />
@@ -1337,9 +1333,10 @@ export function CabinInterior() {
         ))}
       </group>
 
-      {/* Aft station — single legacy CRT; no extra AMLCD.
-          Grouping retained from later sources, numerical positions estimated. */}
-      <group name="view-aft" position={[0.66, -0.05, 0.62]} rotation={[-0.15, -2.32, 0]}>
+      {/* Aft faces mount below the two windows in the bulkhead, as in the
+          existing baseline. Retained later panel grouping is not an STS-1
+          inventory; numeric positions and face scales remain estimated. */}
+      <group name="view-aft" {...WORKSTATIONS.aftStarboard}>
         <PanelPlate width={0.62} height={0.72} material={panelMaterial} />
         <PlateLabel label="AFT · STBD" x={0} y={0.325} scale={0.8} />
         {crtUnit("CRT4", -0.145, 0.14)}
@@ -1374,7 +1371,7 @@ export function CabinInterior() {
 
       {/* Aft station — port: A1 comm, A4 time, A6U ADI, A7 floodlight +
           A7 MASTER ALARM pushbutton (SCOM §2.2) [sourced], pos [estimated]. */}
-      <group position={[-0.66, -0.05, 0.62]} rotation={[-0.15, 2.32, 0]}>
+      <group name="station-aft-port" {...WORKSTATIONS.aftPort}>
         <PanelPlate width={0.62} height={0.72} material={panelMaterial} />
         <PlateLabel label="AFT · PORT" x={0} y={0.325} scale={0.8} />
         <mesh position={[0, -0.03, 0.015]} raycast={() => null}>
@@ -1391,9 +1388,8 @@ export function CabinInterior() {
         <MasterAlarm x={-0.24} y={0.24} />
       </group>
 
-      {/* A8 — RMS mode/joint panel (attested labels only). Estimated aft
-          placement clears the window pair from the fixed commander eye. */}
-      <group position={[-0.94, -0.26, 1.02]} rotation={[-0.15, 2.6, 0]}>
+      {/* Later-source A8/RMS labels retained pending the 1981 inventory. */}
+      <group name="station-aft-rms" {...WORKSTATIONS.aftRms}>
         <PanelPlate width={0.4} height={0.3} material={panelMaterial} />
         <mesh position={[0, 0, 0.015]} raycast={() => null}>
           <planeGeometry args={[0.36, 0.26]} />
@@ -1402,7 +1398,7 @@ export function CabinInterior() {
       </group>
 
       {/* A2 — RMS arm-translation controller (port station) */}
-      <group position={[-0.42, -0.18, 0.68]} rotation={[-0.3, 2.75, 0]}>
+      <group name="station-aft-controller" {...WORKSTATIONS.aftController}>
         <PanelPlate width={0.2} height={0.16} material={panelMaterial} />
         <mesh position={[0, 0.02, 0.015]} rotation={[Math.PI / 2, 0, 0]} raycast={() => null} material={matHardware}>
           <cylinderGeometry args={[0.008, 0.008, 0.03, 10]} />
@@ -1415,10 +1411,10 @@ export function CabinInterior() {
 
       {/* A5 / A10 position plates — contents unattested */}
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * 0.66, 0.28, 0.32]} rotation={[0, side * 2.6, 0]}>
-          <Bar position={[0, 0, 0]} args={[0.3, 0.16, 0.02]} material={panelMaterial} />
+        <group key={side} {...aftStation(side * 0.94, 0.25)}>
+          <PanelPlate width={0.3} height={0.16} material={panelMaterial} />
           <PlateLabel
-            label={`${side < 0 ? "A5" : "A10"} · contents unattested`}
+            label={side < 0 ? "A5" : "A10"}
             x={side * -0.02}
             y={0.02}
             scale={0.62}
@@ -1427,17 +1423,17 @@ export function CabinInterior() {
       ))}
 
       {/* Aft lower-center strip: A13/A16/A17 — contents unattested */}
-      <group position={[0, -0.28, 0.72]} rotation={[-0.5, Math.PI, 0]}>
-        <PanelPlate width={0.66} height={0.16} material={panelMaterial} />
+      <group name="station-aft-lower" {...WORKSTATIONS.aftLower}>
+        <PanelPlate width={1.34} height={0.16} material={panelMaterial} />
         <mesh position={[0, 0, 0.015]} raycast={() => null}>
-          <planeGeometry args={[0.62, 0.12]} />
+          <planeGeometry args={[1.30, 0.12]} />
           <meshBasicMaterial map={tex.aftLower.map} toneMapped={false} />
         </mesh>
       </group>
 
       {/* Aft side-console strips — panel codes only, contents unattested */}
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * 0.95, -0.05, 0.05]} rotation={[-0.15, side * 1.35, 0]}>
+        <group key={side} name={`station-aft-side-${side}`} {...sideStation(side, 0.62)}>
           <PanelPlate width={0.22} height={0.5} material={panelMaterial} />
           <mesh position={[0, 0, 0.015]} raycast={() => null}>
             <planeGeometry args={[0.19, 0.46]} />
@@ -1466,7 +1462,7 @@ export function CabinInterior() {
       </group>
 
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * 0.6, -0.36, 0.08]}>
+        <group key={side} name="crew-seat" position={[side * 0.6, -0.36, 0.08]}>
           <Bar position={[0, -0.07, 0.02]} args={[0.32, 0.07, 0.34]} material={seatMaterial} />
           <Bar position={[0, -0.1, -0.12]} args={[0.3, 0.045, 0.08]} material={seatMaterial} />
           <Bar position={[side * 0.15, 0, 0.02]} args={[0.055, 0.11, 0.32]} material={seatMaterial} />
