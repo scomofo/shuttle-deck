@@ -17,7 +17,7 @@ without changing dimensions or painting over the content.
 | `blanket-color.webp` | 1254 × 1254 | White thermal cloth; tinted cabin upholstery | Generated artistic approximation |
 | `panel-color.webp` | 1254 × 1254 | Coated cockpit metal and control faces | Generated artistic approximation |
 | `foam-color.webp` | 1254 × 1254 | External tank foam | Generated artistic approximation |
-| `terrain-color.webp` | 1254 × 1254 | Aerial wetlands around the runway | Generated illustrative terrain, not a factual map |
+| `terrain-color.webp` | 1254 × 1254 | Retained original; no longer used by the runtime | Generated illustrative wetlands, not a factual map |
 | `earth-day-2048.jpg` | 2048 × 1024 | Global land/ocean surface | NASA Blue Marble observation composite |
 | `earth-clouds-2048.jpg` | 2048 × 1024 | Cloud opacity | NASA Blue Marble observation composite |
 
@@ -57,11 +57,11 @@ NASA describes the OMS pods and orbital role in
 Plume color, extent and shock detail remain artistic shader approximations,
 not a fluid simulation or measured vacuum exhaust model.
 
-The runway now has instanced threshold, centerline, aiming-point and touchdown
-markings, pavement joints, rubber deposits and smaller edge/approach lights.
-Its 5200-by-90 browser-model footprint and surrounding terrain remain
-illustrative, not a surveyed landing site. Polygon offsets keep the thin
-pavement layers visible above terrain at long camera distances.
+The earlier paved-runway pass added modern markings, pavement joints, rubber
+deposits and airport lights. It has been superseded by the STS-1 dry-lake
+presentation: [LANDING_VIEW.md](LANDING_VIEW.md). The estimated 5200-by-90
+footprint remains; surface finish and paint are illustrative rather than a
+surveyed/historically transcribed site.
 
 ## Orbiter proportions
 
@@ -107,13 +107,13 @@ provide close-range orbital ground detail. Exhaust remains a shader approximatio
 
 ## Approach and exterior detail follow-ups
 
-The terrain material blends the existing aerial image at two scales, with a
-rotated close-range sample that fades toward the broad view with distance.
-The runway verge now uses texture repeats matched to its long, narrow footprint.
-Concrete has subtle deterministic slab variation and fine aggregate; subpixel
-grain fades to avoid high-frequency aliasing. These are code-native shader
-changes using existing assets. The site remains illustrative and is not a
-surveyed Kennedy landing facility. Review: [approach](review/runway.jpg).
+The earlier wetland/concrete approach shaders are superseded by procedural
+dry-clay shading for the selected STS-1 landing-site identity. Coordinates stay
+fixed in the landing frame, and fine seams fade by pixel footprint. The warm
+ground reflection probe matches the new surface palette as an artistic lighting
+estimate. No new texture downloads are introduced. The historical approach
+capture [runway.jpg](review/runway.jpg) documents the older illustrative scene;
+current images are linked in [LANDING_VIEW.md](LANDING_VIEW.md).
 
 Each payload door now carries four separate smooth radiator surfaces. The count
 and inside-door placement follow NASA's

@@ -5,6 +5,12 @@ represents the later MEDS cockpit; the STS-1 mission baseline is not a claim of
 an STS-1-era cockpit. Panel groupings are sourced, while geometry and control
 positions remain estimates.
 
+The selected historical reconstruction target is **Columbia on STS-1 (1981)**.
+The landing scene now presents Rogers Dry Lake runway 23; the later MEDS cockpit
+still needs conversion using early-flight reference evidence. The synthetic
+approach placement, surface finish and markings remain estimates. See
+[LANDING_VIEW.md](LANDING_VIEW.md) for provenance and review captures.
+
 Do not fold pitch, phase, and meshes back into `src/`. This folder does
 not write `dyn.*` and it does not replace an owner.
 
@@ -14,6 +20,11 @@ New scenarios open in the commander-seat cabin. **Flight displays**,
 **Overhead** and **Aft station** turn the seated eye toward the existing
 geometry; **Forward view**, **Esc** or a double-click returns it. Drag to look
 around. These are reading aids, not calibrated crew reach or lens settings.
+
+During terminal flight, **Approach guides** toggles the simulator heading-alignment
+gates and glide-slope lights. It defaults off and remembers your preference.
+The checklist works with either setting. **Esc** returns forward even when the
+panel-light slider has focus.
 
 **Controls [X]** opens the optional flat control console. It is a simulator aid,
 not a historical panel facsimile. Its station labels relate its controls to the
@@ -43,6 +54,8 @@ control, or use the checklist's named action button. Finding a control does not
 issue its command, pause the flight, or acknowledge its required condition.
 On narrow screens, the instruction card becomes compact during inspection so
 the highlighted control remains exposed; return forward for the full text.
+The full checklist and header fit the phone width. Short screens scroll the
+card above the cockpit toolbar so the current action stays reachable.
 
 **Checklist [C]** opens the flight-data-file reading aid in any camera view. A
 new flight reopens it. It
@@ -102,6 +115,12 @@ command, reading-view navigation and held-input cancellation. It reads projected
 scene coordinates and advances time through the same existing probe. Use the
 same `--base-url`, `--browser-executable` and `--output` options as the walkthrough
 regression.
+
+`python3 tests/landing-browser.py` checks the actual threshold ray through a
+forward window, default/persisted approach-guide preference, slider-focused Esc,
+desktop/mobile rendering, and the final-approach checklist through wheel stop.
+It also checks browser/shader errors and failed asset requests, using the same
+CLI options and time-advance probe.
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.

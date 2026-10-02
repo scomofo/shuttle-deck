@@ -27,6 +27,13 @@ window, overhead/side-console and seat overlaps have been corrected within
 the estimated geometry, and checklist Find actions locate real scene controls.
 This establishes desktop usability, not a measured historical cabin.
 
+The selected reconstruction target is Columbia on STS-1 (1981). The landing
+presentation now uses a dry lakebed and runway 23, consistent with the mission
+identity, and rotates the estimated layout along the recorded approach heading.
+Simulator HAC/glide-slope guides are optional. Lakebed finish, paint coordinates
+and the synthetic scenario placement remain estimates; the early cockpit
+reconstruction still needs source evidence. See `web/deck/LANDING_VIEW.md`.
+
 ### Procedural fidelity — improving
 Phase-specific procedure cards exist and the procedure runner enforces
 real rules (it rejects writes to state channels and momentary misuse).

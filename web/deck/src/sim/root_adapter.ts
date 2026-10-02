@@ -37,6 +37,7 @@ import { bus } from "../gen/src/core/bus.js";
 import { clock } from "../gen/src/core/clock.js";
 import { Frames } from "../gen/src/core/frames.js";
 import { v_rel } from "../gen/src/dynamics/aero.js";
+import { makeLandingAnchor } from "../game/landing-layout.ts";
 
 export type DeckPhase =
   | "pad"
@@ -63,7 +64,7 @@ export interface StepInput {
 export interface TerminalAnchor {
   x: number;
   z: number;
-  /** Deck yaw (rad) of the vehicle when the anchor was recorded. */
+  /** Fixed approach direction, deck yaw in radians; never follows steering. */
   yaw: number;
 }
 
@@ -482,12 +483,11 @@ export class RootAdapter {
   }
 
   /**
-   * Record where the scene anchors the runway/HAC visuals: the group keeps
-   * the old fixed layout, shifted so the layout's historic vehicle
-   * position lands on the vehicle. (dx, dz) is that historic position.
+   * Anchor the estimated runway/HAC layout along the entering vehicle's
+   * heading. This is presentation placement, not a geographical runway fix.
    */
   private recordTerminalAnchor(dx: number, dz: number): void {
-    this.terminalAnchor = { x: this.vm.x + dx, z: this.vm.z + dz, yaw: this.vm.yaw };
+    this.terminalAnchor = makeLandingAnchor(this.vm.x, this.vm.z, this.vm.yaw, dx, dz);
   }
 
   private pollEvents(): void {

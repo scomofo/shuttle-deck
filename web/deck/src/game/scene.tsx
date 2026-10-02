@@ -4,7 +4,9 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { Orbiter } from "@/game/orbiter";
-import { terrainMaterial } from "./ground-materials";
+import { dryLakeMaterial } from "./ground-materials";
+import { LANDING_STRIP, landingCoordinates, landingRotation } from "./landing-layout";
+import { useLandingGuides } from "./landing-guides";
 import { useReflectionEnvironment } from "./reflections";
 import { earthSurfaceMaterial } from "./earth-material";
 import { Runway } from "./runway";
@@ -12,7 +14,6 @@ import earthUrl from "@/assets/visuals/earth-day-2048.jpg";
 import cloudsUrl from "@/assets/visuals/earth-clouds-2048.jpg";
 import earthDetailUrl from "@/assets/visuals/earth-day-4096.jpg";
 import cloudsDetailUrl from "@/assets/visuals/earth-clouds-4096.jpg";
-import terrainUrl from "@/assets/visuals/terrain-color.webp";
 import { syncAudio } from "@/game/audio";
 import { bodyBasis, HAC, sim } from "@/sim/runtime";
 
@@ -97,24 +98,8 @@ const skyFragment = `
     #include <colorspace_fragment>
   }`;
 
-/** Illustrative aerial wetland material; not a surveyed map of the landing site. */
-function useFieldMap() {
-  const source = useLoader(THREE.TextureLoader, terrainUrl);
-  const { gl } = useThree();
-  const map = useMemo(() => {
-    const texture = source.clone();
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(16, 16);
-    texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
-    texture.needsUpdate = true;
-    return texture;
-  }, [source, gl]);
-  useEffect(() => () => map.dispose(), [map]);
-  return map;
-}
-
 function World() {
+  const guides = useLandingGuides();
   const setReflections = useReflectionEnvironment();
   const craft = useRef<THREE.Group>(null);
   const earth = useRef<THREE.Group>(null);
@@ -129,8 +114,7 @@ function World() {
   const earthSurface = useMemo(() => earthSurfaceMaterial(map, cloudsMap), [map, cloudsMap]);
   useEffect(() => () => earthSurface.material.dispose(), [earthSurface]);
   const starField = useRef<THREE.Group>(null);
-  const fieldMap = useFieldMap();
-  const fieldMaterial = useMemo(() => terrainMaterial(fieldMap), [fieldMap]);
+  const fieldMaterial = useMemo(() => dryLakeMaterial(), []);
   useEffect(() => () => fieldMaterial.dispose(), [fieldMaterial]);
   const space = useMemo(() => new THREE.Color("#07090d"), []);
   const sky = useMemo(() => new THREE.Color().setRGB(0.60, 0.70, 0.77), []);
@@ -190,18 +174,16 @@ function World() {
 
     if (ground.current) {
       ground.current.visible = terminal;
-      // The runway/HAC layout is historic deck geometry; the terminal anchor
-      // shifts it so the layout's historic vehicle position lands on the
-      // vehicle (the root sim flies real geography now).
       const anchor = sim.terminalAnchor;
       const ax = anchor ? anchor.x : 0;
       const az = anchor ? anchor.z : 0;
       ground.current.position.set(ax - sim.x, -sim.y, az - sim.z);
+      ground.current.rotation.y = landingRotation(anchor?.yaw ?? -Math.PI/2);
     }
     if (papi.current.length === 4 && (sim.phase === "taem" || sim.phase === "approach")) {
       const anchor = sim.terminalAnchor;
-      const threshX = -200 + (anchor ? anchor.x : 0);
-      const glide = Math.atan2(Math.max(sim.y, 0), Math.max(80, threshX - sim.x));
+      const local = landingCoordinates(anchor ?? { x:0, z:0, yaw:-Math.PI/2 }, sim.x, sim.z);
+      const glide = Math.atan2(Math.max(sim.y, 0), Math.max(80, LANDING_STRIP.start - local.x));
       const err = glide - (10 * Math.PI) / 180;
       const nWhite = err > 0.02 ? 4 : err > 0.006 ? 3 : err > -0.006 ? 2 : err > -0.02 ? 1 : 0;
       papi.current.forEach((mesh, i) => {
@@ -216,7 +198,8 @@ function World() {
     if (skyDome.current) skyDome.current.visible = terminal;
     if (starField.current) starField.current.visible = !terminal;
     if (blob.current) {
-      blob.current.position.set(sim.x, 0.5, sim.z);
+      const local = landingCoordinates(sim.terminalAnchor ?? { x:0, z:0, yaw:-Math.PI/2 }, sim.x, sim.z);
+      blob.current.position.set(local.x, 0.035, local.z);
       const mat = blob.current.material as THREE.MeshBasicMaterial;
       mat.opacity = terminal ? THREE.MathUtils.clamp(1 - sim.y / 2200, 0, 0.45) : 0;
     }
@@ -297,16 +280,17 @@ function World() {
         <sphereGeometry args={[12000, 28, 16]} />
         <shaderMaterial vertexShader={skyVertex} fragmentShader={skyFragment} side={THREE.BackSide} depthWrite={false} />
       </mesh>
-      <group ref={ground}>
+      <group ref={ground} name="terminal-ground">
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[80000, 80000]} />
           <primitive object={fieldMaterial} attach="material" />
         </mesh>
         <mesh ref={blob} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.35, 0]}>
           <circleGeometry args={[22, 28]} />
-          <meshBasicMaterial color="#06140f" transparent opacity={0} depthWrite={false} />
+          <meshBasicMaterial color="#4d4439" transparent opacity={0} depthWrite={false} />
         </mesh>
-        <Runway terrainMap={fieldMap} />
+        <Runway />
+        <group visible={guides} name="simulator-approach-guides">
         {Array.from({ length: 8 }, (_, i) => {
           const t = ((i + 1) / 9) * Math.PI;
           const x = HAC.cx - Math.sin(t) * HAC.r;
@@ -343,6 +327,7 @@ function World() {
             </mesh>
           ))}
         </group>
+        </group>
       </group>
       <group ref={craft}>
         <Orbiter />
@@ -373,6 +358,47 @@ function World() {
   );
 }
 
+/** Mounted after cabin look/FOV. Read-only evidence from actual scene nodes. */
+function LandingReadout() {
+  const { camera, scene, gl } = useThree();
+  const guides = useLandingGuides();
+  const projectedPoint = useMemo(() => new THREE.Vector3(), []);
+  const ray = useMemo(() => new THREE.Raycaster(), []);
+  const hits = useMemo<THREE.Intersection[]>(() => [], []);
+  const screenPoint = useMemo(() => new THREE.Vector2(), []);
+  useFrame(() => {
+    const ground = scene.getObjectByName("terminal-ground");
+    const threshold = ground?.getObjectByName("runway-threshold");
+    if (!threshold || !ground?.visible) { window.__landingReadout = null; return; }
+    ground.updateWorldMatrix(true, true);
+    camera.updateMatrixWorld();
+    threshold.getWorldPosition(projectedPoint).project(camera);
+    screenPoint.set(projectedPoint.x,projectedPoint.y);
+    ray.setFromCamera(screenPoint,camera);
+    hits.length = 0;
+    // Glazing intentionally ignores input ray picks. Inspect its actual
+    // rendered geometry directly, without making it a clickable surface.
+    const cabin = scene.getObjectByName("cockpit-interior");
+    if (cabin?.visible) cabin.traverse(node => {
+      if (node instanceof THREE.Mesh && node.name === "forward-glazing") THREE.Mesh.prototype.raycast.call(node,ray,hits);
+    });
+    const rect = gl.domElement.getBoundingClientRect();
+    window.__landingReadout = { site:"Rogers Dry Lake · 23", surface:"dry-lake", guides,
+      rotation:ground.rotation.y,
+      windowClear:hits.length>0,
+      x:rect.left+(projectedPoint.x+1)*rect.width/2,
+      y:rect.top+(1-projectedPoint.y)*rect.height/2,
+      visible:Math.abs(projectedPoint.x)<=1 && Math.abs(projectedPoint.y)<=1 && Math.abs(projectedPoint.z)<=1 };
+  });
+  return null;
+}
+
+declare global {
+  interface Window {
+    __landingReadout?: { site:string; surface:"dry-lake"; guides:boolean; rotation:number; windowClear:boolean; x:number; y:number; visible:boolean } | null;
+  }
+}
+
 class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
@@ -399,6 +425,7 @@ export function FlightScene() {
         <Suspense fallback={null}>
           <World />
           <CabinInterior />
+          <LandingReadout />
         </Suspense>
       </Canvas>
       <AssetLoading />

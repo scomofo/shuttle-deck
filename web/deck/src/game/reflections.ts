@@ -24,7 +24,7 @@ function makeProbe(gl: THREE.WebGLRenderer, orbital: boolean) {
         vec3 d = normalize(direction);
         vec3 sky = mix(vec3(0.48, 0.59, 0.69), vec3(0.09, 0.24, 0.43),
                        pow(max(d.y, 0.0), 0.4));
-        vec3 ground = vec3(0.13, 0.15, 0.10);
+        vec3 ground = vec3(0.27, 0.22, 0.16);
         vec3 atmosphere = mix(ground, sky, smoothstep(-0.12, 0.12, d.y));
         float earth = (1.0 - smoothstep(-0.65, 0.05, d.y));
         vec3 space = mix(vec3(0.003, 0.004, 0.007), vec3(0.18, 0.31, 0.44), earth);

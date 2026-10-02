@@ -222,7 +222,7 @@ export function Hud({
         </div>
       </footer>
 
-      {!showMenu && live.view === "cockpit" ? <CockpitTools controlsOpen={controlsOpen} onControls={onControls} /> : null}
+      {!showMenu && live.view === "cockpit" ? <CockpitTools controlsOpen={controlsOpen} onControls={onControls} terminal={["taem", "approach", "rollout"].includes(live.phase)} /> : null}
 
       {showMenu ? (
         <section className="menu">

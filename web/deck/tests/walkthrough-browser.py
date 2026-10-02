@@ -32,6 +32,9 @@ with sync_playwright() as p:
     expect(page.locator('.flightdeck')).not_to_be_visible()
     page.get_by_role('button', name='1×', exact=True).click()
     page.get_by_role('button', name='Open bay doors', exact=True).first.click()
+    # Commands apply on the root fixed-step clock, not at DOM click time.
+    # Advance it explicitly rather than relying on a software-rendered RAF.
+    page.evaluate('window.__controlsTest.tick(10)')
     expect(focus).to_contain_text('Doors moving')
     expect(focus.get_by_role('button', name='Open bay doors')).to_be_disabled()
     page.get_by_role('button', name='Pause', exact=True).click()
@@ -42,6 +45,7 @@ with sync_playwright() as p:
     print('After opening:', focus.inner_text())
     page.screenshot(path=str(out / 'shuttle-doors-open.png'))
     focus.get_by_role('button', name='Close bay doors', exact=True).click()
+    page.evaluate('window.__controlsTest.tick(10)')
     expect(focus).to_contain_text('Doors moving')
     page.evaluate('window.__controlsTest.tick(3000)')
     page.wait_for_timeout(200)
@@ -104,7 +108,10 @@ with sync_playwright() as p:
     assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), 'mobile layout must stay within the viewport'
     page.set_viewport_size({'width': 1280, 'height': 800})
     page.get_by_role('button', name='16×', exact=True).click()
-    for _ in range(24):
+    # A cutoff near 110 km takes about 1933 s to reach EI in the current
+    # root model. The old 1920 s bound could expire just before entry.
+    # Allow 40 simulated minutes; this is a test limit, not an STS-1 target.
+    for _ in range(30):
         page.evaluate('window.__controlsTest.tick(100)')
         page.wait_for_timeout(50)
         if page.evaluate('window.__controlsTest.phase()') != 'orbit':

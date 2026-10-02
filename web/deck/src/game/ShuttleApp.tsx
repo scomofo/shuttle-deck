@@ -16,6 +16,13 @@ export function ShuttleApp() {
   useEffect(() => {
     attachControlsProbe();
     const down = (event: KeyboardEvent) => {
+      // Recenter is also available while a reading/preference control is focused.
+      if (event.code === "Escape" && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        inspectCockpit(null);
+        setControlsOpen(false);
+        event.preventDefault();
+        return;
+      }
       // Native form controls own their keys; adjusting panel light must not fly the vehicle.
       const target = event.target;
       if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
@@ -30,12 +37,6 @@ export function ShuttleApp() {
       }
       if (event.code === "KeyX") {
         setControlsOpen((value) => !value);
-        event.preventDefault();
-        return;
-      }
-      if (event.code === "Escape") {
-        inspectCockpit(null);
-        setControlsOpen(false);
         event.preventDefault();
         return;
       }

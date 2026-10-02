@@ -71,6 +71,7 @@
   inset: 0;
   pointer-events: none;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr auto;
   padding: 0.75rem;
   gap: 0.75rem;
@@ -1337,10 +1338,10 @@
 }
 
 /* Preserve an outside view above the scrollable console in portrait. */
-@media (max-width: 600px) and (min-height: 650px) {
+@media (max-width: 600px) {
   .hud .topbar {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.35rem;
     padding: 0.4rem;
   }
@@ -1348,7 +1349,7 @@
   .hud .phase-pill { font-size: 0.8rem; }
   .hud .topbar .row {
     grid-column: 1 / -1;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.2rem;
   }
@@ -1413,8 +1414,9 @@
 .procedure-find:focus-visible { outline: 2px solid #a95c17; outline-offset: 2px; }
 
 @media (max-width: 800px) {
-  .hud[data-view="cockpit"] .mid { display: block; padding-bottom: 8rem; }
-  .hud[data-view="cockpit"] .sheet { top: 0; max-height: min(55dvh, calc(100dvh - 16rem)); }
+  .hud[data-view="cockpit"] .mid,
+  .hud[data-view="cockpit"][data-checklist-open="true"] .mid { display: block; padding-bottom: 11rem; }
+  .hud[data-view="cockpit"] .sheet { grid-column: auto; grid-row: auto; top: 0; max-height: min(55dvh, calc(100% - 11rem)); }
   .cockpit-tools { padding: 0.4rem; }
   .cockpit-tools button { flex: 1; padding: 0.3rem; font-size: 0.65rem; }
   .cockpit-tools-detail { flex-wrap: wrap; }
