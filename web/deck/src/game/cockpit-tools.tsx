@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from "react";
 import { COCKPIT_TARGETS, getCockpitInspection, inspectCockpit, subscribeCockpitInspection } from "./cockpit-navigation";
 import { setPanelLight, usePanelLight } from "./panel-lighting";
+import { setLandingGuides, useLandingGuides } from "./landing-guides";
 
-export function CockpitTools({ controlsOpen, onControls }: { controlsOpen: boolean; onControls: () => void }) {
+export function CockpitTools({ controlsOpen, onControls, terminal }: { controlsOpen: boolean; onControls: () => void; terminal: boolean }) {
   const { target } = useSyncExternalStore(subscribeCockpitInspection, getCockpitInspection, getCockpitInspection);
   const panelLight = usePanelLight();
+  const guides = useLandingGuides();
   return <nav className="cockpit-tools" aria-label="Cockpit navigation">
     <div className="cockpit-view-buttons">
       <button type="button" aria-pressed={!target} onClick={() => inspectCockpit(null)}>Forward view</button>
@@ -12,6 +14,7 @@ export function CockpitTools({ controlsOpen, onControls }: { controlsOpen: boole
       <button type="button" aria-pressed={target === "overhead"} onClick={() => inspectCockpit("overhead")}>Overhead</button>
       <button type="button" aria-pressed={target === "aft"} onClick={() => inspectCockpit("aft")}>Aft station</button>
       <button type="button" aria-expanded={controlsOpen} aria-controls="cockpit-controls" onClick={onControls}>Controls [X]</button>
+      {terminal ? <button type="button" aria-pressed={guides} onClick={() => setLandingGuides(!guides)} title="Show simulator heading-alignment gates and glide-slope lights">Approach guides</button> : null}
     </div>
     <div className="cockpit-tools-detail">
       <span>{target ? `${COCKPIT_TARGETS[target].label} · Esc returns forward` : "Commander seat · drag to look · double-click to recenter"}</span>

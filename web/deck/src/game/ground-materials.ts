@@ -1,43 +1,36 @@
 import * as THREE from "three";
 
-/** Code-native surface detail; stable UVs avoid swimming as the world recenters. */
-export function terrainMaterial(map: THREE.Texture) {
-  const material = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+/** Procedural dry-lake presentation. STS-1's landing-site identity is sourced;
+ * clay color, mottling and crack scale are artistic estimates, not aerial data.
+ * Coordinates stay in the fixed landing frame as the camera recenters. */
+export function dryLakeMaterial() {
+  const material = new THREE.MeshStandardMaterial({ color: "#b9a78b", roughness: 1 });
   material.onBeforeCompile = shader => {
-    shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `
-      #ifdef USE_MAP
-        vec2 uv = vMapUv;
-        vec4 broad = texture2D(map, uv);
-        // Different scale/orientation breaks the single aerial-image repeat near the ground.
-        vec4 detail = texture2D(map, vec2(-uv.y, uv.x) * 9.0 + vec2(0.37, 0.61));
-        float nearMix = 1.0 - smoothstep(600.0, 6500.0, length(vViewPosition));
-        diffuseColor *= mix(broad, detail, nearMix * 0.55);
-      #endif
-    `);
-  };
-  material.customProgramCacheKey = () => 'wetland-multiscale-v1';
-  return material;
-}
-
-/** Subtle concrete aggregate and slab variation, not a generated texture asset. */
-export function pavementMaterial(bumpMap: THREE.Texture) {
-  const material = new THREE.MeshStandardMaterial({ color: '#777b76', roughness: 0.95,
-    bumpMap, bumpScale: 0.018, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-  material.onBeforeCompile = shader => {
-    shader.vertexShader = 'varying vec2 vPavementUv;\n' + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace('#include <uv_vertex>', '#include <uv_vertex>\n vPavementUv = uv;');
-    shader.fragmentShader = 'varying vec2 vPavementUv;\n' + shader.fragmentShader;
+    shader.vertexShader = 'varying vec2 vLakeMetres;\n' + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vLakeMetres = position.xy;');
+    shader.fragmentShader = `
+      varying vec2 vLakeMetres;
+      float lakeHash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float lakeNoise(vec2 p) {
+        vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+        return mix(mix(lakeHash(i),lakeHash(i+vec2(1.0,0.0)),f.x),
+          mix(lakeHash(i+vec2(0.0,1.0)),lakeHash(i+vec2(1.0,1.0)),f.x),f.y);
+      }
+    ` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
       #include <color_fragment>
-      vec2 metres = vPavementUv * vec2(5200.0, 90.0);
-      vec2 slab = floor(metres / vec2(25.0, 15.0));
-      float variation = fract(sin(dot(slab, vec2(12.9898,78.233))) * 43758.5453);
-      // Fade subpixel grain rather than aliasing at grazing approach angles.
-      float footprint = max(length(dFdx(metres)), length(dFdy(metres)));
-      float grain = sin(metres.x * 43.0) * sin(metres.y * 39.0);
-      diffuseColor.rgb *= 0.94 + variation * 0.12 + grain * 0.035 * (1.0 - smoothstep(0.02, 0.15, footprint));
+      vec2 metres=vLakeMetres;
+      float broad=lakeNoise(metres*0.0008);
+      float silt=lakeNoise(metres*0.016+vec2(27.0,43.0));
+      diffuseColor.rgb *= 0.88+broad*0.19+silt*0.035;
+      // Fine dry-clay seams fade with pixel footprint to avoid flickering.
+      vec2 warped=metres*0.6+vec2(lakeNoise(metres*0.4),lakeNoise(metres*0.4+7.0))*0.6;
+      vec2 cell=abs(fract(warped)-0.5);
+      float footprint=max(length(dFdx(metres)),length(dFdy(metres)));
+      float seam=smoothstep(0.475,0.49,max(cell.x,cell.y));
+      diffuseColor.rgb *= 1.0-seam*0.075*(1.0-smoothstep(0.2,2.0,footprint));
     `);
   };
-  material.customProgramCacheKey = () => 'runway-aggregate-v1';
+  material.customProgramCacheKey = () => 'dry-lake-clay-v1';
   return material;
 }

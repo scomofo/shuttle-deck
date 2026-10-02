@@ -27,6 +27,13 @@ window, overhead/side-console and seat overlaps have been corrected within
 the estimated geometry, and checklist Find actions locate real scene controls.
 This establishes desktop usability, not a measured historical cabin.
 
+The selected reconstruction target is Columbia on STS-1 (1981). The landing
+presentation now uses a dry lakebed and runway 23, consistent with the mission
+identity, and rotates the estimated layout along the recorded approach heading.
+Simulator HAC/glide-slope guides are optional. Lakebed finish, paint coordinates
+and the synthetic scenario placement remain estimates; the early cockpit
+reconstruction still needs source evidence. See `web/deck/LANDING_VIEW.md`.
+
 ### Procedural fidelity — improving
 Phase-specific procedure cards exist and the procedure runner enforces
 real rules (it rejects writes to state channels and momentary misuse).
@@ -42,6 +49,15 @@ entry-interface monitoring. Its burn input is a simulator helper, not a
 reconstruction of THC translation commanding. Physical bay-door, fuel-cell,
 APU and gear controls operate the existing crew-command paths; their grouped
 presentation and exact locations remain estimates.
+
+Browser checkpoints now preserve the render origin/landing anchor and verified
+procedure history alongside the root snapshot. The root controls registry saves
+explicit persistent switch commands, leaving untouched channels at their owner
+defaults. Recovery releases held OMS, hand, momentary and button inputs, opens
+the checklist paused and requires an explicit Resume. This repairs interrupted
+walkthrough continuity; it does not add mechanism or trajectory fidelity.
+Older v3 saves omitted this information and require crew verification before
+resuming. See `web/deck/CHECKPOINT_RECOVERY.md` for evidence and limits.
 
 ### Systems fidelity — shallow but honest
 The electrical system models genuine causality: switch command →

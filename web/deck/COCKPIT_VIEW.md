@@ -1,5 +1,12 @@
 # Commander-view refinement
 
+The next follow-up targets Columbia on STS-1, corrects the landing environment
+and verifies that the threshold ray passes through a main window rather than a
+post, fixes clipped phone checklists and makes Esc work from the dimmer. See
+[LANDING_VIEW.md](LANDING_VIEW.md). Main-pane coordinates changed to
+straddle the estimated crew eye positions; the later MEDS instrument layout and
+the need for measured historical geometry remain unchanged.
+
 ## Sources and limits
 
 NASA's [Shuttle overview](https://www.nasa.gov/reference/the-space-shuttle/)

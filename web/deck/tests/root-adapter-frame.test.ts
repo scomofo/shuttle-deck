@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { RootAdapter, type AdapterStartMode } from "../src/sim/root_adapter.ts";
 import { bus } from "../src/gen/src/core/bus.js";
+import { landingCoordinates, landingPoint, landingRotation, makeLandingAnchor } from "../src/game/landing-layout.ts";
+import * as THREE from "three";
 
 const step = { roll: 0, pitch: 0, yaw: 0, burnKey: false, timeRate: 8 };
 
@@ -40,6 +42,9 @@ function run(mode: AdapterStartMode, frames: number): RootAdapter {
   a.start("approach");
   const v = a.view();
   assert.ok(Math.abs(v.x + 11_000) < 1 && Math.abs(v.y - 1_980) < 1 && Math.abs(v.z) < 1, "approach placement");
+  assert.ok(v.terminalAnchor, "approach supplies a fixed landing anchor");
+  const local = landingCoordinates(v.terminalAnchor, v.x, v.z);
+  assert.ok(Math.abs(local.x + 11_000) < 1 && Math.abs(local.z) < 1, "vehicle is on the approach centerline");
 }
 
 console.log("Root adapter reads altitude and attitude in the vehicle's local frame");
@@ -55,3 +60,28 @@ console.log("Root adapter reads altitude and attitude in the vehicle's local fra
   assert.equal(a.view().plume, 0, "visual exhaust follows engine thrust");
 }
 console.log("OMS indication and plume reflect actual engine firing");
+
+// The scene's actual THREE rotation must put +X along the entering nose.
+// Previously only translation was used, so any non-eastward approach saw
+// a crosswise runway. Test cardinal/oblique headings and a lateral HAC start.
+{
+  const position = { x: 300_000, z: -700_000 };
+  for (const [yaw, noseX, noseZ] of [
+    [-Math.PI/2,1,0], [0,0,-1], [Math.PI/2,-1,0], [Math.PI,0,1],
+    [-Math.PI/4,Math.SQRT1_2,-Math.SQRT1_2],
+  ]) {
+    const anchor = makeLandingAnchor(position.x,position.z,yaw,11_000,5_000);
+    const scene = new THREE.Object3D();
+    scene.rotation.y = landingRotation(anchor.yaw);
+    scene.position.set(anchor.x,0,anchor.z);
+    scene.updateMatrixWorld();
+    const vehicle = scene.localToWorld(new THREE.Vector3(-11_000,0,-5_000));
+    assert.ok(Math.hypot(vehicle.x-position.x,vehicle.z-position.z)<1e-8,"anchor retains the vehicle's layout position");
+    const forward = new THREE.Vector3(1,0,0).transformDirection(scene.matrixWorld);
+    assert.ok(Math.hypot(forward.x-noseX,forward.z-noseZ)<1e-12,"rendered runway points down the entering heading");
+    const threshold = landingPoint(anchor,-400,0);
+    const local = landingCoordinates(anchor,threshold.x,threshold.z);
+    assert.ok(Math.abs(local.x+400)<1e-8 && Math.abs(local.z)<1e-8,"guide glide slope reads runway-local coordinates");
+  }
+}
+console.log("Landing geometry aligns with arbitrary approach headings");

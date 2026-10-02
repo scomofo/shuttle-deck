@@ -5,6 +5,12 @@ represents the later MEDS cockpit; the STS-1 mission baseline is not a claim of
 an STS-1-era cockpit. Panel groupings are sourced, while geometry and control
 positions remain estimates.
 
+The selected historical reconstruction target is **Columbia on STS-1 (1981)**.
+The landing scene now presents Rogers Dry Lake runway 23; the later MEDS cockpit
+still needs conversion using early-flight reference evidence. The synthetic
+approach placement, surface finish and markings remain estimates. See
+[LANDING_VIEW.md](LANDING_VIEW.md) for provenance and review captures.
+
 Do not fold pitch, phase, and meshes back into `src/`. This folder does
 not write `dyn.*` and it does not replace an owner.
 
@@ -14,6 +20,11 @@ New scenarios open in the commander-seat cabin. **Flight displays**,
 **Overhead** and **Aft station** turn the seated eye toward the existing
 geometry; **Forward view**, **Esc** or a double-click returns it. Drag to look
 around. These are reading aids, not calibrated crew reach or lens settings.
+
+During terminal flight, **Approach guides** toggles the simulator heading-alignment
+gates and glide-slope lights. It defaults off and remembers your preference.
+The checklist works with either setting. **Esc** returns forward even when the
+panel-light slider has focus.
 
 **Controls [X]** opens the optional flat control console. It is a simulator aid,
 not a historical panel facsimile. Its station labels relate its controls to the
@@ -43,6 +54,8 @@ control, or use the checklist's named action button. Finding a control does not
 issue its command, pause the flight, or acknowledge its required condition.
 On narrow screens, the instruction card becomes compact during inspection so
 the highlighted control remains exposed; return forward for the full text.
+The full checklist and header fit the phone width. Short screens scroll the
+card above the cockpit toolbar so the current action stays reachable.
 
 **Checklist [C]** opens the flight-data-file reading aid in any camera view. A
 new flight reopens it. It
@@ -57,6 +70,26 @@ choice, not a facsimile of a historical flight data file.
 The card reports **PAUSED** and offers **Resume flight**. Moving doors and gear
 show a wait message, and the gear-down button waits for the existing 190 m/s
 speed limit. Each new step returns the reading area to the top.
+
+The header's **Save checkpoint** and **Restore checkpoint** buttons work on
+desktop and phones; **F5** and **F9** also work from a focused panel-light slider.
+There is one checkpoint in this browser's site storage. Saving replaces it.
+Restoring works after a reload or a different scenario, preserves the saved
+runway placement, switch commands and verified checklist history, and opens
+the checklist **paused**. Review the current instruction, then select **Resume
+flight**. Recovery returns to the top of the current instruction and closes
+the expanded procedure overview, even when the saved step is unchanged.
+Held burn, hand-control and momentary-button inputs are released;
+the Controls drawer closes and the seated view returns from inspection.
+APU spool and door transit continue from their saved states when resumed.
+
+Older v3 checkpoints remain readable but omitted the render frame, switch
+positions and checklist history. They restore paused with a warning: check
+the indications and configure the controls before resuming. Their scenario
+origin is recovered; any missing terminal placement is estimated again.
+Missing, incomplete, incompatible and blocked-storage saves report a visible
+message. A failed restore keeps the current flight and does not delete the save.
+See [checkpoint evidence and captures](CHECKPOINT_RECOVERY.md).
 
 For deorbit, open and then close/latch the bay doors, start the APUs, and hold
 **Hold deorbit burn**, **B**, or **OMS BURN** in Controls until live periapsis falls below
@@ -102,6 +135,19 @@ command, reading-view navigation and held-input cancellation. It reads projected
 scene coordinates and advances time through the same existing probe. Use the
 same `--base-url`, `--browser-executable` and `--output` options as the walkthrough
 regression.
+
+`python3 tests/landing-browser.py` checks the actual threshold ray through a
+forward window, default/persisted approach-guide preference, slider-focused Esc,
+desktop/mobile rendering, and the final-approach checklist through wheel stop.
+It also checks browser/shader errors and failed asset requests, using the same
+CLI options and time-advance probe.
+
+`python3 tests/checkpoint-browser.py` checks desktop/phone recovery, a different
+scenario and fresh-page restore, slider-focused F5/F9, checklist rewind and
+saved history, APU/door command continuity, held-burn release, and missing,
+corrupt, legacy and blocked-storage feedback. It uses real inputs and the same
+CLI options. `npm test` includes owner-backed checkpoint tests as well as the
+existing exhaust, timer, procedure and render-frame checks.
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.

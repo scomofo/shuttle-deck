@@ -1162,18 +1162,20 @@ const SIDE_REDS = [4, 9];
 // right facing forward (SCOM §1.2) [sourced]. These separated trapezoids
 // replace overlapping rectangles; coordinates/sightlines remain estimated.
 const FORWARD_PANES: [number, number][][] = [
-  [[-1.4, -0.02], [-1.08, -0.02], [-1.1, 0.34], [-1.35, 0.3]],
-  [[-1.02, -0.02], [-0.66, -0.02], [-0.69, 0.34], [-1.0, 0.34]],
-  [[-0.6, -0.02], [-0.04, -0.02], [-0.08, 0.34], [-0.57, 0.34]],
-  [[0.04, -0.02], [0.6, -0.02], [0.57, 0.34], [0.08, 0.34]],
-  [[0.66, -0.02], [1.02, -0.02], [1.0, 0.34], [0.69, 0.34]],
-  [[1.08, -0.02], [1.4, -0.02], [1.35, 0.3], [1.1, 0.34]],
+  [[-1.4, -0.02], [-1.24, -0.02], [-1.26, 0.34], [-1.35, 0.3]],
+  [[-1.18, -0.02], [-1.02, -0.02], [-1.05, 0.34], [-1.16, 0.34]],
+  // Principal openings straddle the estimated CDR/PLT eye stations ±0.6.
+  // Previously the commander looked directly into W2/W3's shared post.
+  [[-0.96, -0.02], [-0.1, -0.02], [-0.14, 0.34], [-0.93, 0.34]],
+  [[0.1, -0.02], [0.96, -0.02], [0.93, 0.34], [0.14, 0.34]],
+  [[1.02, -0.02], [1.18, -0.02], [1.16, 0.34], [1.05, 0.34]],
+  [[1.24, -0.02], [1.4, -0.02], [1.35, 0.3], [1.26, 0.34]],
 ];
 function WindowFrame({ points }: { points: [number,number][] }) {
   const glazing=useMemo(()=>new THREE.ShapeGeometry(new THREE.Shape(points.map(p=>new THREE.Vector2(...p)))),[points]);
   useEffect(()=>()=>glazing.dispose(),[glazing]);
   return <group position={[0,0,-1.08]}>
-    <mesh geometry={glazing} material={matWindow} raycast={()=>null}/>
+    <mesh name="forward-glazing" geometry={glazing} material={matWindow} raycast={()=>null}/>
     {points.map(([x,y],i)=>{
       const [ex,ey]=points[(i+1)%points.length];
       const length=Math.hypot(ex-x,ey-y),angle=Math.atan2(ey-y,ex-x);

@@ -125,6 +125,7 @@
       "id": "OmsBurn",
       "channel": "ctl.oms.burn",
       "kind": "switch",
+      "checkpoint": "release",
       "on": true,
       "off": false
     },
