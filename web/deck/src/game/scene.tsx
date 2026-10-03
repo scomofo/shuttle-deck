@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { CabinReadout } from "@/game/cabin-shell";
 import { PayloadReadout } from "@/game/payload-readout";
+import { GearReadout } from "@/game/gear-readout";
 import { Orbiter } from "@/game/orbiter";
 import { orbiterModelBasis } from "./orbiter-frame";
 import { dryLakeMaterial } from "./ground-materials";
@@ -436,6 +437,7 @@ export function FlightScene() {
           <CabinInterior />
           <CabinReadout />
           <PayloadReadout />
+          <GearReadout />
           <LandingReadout />
         </Suspense>
       </Canvas>

@@ -1,0 +1,204 @@
+{
+  "version": 3,
+  "mode": "approach",
+  "view": "cockpit",
+  "auto": true,
+  "muted": false,
+  "timeRate": 1,
+  "rateLock": false,
+  "deck": {
+    "callout": "Gear extending.",
+    "frame": {
+      "anchorLat": 28.6,
+      "anchorLon": -80.6,
+      "prevDlon": -0.0007076021611234218,
+      "prevYaw": -1.5558448118221824,
+      "prevBank": 0.00028206047242064334,
+      "terminalAnchor": {
+        "x": -3.001332515850663e-10,
+        "z": -3.540577275806811e-10,
+        "yaw": -1.5707963267948966
+      },
+      "seenEvents": [
+        "liftoff",
+        "srb_sep",
+        "meco",
+        "et_sep"
+      ]
+    },
+    "procedureLatch": [
+      "taem:hac",
+      "gear:arm"
+    ]
+  },
+  "root": {
+    "schema_version": 2,
+    "mission_id": "sts_template",
+    "mission_data_version": 1,
+    "clock": {
+      "get_s": 55.000000000003,
+      "liftoff_jd": 2444707.000034722,
+      "rate": 1,
+      "paused": true
+    },
+    "mission": {
+      "phase": "approach",
+      "phase_entry_get": 514,
+      "fired": {
+        "liftoff": 0,
+        "srb_sep": 0,
+        "meco": 0,
+        "et_sep": 0,
+        "gear": 50.92000000000236
+      }
+    },
+    "dynamics": {
+      "r_eci": [
+        2817682.136728799,
+        -4840149.767118491,
+        3053472.2338119904
+      ],
+      "v_eci": [
+        441.93285567134814,
+        276.6271139315346,
+        -11.069123112899511
+      ],
+      "q": [
+        0.8268857030650417,
+        0.23402229440049432,
+        -0.16415120300369318,
+        -0.48430154071879683
+      ],
+      "omega_body": [
+        1.239230284281804e-05,
+        -0.0017618950082073169,
+        0.000249487359116182
+      ],
+      "config": "entry",
+      "driven": false,
+      "landed": false,
+      "stopped": true,
+      "gear_down": true,
+      "eff": {
+        "elevon_l_deg": 2.2579427811293225,
+        "elevon_r_deg": 2.2380838388935493,
+        "rudder_deg": -0.003196956776072646,
+        "speedbrake_deg": 0,
+        "bodyflap_deg": 1.3488079860068616
+      },
+      "heat_load_jm2": 25862.731516869353,
+      "use_j2": true,
+      "mass": 85000,
+      "telemetry": {
+        "aero": {
+          "a_eci": {
+            "x": 3.1892524706433556,
+            "y": -7.9111363663092,
+            "z": 4.626914379284268
+          },
+          "torque_body": {
+            "x": 0.15411434429415627,
+            "y": -425.22821582808746,
+            "z": 18.01809713586248
+          },
+          "q_dyn": 7474.045021189449,
+          "heating": 327.9337395792486,
+          "rho": 1.1402459873165964,
+          "mach": 0.33931270013316756,
+          "alpha_deg": 6.256865362038784,
+          "beta_deg": 0.011097411910254843,
+          "bank_deg": -0.01832839697551349,
+          "lift_to_drag": 3.2109626868354013,
+          "cl": 0.42162499654886487,
+          "cd": 0.13130797136867445,
+          "cm": -1.8876868827154888e-05,
+          "blackout": false,
+          "plasma": 0.001093112465264162
+        },
+        "accel_g": 0.9895227910114569
+      }
+    },
+    "systems": {
+      "electrical": {
+        "cells": [
+          true,
+          true,
+          true
+        ],
+        "main_volts": 28.119999999999997,
+        "contactors": {
+          "fc1_mna": true,
+          "fc2_mnb": true,
+          "fc3_mnc": true
+        },
+        "ties": {
+          "a": false,
+          "b": false,
+          "c": false
+        },
+        "o2_kg": 1599.9670000000833,
+        "h2_kg": 199.99587500001041
+      },
+      "propulsion": {
+        "srb_kg": 1000000,
+        "et_kg": 700000,
+        "oms_l_kg": 4000,
+        "oms_r_kg": 4000,
+        "rcs_kg": 1100,
+        "srb_attached": false,
+        "et_attached": false
+      },
+      "guidance": {
+        "bank_deg": 0,
+        "auto": true,
+        "mode": "manual"
+      },
+      "ecs": {
+        "cabin_kpa": 101.3,
+        "leak_kpa_s": 0
+      },
+      "apu": {
+        "units": [
+          {
+            "state": "off",
+            "spool_s": 0,
+            "fuel_kg": 150,
+            "press_pa": 0
+          },
+          {
+            "state": "running",
+            "spool_s": 45.000000000001435,
+            "fuel_kg": 149.95089999999837,
+            "press_pa": 20307760
+          },
+          {
+            "state": "running",
+            "spool_s": 45.000000000001435,
+            "fuel_kg": 149.95089999999837,
+            "press_pa": 20307760
+          }
+        ]
+      },
+      "mechanisms": {
+        "plbd_state": "closed_latched",
+        "plbd_position": 0,
+        "plbd_t": 0,
+        "gear_state": "extending",
+        "gear_t": 4.080000000000001
+      },
+      "fire": {}
+    },
+    "controls": {
+      "breakers": {
+        "CbMnaSmokeDetnFltDk": true,
+        "CbMnaAnnunFwdAca1": true
+      },
+      "switches": {
+        "Gear": true,
+        "DapRetro": "manual",
+        "Apu2": true,
+        "Apu3": true
+      }
+    }
+  }
+}

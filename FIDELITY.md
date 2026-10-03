@@ -47,6 +47,13 @@ through transit, reversal, pause and cold recovery. The full exterior model's
 proper rotation now aligns its nose with root attitude. Source limits and
 actual-glazing/phone/recovery checks are in `web/deck/PAYLOAD_BAY.md`.
 
+Exterior landing gear now follows root-owned transit progress through pause
+and checkpoint recovery instead of appearing only at down-lock. The six wheel
+centers and contact datum are retained. Folding motion remains an estimated
+presentation fit; historical stow geometry, wheel wells and sequenced TPS doors
+are still open. See `web/deck/GEAR_DEPLOYMENT.md` for source limits and real
+desktop/phone F6 and recovery checks.
+
 The selected reconstruction target is Columbia on STS-1 (1981). The landing
 presentation now uses a dry lakebed and runway 23, consistent with the mission
 identity, and rotates the estimated layout along the recorded approach heading.

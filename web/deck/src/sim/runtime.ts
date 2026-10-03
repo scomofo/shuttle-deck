@@ -287,6 +287,9 @@ export class ShuttleRuntime {
   get gear(): boolean {
     return this.adapter.readBool("mech.gear.down_locked");
   }
+  get gearPosition(): number {
+    return this.adapter.readNum("mech.gear.position");
+  }
   get gearCommand(): boolean {
     return this.adapter.readBool("ctl.gear");
   }

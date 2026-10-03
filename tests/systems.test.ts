@@ -147,22 +147,33 @@ reset();
   rt.controls.set("Gear", true);
   clock.advance(10);
   assert(bus.get_value("mech.gear.state", "?") === "up", "DN without ARM does nothing");
+  assert(bus.get_value("mech.gear.position", -1) === 0, "unarmed gear remains stowed");
   rt.controls.set("Gear", false);
   rt.controls.press("GearArm");
   clock.advance(0.1);
   assert(bus.get_value("mech.gear.state", "?") === "armed", "ARM latches the extend valves");
   assert(bus.get_value("mech.gear.armed", false) === true, "armed talkback");
+  assert(bus.get_value("mech.gear.position", -1) === 0, "ARM alone cannot move gear");
   rt.controls.set("Gear", true);
   clock.advance(4);
   assert(bus.get_value("mech.gear.state", "?") === "extending", "extend transit runs");
   assert(bus.get_value("mech.gear.talkback", "?") === "TRANSIT", "talkback TRANSIT during extend");
+  const position = Number(bus.get_value("mech.gear.position", -1));
+  assert(position > 0.4 && position < 0.6, "partial travel publishes before down-lock");
+  const saved = rt.snapshot();
+  rt.systems.mechanisms.reset();
+  rt.restore(saved);
+  rt.systems.mechanisms.tick(0);
+  assert(bus.get_value("mech.gear.position", -1) === position, "restore republishes saved travel without advancing it");
   clock.advance(10);
   assert(bus.get_value("mech.gear.state", "?") === "down_locked", "gear reaches down-lock");
   assert(bus.get_value("mech.gear.down_locked", false) === true, "down-lock talkback");
   assert(bus.get_value("mech.gear.talkback", "?") === "DN", "talkback DN at down-lock");
+  assert(bus.get_value("mech.gear.position", -1) === 1, "down-lock publishes full travel");
   rt.controls.set("Gear", false);
   clock.advance(5);
   assert(bus.get_value("mech.gear.state", "?") === "down_locked", "gear does not retract");
+  assert(bus.get_value("mech.gear.position", -1) === 1, "command release cannot retract presentation");
 }
 
 // --- Fire / smoke detection ---

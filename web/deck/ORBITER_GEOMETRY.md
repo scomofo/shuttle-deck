@@ -54,7 +54,9 @@ claim actuator motion, hinge calibration or changes to aerodynamic behavior.
 
 Landing gear adds support/torque-link-like braces, strut sleeves, tire grooves
 and recessed hub faces. Their dimensions are artistic estimates. The original
-six-wheel layout, deployment visibility and wheel centers are retained. The
+six-wheel layout and wheel centers are retained. The subsequent
+[deployment pass](GEAR_DEPLOYMENT.md) replaces down-lock-only visibility with
+root-position folding through transit, pause and checkpoint recovery. The
 small raised groove details extend approximately 0.0066 model units below the
 existing -2.4 contact plane; no collision or flight-model datum changes.
 

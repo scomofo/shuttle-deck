@@ -6,6 +6,7 @@ import { useSurfaceMaterial } from "./materials";
 import { Exhaust } from "./exhaust";
 import { PayloadBay } from "./payload-bay";
 import { PAYLOAD_BAY } from "./payload-layout";
+import { GEAR_LAYOUT, GEAR_PIVOT_Y, gearFoldAngle } from "./gear-layout";
 
 // Visual reconstruction in the simulator's existing local coordinates: +Z is the
 // nose and the wheel contact plane is Y=-2.4. NASA three-view overall dimensions
@@ -190,7 +191,13 @@ function RcsPorts() {
   </>;
 }
 
-function LandingGear({ x, z, radius }: { x: number; z: number; radius: number }) {
+function LandingGear({ id, x, z, radius }: { id: string; x: number; z: number; radius: number }) {
+  const hinge = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (!hinge.current) return;
+    hinge.current.rotation.x = gearFoldAngle(sim.gearPosition);
+    hinge.current.visible = sim.gearPosition > 0;
+  });
   const y = -2.4 + radius;
   const braces = useMemo(() => [
     tubeBetween(new THREE.Vector3(0, -0.72, -0.65), new THREE.Vector3(0, y + 0.22, 0), 0.055),
@@ -200,41 +207,45 @@ function LandingGear({ x, z, radius }: { x: number; z: number; radius: number })
   useEffect(() => () => braces.forEach(g => g.dispose()), [braces]);
   return (
     <group position={[x, 0, z]} scale={[1 / ORBITER_SPAN_SCALE, 1, 1]}>
-      {braces.map((g, i) => <mesh key={i} geometry={g} castShadow>
-        <meshStandardMaterial color="#858e90" metalness={0.72} roughness={0.4} />
-      </mesh>)}
-      <mesh position={[0, -0.99, 0]} castShadow>
-        <cylinderGeometry args={[0.145, 0.145, 0.45, 16]} />
-        <meshStandardMaterial color="#c0c4bf" metalness={0.45} roughness={0.54} />
-      </mesh>
-      <mesh position={[0, (-0.75 + y) / 2, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.12, -0.75 - y, 12]} />
-        <meshStandardMaterial color="#c2c5c5" metalness={0.85} roughness={0.25} />
-      </mesh>
-      <mesh position={[0, y, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.095, 0.095, 0.85, 12]} />
-        <meshStandardMaterial color="#969da2" metalness={0.85} roughness={0.35} />
-      </mesh>
-      {[-1, 1].map((side) => (
-        <group key={side} position={[side * 0.3, y, 0]} rotation={[0, Math.PI / 2, 0]}>
-          <mesh castShadow>
-            <torusGeometry args={[radius * 0.69, radius * 0.31, 12, 28]} />
-            <meshStandardMaterial color="#141516" roughness={0.92} />
-          </mesh>
-          {[-0.13, 0, 0.13].map(offset => <mesh key={offset} position={[0, 0, offset * radius]}>
-            <torusGeometry args={[radius * (0.69 + Math.sqrt(0.31 ** 2 - offset ** 2)), radius * 0.012, 5, 32]} />
-            <meshStandardMaterial color="#070809" roughness={1} />
+      <group name={`gear-hinge-${id}`} ref={hinge} position={[0, GEAR_PIVOT_Y, 0]} visible={false}>
+        <group position={[0, -GEAR_PIVOT_Y, 0]}>
+          {braces.map((g, i) => <mesh key={i} geometry={g} castShadow>
+            <meshStandardMaterial color="#858e90" metalness={0.72} roughness={0.4} />
           </mesh>)}
-          <mesh position={[0, 0, side * radius * 0.3]}>
-            <circleGeometry args={[radius * 0.36, 20]} />
-            <meshStandardMaterial color="#444e52" metalness={0.65} roughness={0.5} side={THREE.DoubleSide} />
+          <mesh position={[0, -0.99, 0]} castShadow>
+            <cylinderGeometry args={[0.145, 0.145, 0.45, 16]} />
+            <meshStandardMaterial color="#c0c4bf" metalness={0.45} roughness={0.54} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[radius * 0.53, radius * 0.53, radius * 0.57, 16]} />
-            <meshStandardMaterial color="#989b9c" metalness={0.7} roughness={0.45} />
+          <mesh position={[0, (-0.75 + y) / 2, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.12, -0.75 - y, 12]} />
+            <meshStandardMaterial color="#c2c5c5" metalness={0.85} roughness={0.25} />
           </mesh>
+          <mesh position={[0, y, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.095, 0.095, 0.85, 12]} />
+            <meshStandardMaterial color="#969da2" metalness={0.85} roughness={0.35} />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <group name={`gear-wheel-${id}-${side}`} key={side} position={[side * 0.3, y, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <mesh castShadow>
+                <torusGeometry args={[radius * 0.69, radius * 0.31, 12, 28]} />
+                <meshStandardMaterial color="#141516" roughness={0.92} />
+              </mesh>
+              {[-0.13, 0, 0.13].map(offset => <mesh key={offset} position={[0, 0, offset * radius]}>
+                <torusGeometry args={[radius * (0.69 + Math.sqrt(0.31 ** 2 - offset ** 2)), radius * 0.012, 5, 32]} />
+                <meshStandardMaterial color="#070809" roughness={1} />
+              </mesh>)}
+              <mesh position={[0, 0, side * radius * 0.3]}>
+                <circleGeometry args={[radius * 0.36, 20]} />
+                <meshStandardMaterial color="#444e52" metalness={0.65} roughness={0.5} side={THREE.DoubleSide} />
+              </mesh>
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[radius * 0.53, radius * 0.53, radius * 0.57, 16]} />
+                <meshStandardMaterial color="#989b9c" metalness={0.7} roughness={0.45} />
+              </mesh>
+            </group>
+          ))}
         </group>
-      ))}
+      </group>
     </group>
   );
 }
@@ -268,7 +279,6 @@ function Booster() {
 
 export function Orbiter() {
   const srbL = useRef<THREE.Group>(null), srbR = useRef<THREE.Group>(null), et = useRef<THREE.Group>(null);
-  const gear = useRef<THREE.Group>(null);
   const blanket = useSurfaceMaterial("blanket"), tile = useSurfaceMaterial("tile"), foam = useSurfaceMaterial("foam", [6, 10]);
   const geometry = useMemo(() => {
     const rightPanes = [
@@ -323,7 +333,6 @@ export function Orbiter() {
       et.current.visible = sim.etAttached || (sim.mode === "launch" && sim.etSepAge > 0 && age < 14);
       et.current.position.set(0, -6.4 - age * 2.1, -1 - age * 4);
     }
-    if (gear.current) gear.current.visible = sim.gear || sim.phase === "rollout" || sim.phase === "landed";
   });
 
   return (
@@ -371,9 +380,8 @@ export function Orbiter() {
         scale={[3.84 / (PAYLOAD_BAY.halfWidth * 2), 0.70 / PAYLOAD_BAY.rise, 11.42 / PAYLOAD_BAY.length]}>
         <PayloadBay id="exterior" />
       </group>
-      <group name="landing-gear" ref={gear} visible={false}>
-        <LandingGear x={0} z={8.25} radius={0.4} />
-        <LandingGear x={-3.25} z={-5.25} radius={0.55} /><LandingGear x={3.25} z={-5.25} radius={0.55} />
+      <group name="landing-gear">
+        {GEAR_LAYOUT.map(g => <LandingGear key={g.id} {...g} />)}
       </group>
       {[[0, 0.7], [-0.95, -0.55], [0.95, -0.55]].map(([x, y], i) => (
         <Exhaust key={i} kind="main" position={[x, y, -11.78]} radius={2.1} length={10} />

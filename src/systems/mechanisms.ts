@@ -141,6 +141,10 @@ export class Mechanisms {
     bus.set_value("mech.gear.armed", this.gear_state === "armed" || this.gear_state === "extending" || this.gear_state === "down_locked");
     bus.set_value("mech.gear.down_locked", this.gear_state === "down_locked");
     bus.set_value("mech.gear.talkback", gear_talkback);
+    // Derived from the saved mechanism timer: presentation has no second clock
+    // and existing checkpoints need no new field or schema version.
+    bus.set_value("mech.gear.position", this.gear_state === "down_locked" ? 1
+      : this.gear_state === "extending" ? Math.max(0, Math.min(1, this.gear_t / GEAR_TRANSIT_S)) : 0);
   }
 
   snapshot() {

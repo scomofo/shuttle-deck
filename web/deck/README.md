@@ -182,5 +182,11 @@ shared exterior hinges, proper chase attitude and short-phone Find/close.
 `npm test` also checks bay surfaces and root-owned travel/recovery. See
 [payload bay evidence](PAYLOAD_BAY.md).
 
+`python3 tests/gear-deployment-browser.py` checks desktop/phone F6 ARM/DOWN
+picks, TRANSIT waiting, actual rendered partial travel, pause, cold and
+cross-scenario recovery, and retained down-lock wheel/contact positions.
+`npm test` includes root-commanded gear travel and recovery. See
+[landing-gear motion and its calibration limits](GEAR_DEPLOYMENT.md).
+
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.
