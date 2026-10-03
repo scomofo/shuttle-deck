@@ -13,6 +13,9 @@ source limits.
 Side and aft plates now share continuous floor/wall console backing; see
 [WORKSTATIONS.md](WORKSTATIONS.md) for the remaining inventory and dimensional
 limits, fixed captures and physical control validation.
+The aft windows now reveal a root-driven payload bay and door-mounted
+radiators. [PAYLOAD_BAY.md](PAYLOAD_BAY.md) records the original STS-1 evidence,
+observation view, paused recovery and dimensional limits.
 
 The landing scene presents Rogers Dry Lake runway 23. The synthetic approach
 placement, surface finish and markings remain estimates. See
@@ -27,6 +30,11 @@ New scenarios open in the commander-seat cabin. **Flight instruments**, **Center
 **Overhead** and **Aft station** turn the seated eye toward the existing
 geometry; **Forward view**, **Esc** or a double-click returns it. Drag to look
 around. These are reading aids, not calibrated crew reach or lens settings.
+
+**Bay windows** moves to an estimated observation point inside the aft window
+to watch the bay and doors. **Esc**, **Forward view**, double-click and
+checklist **Find** return to the commander seat. The doors follow their real
+continuous travel position, including pause and restored checkpoints.
 
 During terminal flight, **Approach guides** toggles the simulator heading-alignment
 gates and glide-slope lights. It defaults off and remembers your preference.
@@ -167,6 +175,12 @@ of all named crew controls and instrument centers, and of the roof/aft window
 centers. `npm test` includes 2,400-direction cabin-continuity rays, closed
 floor-connected workstation volumes and backing/visibility samples across
 all eleven mounted faces. See [workstation evidence](WORKSTATIONS.md).
+
+`python3 tests/payload-bay-browser.py` checks actual bay sightlines through
+glazing, real door commands and reversal, paused/cold partial-travel recovery,
+shared exterior hinges, proper chase attitude and short-phone Find/close.
+`npm test` also checks bay surfaces and root-owned travel/recovery. See
+[payload bay evidence](PAYLOAD_BAY.md).
 
 See [VISUAL_ASSETS.md](VISUAL_ASSETS.md) for texture provenance, rendering
 choices, and the boundary between this visual pass and a calibrated model.

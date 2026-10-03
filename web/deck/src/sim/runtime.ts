@@ -275,6 +275,9 @@ export class ShuttleRuntime {
   get doorsOpen(): boolean {
     return this.adapter.readBool("mech.plbd.open");
   }
+  get doorPosition(): number {
+    return this.adapter.readNum("mech.plbd.position");
+  }
   get doorsLatched(): boolean {
     return this.adapter.readBool("mech.plbd.latched");
   }

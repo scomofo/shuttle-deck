@@ -1,0 +1,3208 @@
+{
+  "approach-forward": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 4,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 802.456002230264,
+          "y": 561.2438446153919,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 802.8220834430941,
+          "y": 734.1921947281195,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 630.7095385253841,
+          "y": 596.5578894257092,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 965.7985631621408,
+          "y": 615.9709919984489,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1132.6940297010774,
+          "y": 422.32477510079906,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1374.6533240291333,
+          "y": 422.3247751007987,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1475.6188899798678,
+          "y": 921.9991128237237,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 1853.5626640542837,
+          "y": 561.2438446153922,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2010.6022192701573,
+          "y": 734.1921947281203,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 1703.9798908270584,
+          "y": 615.9709919984496,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2095.396728859496,
+          "y": 596.5578894257096,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 124.4383897152689,
+          "y": 505.0231175797515,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 563.6586718711253,
+          "y": 376.3351704533376,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 21.874399999991063,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": true,
+      "x": 800.0350781975504,
+      "y": 366.7997033378244,
+      "visible": true
+    }
+  },
+  "approach-overhead": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 5,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": -1280.0759510347823,
+          "y": 1883.9581198513538,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": -4421.110899291283,
+          "y": 5052.535735301412,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": -4565.683234365653,
+          "y": 2995.0064677484247,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": -635.9050936551364,
+          "y": 2019.678111372936,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 194.48669442743824,
+          "y": 1235.3865057407297,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 493.85596171186774,
+          "y": 1248.435039368936,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 317.85169571549704,
+          "y": 3073.9004291216447,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 832.0299784782428,
+          "y": 1461.993255951007,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 931.4238987984623,
+          "y": 1742.5126988228199,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 734.7430655250618,
+          "y": 1587.2273866663809,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 952.7752463751593,
+          "y": 1488.800586557825,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 8209.568464866577,
+          "y": 685.3198359705988,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": -1639.7667957249198,
+          "y": 932.165541458122,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "overhead",
+      "revision": 5,
+      "x": 800,
+      "y": 449.99999999999994,
+      "visible": true,
+      "fov": 62
+    },
+    "cabin": {
+      "sampleTime": 33.84709999999404,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": true,
+      "x": -447.38771466455046,
+      "y": 1036.9623456881468,
+      "visible": false
+    }
+  },
+  "approach-aft": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 6,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 1387.576414098455,
+          "y": 284.08073937512296,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1393.7487872032198,
+          "y": 59.67205361024293,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 1151.9215643075959,
+          "y": 267.15187485990685,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 1710.1095125381225,
+          "y": 169.7857112922576,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 2188.398725144949,
+          "y": 479.40130558065465,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 3634.844160687837,
+          "y": 512.1086261270804,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 5348.1137077798485,
+          "y": -1737.4691645533837,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": -16384.456178477114,
+          "y": 1907.0066222359508,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": -5915.436946190663,
+          "y": 1774.861795037017,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 27035.690456209984,
+          "y": -3287.068439544872,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": -4606.927263973457,
+          "y": 960.8156463595826,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 743.495789862404,
+          "y": 385.0354442803208,
+          "visible": true,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 1075.2958815729992,
+          "y": 500.8287396894295,
+          "visible": true
+        }
+      }
+    },
+    "readingView": {
+      "target": "aft",
+      "revision": 6,
+      "x": 800,
+      "y": 449.9999999999998,
+      "visible": true,
+      "fov": 62
+    },
+    "cabin": {
+      "sampleTime": 48.876599999994035,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": false,
+      "x": 1377.5768939037655,
+      "y": 530.9827121220552,
+      "visible": false
+    }
+  },
+  "approach-displays": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 7,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 803.861145354472,
+          "y": 243.58621046812954,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 804.1335008331705,
+          "y": 498.0088064301821,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 537.7810633237118,
+          "y": 298.52386378257063,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 1054.7439245109622,
+          "y": 328.03957606125573,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1355.7798756507505,
+          "y": 10.503127864022982,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1759.983421578569,
+          "y": 10.503127864021833,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1721.2200458976413,
+          "y": 737.6298989500724,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 2456.3334250400785,
+          "y": 243.58621046812974,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2573.1670175229065,
+          "y": 498.0088064301847,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2188.93474512848,
+          "y": 328.03957606125675,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2806.477800678748,
+          "y": 298.52386378257097,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -288.00874764860396,
+          "y": 152.64620835268147,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 396.8259631527619,
+          "y": -73.22551553595582,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 7,
+      "x": 800.0000000000002,
+      "y": 450.0000000000013,
+      "visible": true,
+      "fov": 42
+    },
+    "cabin": {
+      "sampleTime": 65.50589999999106,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": true,
+      "x": 800.0601035331247,
+      "y": -91.0313066470274,
+      "visible": false
+    }
+  },
+  "approach-roof-windows": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 8,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 2374.391910082693,
+          "y": 1044.0455307439531,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1879.523841607058,
+          "y": 690.8080304495812,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 1794.3499653297615,
+          "y": 1062.3173738332985,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 2812.947554993581,
+          "y": 718.8691304629873,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 20901.52965476118,
+          "y": 2701.4128259105105,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": -7016.03446500943,
+          "y": 1113.0352673584516,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 3552.6763148568207,
+          "y": -771.1635974582999,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": -3329.1951366457624,
+          "y": 2191.2333716652047,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": -5468.541777457984,
+          "y": 3973.8867950105646,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": -7911.8728960281505,
+          "y": 3791.336291177391,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": -2395.6501725572843,
+          "y": 2139.59565762124,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 1180.5535401278157,
+          "y": 1394.630085188936,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 2232.5416706063615,
+          "y": 1862.673859542646,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 85.00189999999105,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": false,
+      "x": 4024.197861184099,
+      "y": 2235.897494680835,
+      "visible": false
+    }
+  },
+  "approach-aft-windows": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 9,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 1081.5239337967957,
+          "y": 650.0663449430165,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1055.8198363416636,
+          "y": 475.26959636152003,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 896.2122966686144,
+          "y": 623.7014102133708,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 1268.3618994733642,
+          "y": 576.1775395561399,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 1606.8535220836338,
+          "y": 825.6126468027596,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 2118.2333839479243,
+          "y": 832.7955242493192,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1870.1121552815198,
+          "y": 162.38265020146392,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 3399.620951822235,
+          "y": 528.7283356254617,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 3545.9297464682827,
+          "y": 169.99496788340477,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2734.7109664922414,
+          "y": 464.86047758587256,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 4506.0171794063335,
+          "y": 379.29788977564226,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 476.50444125283417,
+          "y": 731.2207892103199,
+          "visible": true,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 837.1220846541237,
+          "y": 870.5072789284903,
+          "visible": true
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 117.38799999999999,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": false,
+      "x": 1114.8433364646755,
+      "y": 894.5400443151838,
+      "visible": false
+    }
+  },
+  "approach-phone-checklist": {
+    "viewport": [
+      390,
+      600
+    ],
+    "instruments": {
+      "altitudeFeet": 6487.401008078574,
+      "verticalSpeedFpm": -5274.311844780652,
+      "headingDegrees": 89.99972541648413,
+      "pitchDegrees": -9.933380991166871,
+      "bankDegrees": 7.388157267090131e-06,
+      "alphaDegrees": 0.33644539322809613,
+      "mach": 0.5094423135733698,
+      "get": 0.1,
+      "readingRevision": 12,
+      "sourceAltitudeMeters": 1977.3598272623494,
+      "sourceVerticalSpeedMps": -26.793504171485715,
+      "faces": {
+        "F6-adi": {
+          "x": 195.59036644334782,
+          "y": 335.8691624234864,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 195.63200940690507,
+          "y": 374.7702006637259,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 154.90690667867935,
+          "y": 344.2690914641163,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 233.95016915222297,
+          "y": 348.78202337450483,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 279.9783570287527,
+          "y": 300.2309209565703,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 341.7807985042094,
+          "y": 300.2309209565701,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 335.8539052816064,
+          "y": 411.40809930648066,
+          "visible": true,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 448.2522304570829,
+          "y": 335.86916242348644,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 466.116005613268,
+          "y": 374.7702006637263,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 407.36715799212715,
+          "y": 348.78202337450494,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 501.7890623364189,
+          "y": 344.26909146411634,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 28.644218046158763,
+          "y": 321.96449925281365,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 133.35496974802732,
+          "y": 287.4288695256048,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 12,
+      "x": 195.00000000000006,
+      "y": 367.42968750000017,
+      "visible": true,
+      "fov": 118.2855219836675
+    },
+    "cabin": {
+      "sampleTime": 133.67049999999998,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.5999999999999999,
+        0,
+        1.7763568394002505e-15
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": {
+      "site": "Rogers Dry Lake \u00b7 23",
+      "surface": "dry-lake",
+      "guides": false,
+      "rotation": 0,
+      "windowClear": true,
+      "x": 195.0091897884762,
+      "y": 284.70637642985463,
+      "visible": true
+    }
+  },
+  "orbit-forward": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 5,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": 802.4560022302634,
+          "y": 561.2438446153918,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 802.8220834430938,
+          "y": 734.1921947281207,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 630.7095385253833,
+          "y": 596.5578894257097,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 965.7985631621408,
+          "y": 615.9709919984493,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1132.6940297010772,
+          "y": 422.32477510079855,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1374.653324029133,
+          "y": 422.32477510079855,
+          "visible": true,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1475.6188899798683,
+          "y": 921.9991128237245,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 1853.5626640542837,
+          "y": 561.2438446153919,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2010.602219270161,
+          "y": 734.192194728121,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 1703.9798908270573,
+          "y": 615.9709919984492,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2095.396728859498,
+          "y": 596.5578894257097,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 124.43838971526952,
+          "y": 505.0231175797516,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 563.6586718711253,
+          "y": 376.33517045333747,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 19.121799999997023,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  },
+  "orbit-overhead": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 6,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": -1280.075951034793,
+          "y": 1883.9581198513617,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": -4421.110899291428,
+          "y": 5052.535735301543,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": -4565.683234365731,
+          "y": 2995.006467748459,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": -635.9050936551429,
+          "y": 2019.6781113729435,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 194.48669442743773,
+          "y": 1235.38650574073,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 493.85596171186813,
+          "y": 1248.4350393689358,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 317.85169571549466,
+          "y": 3073.9004291216497,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 832.0299784782441,
+          "y": 1461.9932559510082,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 931.4238987984627,
+          "y": 1742.512698822821,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 734.743065525063,
+          "y": 1587.2273866663818,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 952.7752463751606,
+          "y": 1488.8005865578261,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 8209.568464866585,
+          "y": 685.3198359705997,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": -1639.7667957249168,
+          "y": 932.1655414581204,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "overhead",
+      "revision": 6,
+      "x": 799.9999999999998,
+      "y": 450.0000000000001,
+      "visible": true,
+      "fov": 62
+    },
+    "cabin": {
+      "sampleTime": 28.09740000000597,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  },
+  "orbit-aft": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 7,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": 1387.5764140984547,
+          "y": 284.0807393751229,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1393.7487872032193,
+          "y": 59.67205361024163,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 1151.921564307595,
+          "y": 267.1518748599064,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 1710.109512538122,
+          "y": 169.78571129225597,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 2188.398725144945,
+          "y": 479.40130558065545,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 3634.844160687834,
+          "y": 512.1086261270806,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 5348.11370777984,
+          "y": -1737.469164553379,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": -16384.456178476874,
+          "y": 1907.006622235932,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": -5915.436946190623,
+          "y": 1774.8617950370078,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 27035.69045621028,
+          "y": -3287.0684395449175,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": -4606.927263973401,
+          "y": 960.8156463595782,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 743.4957898624043,
+          "y": 385.035444280321,
+          "visible": true,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 1075.2958815729992,
+          "y": 500.8287396894303,
+          "visible": true
+        }
+      }
+    },
+    "readingView": {
+      "target": "aft",
+      "revision": 7,
+      "x": 800.0000000000003,
+      "y": 450.0000000000001,
+      "visible": true,
+      "fov": 62
+    },
+    "cabin": {
+      "sampleTime": 42.45329999999703,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  },
+  "orbit-displays": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 8,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": 803.8611453544721,
+          "y": 243.58621046812738,
+          "visible": true
+        },
+        "F6-hsi": {
+          "x": 804.1335008331707,
+          "y": 498.0088064301815,
+          "visible": true
+        },
+        "F6-ami": {
+          "x": 537.7810633237115,
+          "y": 298.5238637825691,
+          "visible": true
+        },
+        "F6-avvi": {
+          "x": 1054.7439245109633,
+          "y": 328.03957606125346,
+          "visible": true
+        },
+        "CRT1": {
+          "x": 1355.7798756507514,
+          "y": 10.503127864019085,
+          "visible": true,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 1759.9834215785702,
+          "y": 10.503127864019085,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1721.220045897644,
+          "y": 737.62989895007,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 2456.333425040083,
+          "y": 243.58621046812738,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 2573.1670175229115,
+          "y": 498.0088064301815,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2188.9347451284843,
+          "y": 328.0395760612534,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 2806.477800678758,
+          "y": 298.5238637825687,
+          "visible": false
+        },
+        "CRT4": {
+          "x": -288.00874764860254,
+          "y": 152.64620835268013,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 396.82596315276226,
+          "y": -73.22551553595812,
+          "visible": false
+        }
+      }
+    },
+    "readingView": {
+      "target": "displays",
+      "revision": 8,
+      "x": 800.0000000000003,
+      "y": 449.9999999999997,
+      "visible": true,
+      "fov": 42
+    },
+    "cabin": {
+      "sampleTime": 59.571299999997024,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  },
+  "orbit-roof-windows": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 9,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": 2374.391910082687,
+          "y": 1044.0455307439515,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1879.5238416070536,
+          "y": 690.8080304495807,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 1794.3499653297574,
+          "y": 1062.3173738332969,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 2812.947554993577,
+          "y": 718.8691304629856,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 20901.529654760983,
+          "y": 2701.412825910509,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": -7016.034465009445,
+          "y": 1113.0352673584505,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 3552.676314856815,
+          "y": -771.1635974583003,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": -3329.19513664576,
+          "y": 2191.2333716652047,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": -5468.541777457984,
+          "y": 3973.8867950105673,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": -7911.872896028169,
+          "y": 3791.3362911773943,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": -2395.6501725572816,
+          "y": 2139.595657621242,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 1180.5535401278157,
+          "y": 1394.6300851889368,
+          "visible": false,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 2232.541670606363,
+          "y": 1862.67385954265,
+          "visible": false
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 77.487,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  },
+  "orbit-aft-windows": {
+    "viewport": [
+      1600,
+      900
+    ],
+    "instruments": {
+      "altitudeFeet": 807086.5880045397,
+      "verticalSpeedFpm": -2.9076316440697063,
+      "headingDegrees": 310.2999773731229,
+      "pitchDegrees": 89.92753616456176,
+      "bankDegrees": 130.29999997731318,
+      "alphaDegrees": 0,
+      "mach": 25.06911778372689,
+      "get": 515.079999999999,
+      "readingRevision": 10,
+      "sourceAltitudeMeters": 245999.99202378374,
+      "sourceVerticalSpeedMps": -0.014770768751874108,
+      "faces": {
+        "F6-adi": {
+          "x": 1081.5239337967953,
+          "y": 650.0663449430158,
+          "visible": false
+        },
+        "F6-hsi": {
+          "x": 1055.8198363416625,
+          "y": 475.2695963615174,
+          "visible": false
+        },
+        "F6-ami": {
+          "x": 896.2122966686138,
+          "y": 623.7014102133692,
+          "visible": false
+        },
+        "F6-avvi": {
+          "x": 1268.361899473364,
+          "y": 576.1775395561382,
+          "visible": false
+        },
+        "CRT1": {
+          "x": 1606.8535220836343,
+          "y": 825.6126468027599,
+          "visible": false,
+          "format": "flight"
+        },
+        "CRT2": {
+          "x": 2118.2333839479247,
+          "y": 832.7955242493177,
+          "visible": false,
+          "format": "systems"
+        },
+        "CRT3": {
+          "x": 1870.1121552815184,
+          "y": 162.38265020146258,
+          "visible": false,
+          "format": "trajectory"
+        },
+        "F8-adi": {
+          "x": 3399.620951822236,
+          "y": 528.7283356254568,
+          "visible": false
+        },
+        "F8-hsi": {
+          "x": 3545.929746468283,
+          "y": 169.99496788340105,
+          "visible": false
+        },
+        "F8-ami": {
+          "x": 2734.7109664922395,
+          "y": 464.86047758587017,
+          "visible": false
+        },
+        "F8-avvi": {
+          "x": 4506.0171794063435,
+          "y": 379.2978897756373,
+          "visible": false
+        },
+        "CRT4": {
+          "x": 476.5044412528345,
+          "y": 731.2207892103205,
+          "visible": true,
+          "format": "systems"
+        },
+        "A6U-adi": {
+          "x": 837.1220846541241,
+          "y": 870.507278928491,
+          "visible": true
+        }
+      }
+    },
+    "readingView": null,
+    "cabin": {
+      "sampleTime": 114.75309999999405,
+      "surfaces": [
+        "cabin-opaque-forward",
+        "cabin-opaque-aft",
+        "cabin-opaque-roof",
+        "cabin-opaque-brow",
+        "cabin-opaque-port",
+        "cabin-opaque-starboard",
+        "cabin-opaque-floor"
+      ],
+      "crewRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "assemblyRays": {
+        "instrument-F6-adi": true,
+        "instrument-F6-hsi": true,
+        "instrument-F6-ami": true,
+        "instrument-F6-avvi": true,
+        "control-gear-arm": true,
+        "control-gear": true,
+        "instrument-CRT1": true,
+        "instrument-CRT2": true,
+        "instrument-CRT3": true,
+        "instrument-F8-adi": true,
+        "instrument-F8-hsi": true,
+        "instrument-F8-ami": true,
+        "instrument-F8-avvi": true,
+        "control-fuel-cells": true,
+        "control-apu": true,
+        "instrument-CRT4": true,
+        "control-doors-open": true,
+        "control-doors-close": true,
+        "instrument-A6U-adi": true
+      },
+      "housings": [
+        "cabin-console-opaque-port",
+        "cabin-console-opaque-starboard",
+        "cabin-console-opaque-aft"
+      ],
+      "eye": [
+        -0.6,
+        -2.220446049250313e-16,
+        2.220446049250313e-16
+      ],
+      "windows": [
+        {
+          "id": "W7",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W8",
+          "family": "overhead",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W9",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W10",
+          "family": "aft",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": true
+        },
+        {
+          "id": "W1",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W2",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W3",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W4",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W5",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        },
+        {
+          "id": "W6",
+          "family": "forward",
+          "clear": true,
+          "panelClear": true,
+          "assemblyClear": true,
+          "visible": false
+        }
+      ]
+    },
+    "landing": null
+  }
+}

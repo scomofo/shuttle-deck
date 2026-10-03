@@ -115,7 +115,9 @@ The original 1981 overhead/side/aft inventory and complete gauge set still need
 mission-specific evidence and conversion. Existing later-source communication,
 RMS and section grouping remain unverified for STS-1. Exact console dimensions,
 mounting hardware, forward three-dimensional structure, middeck access and
-ejection-seat reconstruction are open. The exterior orbiter remains hidden in
-the seated renderer, so aft glazing still lacks payload-bay/door geometry.
+ejection-seat reconstruction are open. The subsequent
+[payload bay pass](PAYLOAD_BAY.md) adds selected aft exterior geometry through
+the actual apertures, a public observation view and root-position door hinges.
+The full exterior hull remains hidden in the seated renderer.
 Full historical flight, measured eye/reach and headset acceptance are not
 established by these browser checks.

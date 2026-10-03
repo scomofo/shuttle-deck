@@ -10,6 +10,7 @@ export const COCKPIT_TARGETS = {
   crts: { node: "view-crts", label: "F7 · Center CRTs", fov: 52 },
   overhead: { node: "view-overhead", label: "Overhead panels", fov: 62 },
   aft: { node: "view-aft", label: "Aft station", fov: 62 },
+  bay: { node: "view-bay", label: "Aft window observation", fov: 48 },
 } as const;
 
 export type CockpitTarget = keyof typeof COCKPIT_TARGETS;

@@ -14,11 +14,12 @@ export function CockpitTools({ controlsOpen, onControls, terminal }: { controlsO
       <button type="button" aria-pressed={target === "crts"} onClick={() => inspectCockpit("crts")}>Center CRTs</button>
       <button type="button" aria-pressed={target === "overhead"} onClick={() => inspectCockpit("overhead")}>Overhead</button>
       <button type="button" aria-pressed={target === "aft"} onClick={() => inspectCockpit("aft")}>Aft station</button>
+      <button type="button" aria-pressed={target === "bay"} onClick={() => inspectCockpit("bay")}>Bay windows</button>
       <button type="button" aria-expanded={controlsOpen} aria-controls="cockpit-controls" onClick={onControls}>Controls [X]</button>
       {terminal ? <button type="button" aria-pressed={guides} onClick={() => setLandingGuides(!guides)} title="Show simulator heading-alignment gates and glide-slope lights">Approach guides</button> : null}
     </div>
     <div className="cockpit-tools-detail">
-      <span>{target ? `${COCKPIT_TARGETS[target].label} · Esc returns forward` : "Commander seat · drag to look · double-click to recenter"}</span>
+      <span>{target === "bay" ? "At aft window · Esc returns to commander seat" : target ? `${COCKPIT_TARGETS[target].label} · Esc returns forward` : "Commander seat · drag to look · double-click to recenter"}</span>
       <label className="panel-light">PANEL LIGHT
         <input aria-label="Panel lighting" type="range" min="25" max="100" step="5" value={Math.round(panelLight * 100)}
           onChange={event => setPanelLight(Number(event.target.value) / 100)} />

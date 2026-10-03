@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { sim } from "@/sim/runtime";
 import { useSurfaceMaterial } from "./materials";
 import { Exhaust } from "./exhaust";
+import { PayloadBay } from "./payload-bay";
+import { PAYLOAD_BAY } from "./payload-layout";
 
 // Visual reconstruction in the simulator's existing local coordinates: +Z is the
 // nose and the wheel contact plane is Y=-2.4. NASA three-view overall dimensions
@@ -94,26 +96,6 @@ function finGeometry() {
   // Shape X is longitudinal Z; extrusion becomes lateral X.
   geo.rotateY(-Math.PI / 2);
   geo.translate(0.12, 0, 0);
-  return geo;
-}
-
-function windowGeometry(a0: number, a1: number, z0: number, z1: number, lift: number, steps = 3) {
-  const positions: number[] = [], uvs: number[] = [], indices: number[] = [];
-  for (let r = 0; r <= steps; r++) {
-    for (let c = 0; c <= steps; c++) {
-      positions.push(...skinPoint(THREE.MathUtils.lerp(z0, z1, r / steps), THREE.MathUtils.lerp(a0, a1, c / steps), lift));
-      uvs.push(c / steps * (steps > 3 ? 0.75 : 1), r / steps * (steps > 3 ? 2.84 : 1));
-    }
-  }
-  for (let r = 0; r < steps; r++) for (let c = 0; c < steps; c++) {
-    const a = r * (steps + 1) + c, b = a + steps + 1;
-    indices.push(a, a + 1, b, b, a + 1, b + 1);
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
   return geo;
 }
 
@@ -285,7 +267,6 @@ function Booster() {
 }
 
 export function Orbiter() {
-  const bayL = useRef<THREE.Group>(null), bayR = useRef<THREE.Group>(null);
   const srbL = useRef<THREE.Group>(null), srbR = useRef<THREE.Group>(null), et = useRef<THREE.Group>(null);
   const gear = useRef<THREE.Group>(null);
   const blanket = useSurfaceMaterial("blanket"), tile = useSurfaceMaterial("tile"), foam = useSurfaceMaterial("foam", [6, 10]);
@@ -304,13 +285,6 @@ export function Orbiter() {
       new THREE.Vector2(3.3, 10.8), new THREE.Vector2(3.0, 13.8), new THREE.Vector2(1.8, 18), new THREE.Vector2(0, 21.5),
     ]).getPoints(96).map((p) => new THREE.Vector2(Math.max(0, p.x), p.y));
     return {
-      doorL: windowGeometry(Math.PI / 2 + 0.006, Math.PI * 5 / 6 + 0.02, -6.91, 4.51, 0.025, 24).translate(1.92, -1.16, 1.2),
-      doorR: windowGeometry(Math.PI / 6 - 0.02, Math.PI / 2 - 0.006, -6.91, 4.51, 0.025, 24).translate(-1.92, -1.16, 1.2),
-      // Four radiator panels on each door; fitted to our existing estimated bay.
-      radiatorsL: Array.from({ length: 4 }, (_, i) => windowGeometry(Math.PI / 2 + 0.08, Math.PI * 5 / 6 - 0.07,
-        -6.72 + i * 2.8, -4.05 + i * 2.8, -0.025, 16).translate(1.92, -1.16, 1.2)),
-      radiatorsR: Array.from({ length: 4 }, (_, i) => windowGeometry(Math.PI / 6 + 0.07, Math.PI / 2 - 0.08,
-        -6.72 + i * 2.8, -4.05 + i * 2.8, -0.025, 16).translate(-1.92, -1.16, 1.2)),
       pod: omsPodGeometry(), body: fuselageGeometry(), leftWing: sweptWing(-1), rightWing: sweptWing(1), fin: finGeometry(), windows,
       tank: new THREE.LatheGeometry(tankProfile, 48),
       wingEdges: [-1, 1].map((side) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
@@ -328,17 +302,13 @@ export function Orbiter() {
     };
   }, []);
   useEffect(() => () => {
-    geometry.pod.dispose(); geometry.doorL.dispose(); geometry.doorR.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
-    [...geometry.radiatorsL, ...geometry.radiatorsR].forEach(g => g.dispose());
+    geometry.pod.dispose(); geometry.body.dispose(); geometry.leftWing.dispose(); geometry.rightWing.dispose(); geometry.fin.dispose(); geometry.tank.dispose(); geometry.rudderSeam.dispose();
     geometry.elevonSeams.forEach(g => g.dispose());
     geometry.wingEdges.forEach((g) => g.dispose());
     geometry.windows.forEach(({ frame, glass }) => { frame.dispose(); glass.dispose(); });
   }, [geometry]);
 
-  useFrame((_, delta) => {
-    const doorAngle = sim.doorsOpen ? 1.7 : 0;
-    if (bayL.current) bayL.current.rotation.z = THREE.MathUtils.damp(bayL.current.rotation.z, doorAngle, 3, delta);
-    if (bayR.current) bayR.current.rotation.z = THREE.MathUtils.damp(bayR.current.rotation.z, -doorAngle, 3, delta);
+  useFrame(() => {
     if (srbL.current && srbR.current) {
       const age = sim.srbAttached ? 0 : Math.min(sim.srbSepAge, 12);
       // Direct orbit/entry/approach starts never carried a launch stack.
@@ -395,31 +365,11 @@ export function Orbiter() {
         <circleGeometry args={[1.95, 40]} /><meshStandardMaterial {...tile} />
       </mesh>
       <EngineBell x={0} y={0.7} /><EngineBell x={-0.95} y={-0.55} /><EngineBell x={0.95} y={-0.55} />
-      {/* Curved thermal blankets open about the longitudinal bay hinges. */}
-      <mesh position={[0, 0, -1.2]} receiveShadow>
-        <boxGeometry args={[3.75, 0.15, 11.4]} /><meshStandardMaterial {...blanket} color="#c3c2b9" />
-      </mesh>
-      {[-6.91, 4.51].map((z) => (
-        <mesh key={z} position={[0, 0.62, z]}>
-          <boxGeometry args={[3.7, 1.3, 0.12]} /><meshStandardMaterial {...blanket} color="#d3d2c9" />
-        </mesh>
-      ))}
-      {[-5, -2.5, 0, 2.5].map((z) => (
-        <mesh key={z} position={[0, 0.1, z]}>
-          <boxGeometry args={[3.7, 0.1, 0.12]} /><meshStandardMaterial color="#858b8b" metalness={0.65} roughness={0.45} />
-        </mesh>
-      ))}
-      <group name="bay-left" ref={bayL} position={[-1.92, 1.16, -1.2]}>
-        {geometry.radiatorsL.map((g,i) => <mesh key={i} name={`port-radiator-${i}`} geometry={g}>
-          <meshStandardMaterial color="#d9ddd9" metalness={0.28} roughness={0.38} side={THREE.DoubleSide} />
-        </mesh>)}
-        <mesh geometry={geometry.doorL} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
-      </group>
-      <group name="bay-right" ref={bayR} position={[1.92, 1.16, -1.2]}>
-        {geometry.radiatorsR.map((g,i) => <mesh key={i} name={`starboard-radiator-${i}`} geometry={g}>
-          <meshStandardMaterial color="#d9ddd9" metalness={0.28} roughness={0.38} side={THREE.DoubleSide} />
-        </mesh>)}
-        <mesh geometry={geometry.doorR} castShadow><meshStandardMaterial {...blanket} color="#ebe9e2" side={THREE.DoubleSide} /></mesh>
+      {/* Shared bay fitted into the existing exterior presentation envelope.
+          It reads the same root travel position as the seated assembly. */}
+      <group position={[0, 1.16, 4.51]} rotation={[0, Math.PI, 0]}
+        scale={[3.84 / (PAYLOAD_BAY.halfWidth * 2), 0.70 / PAYLOAD_BAY.rise, 11.42 / PAYLOAD_BAY.length]}>
+        <PayloadBay id="exterior" />
       </group>
       <group name="landing-gear" ref={gear} visible={false}>
         <LandingGear x={0} z={8.25} radius={0.4} />

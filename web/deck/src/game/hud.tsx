@@ -62,7 +62,12 @@ export function Hud({
   const sheet = useRef<HTMLElement>(null);
   const stepId = currentCard?.steps.find((step) => step.current)?.id;
   useEffect(() => { sheet.current?.scrollTo(0, 0); }, [stepId, checklistOpen, live.recoveryRevision]);
-  useEffect(() => { inspectCockpit(null); }, [stepId]);
+  useEffect(() => {
+    // Keep an explicitly selected bay observation open as the doors finish
+    // and the next checklist step appears. Find/restore/Escape still return
+    // to the commander seat through their existing navigation paths.
+    if (getCockpitInspection().target !== "bay") inspectCockpit(null);
+  }, [stepId]);
   useEffect(() => { if (live.view !== "cockpit") inspectCockpit(null); }, [live.view]);
   useEffect(() => {
     if (!live.checkpointMessage || live.checkpointError) return;

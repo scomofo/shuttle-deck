@@ -39,6 +39,14 @@ limits, fixed-state captures and actual assembly-occlusion checks are in
 `web/deck/WORKSTATIONS.md`. Their coordinates and finishes remain estimates.
 This establishes desktop usability, not a measured historical cabin.
 
+The aft windows now reveal a shared estimated payload bay, door-mounted
+radiators and simplified covered STS-1 flight instrumentation. A public
+observation view moves to the aft aperture; the original seated reading and
+Find modes retain the commander eye. Doors follow root mechanism position
+through transit, reversal, pause and cold recovery. The full exterior model's
+proper rotation now aligns its nose with root attitude. Source limits and
+actual-glazing/phone/recovery checks are in `web/deck/PAYLOAD_BAY.md`.
+
 The selected reconstruction target is Columbia on STS-1 (1981). The landing
 presentation now uses a dry lakebed and runway 23, consistent with the mission
 identity, and rotates the estimated layout along the recorded approach heading.
@@ -156,7 +164,8 @@ presented as authoritative.
   locations. The CRT/discrete-instrument conversion is supported by NASA
   evidence, but it is not a complete STS-1 cockpit. See
   `web/deck/HISTORICAL_INSTRUMENTS.md`, `web/deck/CABIN_ENCLOSURE.md` and
-  `web/deck/WORKSTATIONS.md` for the current slices and their limits. The cabin
+  `web/deck/WORKSTATIONS.md` and `web/deck/PAYLOAD_BAY.md` for the current slices and their limits. The cabin
   is enclosed and its side/aft plates have continuous mounting geometry.
   Exact 1981 dimensions and mounting hardware, the complete original inventory,
-  exterior aft-window bay sightlines and middeck access remain open.
+  calibrated cabin/bay registration, aft-window OMS/fin detail and middeck
+  access remain open.

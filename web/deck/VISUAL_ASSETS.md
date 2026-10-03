@@ -131,6 +131,11 @@ browser errors. Production build/TypeScript and the existing exhaust-state tests
 pass. These checks do not establish thermal-system behavior or historical
 geometric accuracy.
 
+The subsequent [aft-window pass](PAYLOAD_BAY.md) replaces the wall-time OPEN
+animation with shared hinges driven by root continuous mechanism position,
+including partial travel, reversal and paused/cold recovery. Its original
+STS-1 DFI/bay references and new captures supersede the older bay presentation.
+
 ## Environment reflection pass
 
 Metal and glass now receive restrained, roughness-filtered environment lighting.

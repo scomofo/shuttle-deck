@@ -10,6 +10,8 @@ import { CABIN, FORWARD_PANES } from "./cabin-layout";
 import { CabinShell } from "./cabin-shell";
 import { WorkstationHousings } from "./workstations";
 import { aftStation, sideStation, WORKSTATIONS } from "./workstation-layout";
+import { PayloadBay } from "./payload-bay";
+import { BAY_OBSERVER, SEATED_BAY_ORIGIN } from "./payload-layout";
 
 import { getPanelLight, usePanelLight } from "./panel-lighting";
 import { COCKPIT_TARGETS, getCockpitInspection, portraitReadingLens, subscribeCockpitInspection, type CockpitTarget } from "./cockpit-navigation";
@@ -1086,6 +1088,12 @@ export function CabinInterior() {
     rig.rotateX(-SEVEN_DEG);
 
     rig.updateWorldMatrix(true, true);
+    if (inspection.target === "bay") {
+      // Public observation aid at the actual aft aperture. Other navigation
+      // and crew Find views retain the fixed commander eye.
+      targetPoint.set(...BAY_OBSERVER); rig.localToWorld(targetPoint);
+      camera.position.copy(targetPoint); camera.updateMatrixWorld();
+    }
     const target = inspection.target ? rig.getObjectByName(COCKPIT_TARGETS[inspection.target].node) : undefined;
     if (aimedRevision.current !== inspection.revision) {
       aimedRevision.current = inspection.revision;
@@ -1105,7 +1113,7 @@ export function CabinInterior() {
     const perspective = camera as THREE.PerspectiveCamera;
     perspective.fov = inspection.target ? COCKPIT_TARGETS[inspection.target].fov : 62;
     const rect = gl.domElement.getBoundingClientRect();
-    if (rect.width <= 600 && (inspection.target === "displays" || inspection.target === "crts")) {
+    if (rect.width <= 600 && (inspection.target === "displays" || inspection.target === "crts" || inspection.target === "bay")) {
       // Sample the real DOM limits at instrument cadence. The checklist can
       // be closed, restored or resized without a hard-coded phone crop.
       if (clock.elapsedTime - lastInstrumentPaint.current >= 1 / 15) {
@@ -1173,6 +1181,8 @@ export function CabinInterior() {
     <group ref={root} name="cockpit-interior" visible={false}>
       <CabinShell glazing={matWindow} />
       <WorkstationHousings />
+      <group position={SEATED_BAY_ORIGIN}><PayloadBay id="seated" /></group>
+      <group name="view-bay" position={[0.25, -0.30, 14]} />
       <pointLight ref={displaySpill} position={[0, -0.22, -0.52]} intensity={0.01875} distance={1.1} decay={2} color="#8dbc81" />
       <pointLight position={[-0.3, 0.12, -0.15]} intensity={0.36} distance={2.4} decay={2} color="#dae5ed" />
       {/* Cabin floodlight: ceiling-mounted above the crew station, so it

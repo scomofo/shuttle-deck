@@ -26,6 +26,12 @@ Longitudinal profiles, wing sweep, fin height, payload-bay length and stack
 proportions still need fuller source calibration. Overhead/aft windows, RCS
 ports and mission-specific markings are outside this slice.
 
+The subsequent [payload bay pass](PAYLOAD_BAY.md) shares root-position doors,
+radiators and estimated STS-1 DFI geometry with the cabin presentation. It also
+corrects the exterior attitude transform to a proper rotation for this model's
++Z nose / +X port convention. Bay registration and longitudinal/vertical fit
+remain presentation estimates.
+
 ## Review
 
 [Before/after views](review/geometry-comparison.jpg) use the same orthographic

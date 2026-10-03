@@ -141,8 +141,9 @@ and mounting hardware remain estimates. The next gate is the mission-specific
 1981 inventory, complete original gauge set and overhead/side/aft panel era
 conversion. Several faces still retain later-source grouping or blank sections;
 the assembly pass does not attest their original contents.
-Exterior bay/door sightlines through aft glazing also need
-reconstruction; the seated renderer still hides the exterior orbiter. The real forward structure wraps in three dimensions; this
+The subsequent [payload bay pass](PAYLOAD_BAY.md) supplies selected aft exterior
+geometry and an explicit observation view through the actual glazing; its
+registration and contours remain estimates. The real forward structure wraps in three dimensions; this
 planar windshield estimate remains unresolved. Middeck access, ejection-seat
 hardware, measured crew eye/reach, calibrated complete flight and headset
 acceptance remain open.

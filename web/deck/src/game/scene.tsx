@@ -4,7 +4,9 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import { CabinInterior } from "@/game/cabin";
 import { CabinReadout } from "@/game/cabin-shell";
+import { PayloadReadout } from "@/game/payload-readout";
 import { Orbiter } from "@/game/orbiter";
+import { orbiterModelBasis } from "./orbiter-frame";
 import { dryLakeMaterial } from "./ground-materials";
 import { LANDING_STRIP, landingCoordinates, landingRotation } from "./landing-layout";
 import { useLandingGuides } from "./landing-guides";
@@ -139,7 +141,7 @@ function World() {
     _right.set(basis.rx, basis.ry, basis.rz);
     _dorsal.set(basis.dx, basis.dy, basis.dz);
     _nose.set(basis.nx, basis.ny, basis.nz);
-    _m.makeBasis(_right, _dorsal, _nose);
+    orbiterModelBasis(_right, _dorsal, _nose, _m);
     if (craft.current) {
       craft.current.quaternion.setFromRotationMatrix(_m);
       craft.current.scale.setScalar(scale);
@@ -330,7 +332,7 @@ function World() {
         </group>
         </group>
       </group>
-      <group ref={craft}>
+      <group ref={craft} name="orbiter-airframe">
         <Orbiter />
         {/* Entry luminosity hugs the stagnation point and leading edges instead
             of reading as a single transparent ball around the vehicle. */}
@@ -433,6 +435,7 @@ export function FlightScene() {
           <World />
           <CabinInterior />
           <CabinReadout />
+          <PayloadReadout />
           <LandingReadout />
         </Suspense>
       </Canvas>
