@@ -12,7 +12,7 @@
     "declaration": true,
     "strict": false,
     "skipLibCheck": true,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
     "outDir": "src/gen",
     "rootDir": "../..",
     "types": []

@@ -133,13 +133,13 @@ export class Electrical {
   }
 
   private latch(channel: string, set: (on: boolean) => void): void {
-    const cmd = bus.get_value(channel, "CENTER");
+    const cmd = bus.get_value<string>(channel, "CENTER");
     if (cmd === "ON") set(true);
     else if (cmd === "OFF") set(false);
   }
 
   private fc_commanded(i: number): boolean {
-    const v = bus.get_value(`ctl.elec.fuel_cell_${i + 1}`, true);
+    const v = bus.get_value<boolean | number | string>(`ctl.elec.fuel_cell_${i + 1}`, true);
     return v !== false && v !== 0 && v !== "OFF";
   }
 
@@ -156,7 +156,7 @@ export class Electrical {
   }
 
   private breaker_closed(channel: string): boolean {
-    const v = bus.get_value(channel, true);
+    const v = bus.get_value<boolean | number | string>(channel, true);
     return v !== false && v !== 0 && v !== "OFF";
   }
 

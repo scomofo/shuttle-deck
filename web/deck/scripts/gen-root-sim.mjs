@@ -6,9 +6,9 @@
  * - Root TS uses explicit `.ts` import extensions and `with { type: "json" }`
  *   import attributes. tsc normalizes both (rewriteRelativeImportExtensions
  *   turns `.ts` into `.js`; JSON stays a JSON import Vite understands).
- * - Root src has pre-existing strict-mode type errors (e.g. electrical.ts).
- *   Compiling with strict off and emitting declarations keeps deck:typecheck
- *   independent of root's type-cleanliness. No root file is modified.
+ * - Generated declarations let the browser typecheck the adapter without
+ *   importing the root's source configuration. Root compilation must pass;
+ *   a partially emitted tree must never make a broken build look successful.
  * - The JSON data the sim imports (assets/data/**) is mirrored into the gen
  *   tree so the emitted relative `../../assets/...` imports keep resolving.
  *
@@ -16,7 +16,7 @@
  * `typecheck` and `build` depend on.
  */
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, rmSync } from "node:fs";
+import { cpSync, rmSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
 const deck = fileURLToPath(new URL("..", import.meta.url));
@@ -24,13 +24,6 @@ const repo = fileURLToPath(new URL("../../..", import.meta.url));
 const gen = `${deck}src/gen`;
 
 rmSync(gen, { recursive: true, force: true });
-try {
-  execFileSync("npx", ["tsc", "-p", "tsconfig.gen.json"], { cwd: deck, stdio: "inherit" });
-} catch (err) {
-  // tsc exits nonzero on the root's pre-existing type errors; emit still
-  // happens (noEmitOnError is false). Only fail if the output is missing.
-  if (!existsSync(`${gen}/src/core/runtime.js`)) throw err;
-  console.warn("gen-root-sim: root src has type errors; emitted output anyway.");
-}
+execFileSync("npx", ["tsc", "-p", "tsconfig.gen.json"], { cwd: deck, stdio: "inherit" });
 cpSync(`${repo}assets`, `${gen}/assets`, { recursive: true });
 console.log(`gen-root-sim: wrote ${gen}`);
