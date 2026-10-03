@@ -165,7 +165,7 @@ export class Aero {
     q: Quat,
     omega_body: Vec3,
     eff: EffectorDeflection,
-    gear_down: boolean,
+    gear_position: boolean | number,
   ): AeroSample {
     const vr = v_rel(r, v);
     const spd = len(vr);
@@ -226,7 +226,11 @@ export class Aero {
       this.eff_cfg.speedbrake.dcd_per_deg * sb +
       this.eff_cfg.bodyflap.dcd_per_deg_abs * Math.abs(bf) +
       this.eff_cfg.rudder.dcd_per_deg_abs * Math.abs(eff.rudder_deg);
-    if (gear_down) cd += this.eff_cfg.gear.dcd;
+    // Existing boolean callers still mean fully up/down. The mechanism owner
+    // supplies continuous extension; linear drag scaling is [estimated].
+    const extension = typeof gear_position === "boolean" ? Number(gear_position)
+      : Number.isFinite(gear_position) ? Math.max(0, Math.min(1, gear_position)) : 0;
+    cd += extension * this.eff_cfg.gear.dcd;
     const drag = qbar * cd * this.S;
     const lift = qbar * cl * this.S;
     const lift_dir = add(mul(up, Math.cos(bank)), mul(side, Math.sin(bank)));

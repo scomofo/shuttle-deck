@@ -76,8 +76,36 @@ actual matrix/center recovery, DN and phone indication/action bounds. Actual
 rendered tire bounds at DN are approximately -2.4048 (nose) and -2.4066 (mains).
 The landing regression also passes tall/short phone bounds and the real approach
 checklist through wheel stop. These browser checks report no page, console or
-resource errors. Root generation retains eight pre-existing electrical TS2367
-diagnostics; Vite retains its chunk-size warning.
+resource errors. The subsequent build/drag gate below supersedes the original
+electrical diagnostic limitation; Vite retains its chunk-size warning.
+
+## Mechanism drag and build gate, 2026-10-03
+
+The former drag path read `ctl.gear` directly. An unarmed DN command added
+full gear drag while the mechanism and six rendered wheels remained UP;
+releasing DN after down-lock also removed that drag. Dynamics now reads
+`mech.gear.position` and `mech.gear.down_locked`. The existing full-extension
+drag coefficient is scaled linearly with progress **[estimated]**. No new
+mechanism clock or saved field is introduced. Root restore republishes the
+saved mechanism before Dynamics recomputes legacy telemetry, preserving
+paused partial-extension recovery.
+
+`tests/gear_drag.test.ts` covers unarmed DN, partial drag, one-way down-lock,
+warm/cold restoration and legacy recomputation without changing time, pose,
+effectors or heat. The standalone landing test now ticks the real mechanism
+and allows the estimated eight-second transit before touchdown; it no longer
+treats a DN command as proof of down-lock. All twelve root programs and ten
+web programs pass. Desktop/phone real F6, checkpoint and landing regressions
+exercise the unchanged root-owned rendered travel and checklist wait.
+
+The eight electrical TS2367 diagnostics came from generic reads narrowed to
+their fallback literals. Explicit string and boolean/number/string channel
+types preserve the existing switch semantics and remove them. Generation now
+requires successful root compilation with `noEmitOnError`; browser strict
+TypeScript and the production build pass. The root generation project still
+uses its existing non-strict mode. An intermediate failing compile was
+verified to produce no generated runtime artifact. The old reported OMS test
+failure was stale: the complete root suite passed before this gate's edits.
 
 The next historical gate needs source-supported stow directions and hinge
 stations, then actual wheel-well/TPS-door geometry and articulated links.

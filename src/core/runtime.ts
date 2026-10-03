@@ -120,7 +120,6 @@ export class SimRuntime {
     bus.reset_values_only();
     clock.restore(d.clock);
     this.sequencer.restore(d.mission);
-    this.dynamics.restore(d.dynamics);
     this.controls.restore(d.controls);
     this.systems.electrical.restore(d.systems.electrical);
     this.systems.propulsion.restore(d.systems.propulsion);
@@ -128,6 +127,9 @@ export class SimRuntime {
     this.systems.ecs.restore(d.systems.ecs);
     this.systems.apu.restore(d.systems.apu);
     this.systems.mechanisms.restore(d.systems.mechanisms);
+    // Legacy telemetry recomputation needs restored mechanism progress, not
+    // the abandoned flight's command or the new instance's UP default.
+    this.dynamics.restore(d.dynamics);
     this.systems.fire.restore(d.systems.fire);
     this.systems.electrical.tick(0);
     this.systems.propulsion.tick(0);

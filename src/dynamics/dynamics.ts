@@ -2,7 +2,7 @@
  * Owns vehicle truth. Never touches presentation nodes.
  * Port of gemini-capsule src/dynamics/dynamics.gd.
  *
- * Reads:  prop.*.force_body, seq.config, ctl.gear, ctl.hand.yaw,
+ * Reads:  prop.*.force_body, seq.config, mech.gear.*, ctl.hand.yaw,
  *         guid.eff.*_cmd, guid.brake_cmd
  * Writes: dyn.*, aero.*, guid.*, sys.coast_ok, prop.*.qty
  *
@@ -95,6 +95,8 @@ export class Dynamics {
       this.set_configuration(cfg);
     }
 
+    this.gear_down = bus.get_value<boolean>("mech.gear.down_locked", false);
+
     const ext = bus.get_value("prop.force_body_n") as number[] | null;
     let f_body = v3();
     if (ext && ext.length === 3) f_body = { x: ext[0], y: ext[1], z: ext[2] };
@@ -115,7 +117,6 @@ export class Dynamics {
       };
       let a_eci = mul(nose, len(f_body) / this.mass);
       this.step_effectors(_dt);
-      this.gear_down = Boolean(bus.get_value("ctl.gear", this.gear_down));
       if (this.config === "entry" && this.orbit.altitude() < this.aero.atmosphere_top_m) {
         const sample = this.aero.accelerations(
           this.orbit.r,
@@ -124,7 +125,7 @@ export class Dynamics {
           this.attitude.q,
           this.attitude.omega,
           this.eff,
-          this.gear_down,
+          bus.get_value<number>("mech.gear.position", 0),
         );
         this.last_aero = sample;
         a_eci = add(a_eci, sample.a_eci);
@@ -295,7 +296,7 @@ export class Dynamics {
     this.driven = Boolean(d.driven);
     this.landed = Boolean(d.landed);
     this.stopped = d.stopped !== false;
-    this.gear_down = Boolean(d.gear_down);
+    this.gear_down = bus.get_value<boolean>("mech.gear.down_locked", Boolean(d.gear_down));
     if (d.eff) this.eff = { ...EFFECTOR_NEUTRAL, ...d.eff };
     this.heat_load_jm2 = Number(d.heat_load_jm2) || 0;
     this.mass = d.mass;
@@ -306,7 +307,8 @@ export class Dynamics {
       // Old saves recover a coherent sample from saved owner state, without
       // stepping time, moving effectors or integrating heat/trajectory.
       this.last_aero = this.config === "entry" && this.orbit.altitude() < this.aero.atmosphere_top_m
-        ? this.aero.accelerations(this.orbit.r, this.orbit.v, this.mass, this.attitude.q, this.attitude.omega, this.eff, this.gear_down)
+        ? this.aero.accelerations(this.orbit.r, this.orbit.v, this.mass, this.attitude.q, this.attitude.omega, this.eff,
+          bus.get_value<number>("mech.gear.position", this.gear_down ? 1 : 0))
         : copyAero(EMPTY_AERO);
       this.accel_g = len(this.last_aero.a_eci) / 9.80665;
     }

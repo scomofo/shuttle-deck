@@ -12,10 +12,9 @@
  * down-lock talkback. DN without ARM is ignored. The gear is one-way:
  * once down-locked it stays down. Extend transit is [estimated].
  *
- * Wiring note: src/dynamics reads ctl.gear (the crew command) for gear
- * drag, so drag leads the down-lock talkback by the extend transit. That
- * is a known approximation, not a second truth: the talkback is the
- * mechanism; the drag is P3's command-keyed model.
+ * Dynamics and presentation consume mech.gear.position from this owner.
+ * Drag scales linearly with extension [estimated]; an unarmed DN command
+ * produces neither extension nor gear drag.
  */
 
 import { bus } from "../core/bus.ts";

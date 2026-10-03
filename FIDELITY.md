@@ -100,9 +100,11 @@ RCS consumption by actual usage, fuel-cell cryo reactant depletion, and
 breaker-powered smoke detection. The deck adapter keeps no vehicle
 state: it is a view-model plus a ctl.* writer, and the controls that
 cannot receive honest causality (ADI source select, ATT REF, CSS) are
-rendered inert rather than faked. Known approximation: gear drag keys
-off the crew command while the down-lock talkback trails by the extend
-transit. Known gap: RCS depletion is reported but the (untouchable)
+rendered inert rather than faked. Gear drag now follows the mechanism owner's
+continuous extension: unarmed DN adds no drag, partial travel adds a partial
+increment, and down-locked gear retains drag after the command is released.
+Linear drag scaling and the eight-second transit remain estimates. Known gap:
+RCS depletion is reported but the (untouchable)
 guidance keeps publishing torque. Many other cockpit controls imply
 more interconnected behavior than is currently modeled (GPC redundancy,
 ECLSS depth, comms, aerosurface servo gating on hydraulic power —

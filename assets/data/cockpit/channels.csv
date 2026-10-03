@@ -103,6 +103,7 @@ mech.plbd.moving,mechanisms,bool,drive in transit
 mech.gear.state,mechanisms,enum,up|armed|extending|down_locked
 mech.gear.armed,mechanisms,bool,extend valves latched
 mech.gear.down_locked,mechanisms,bool,down-lock talkback
+mech.gear.position,mechanisms,float,0 up to 1 down; derived from saved extend timer
 mech.gear.talkback,mechanisms,enum,UP|ARM|TRANSIT|DN
 sys.fire.smoke_flt_dk,fire,bool,flight-deck smoke alarm
 sys.fire.detector_flt_dk_ok,fire,bool,detector powered (breaker + MN A)

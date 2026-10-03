@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Space Shuttle trainer on the Gemini Capsule architecture.",
   "scripts": {
-    "test": "node --experimental-strip-types tests/architecture.test.ts && node --experimental-strip-types tests/aero.test.ts && node --experimental-strip-types tests/entry.test.ts && node --experimental-strip-types tests/presentation.test.ts && node --experimental-strip-types tests/checkpoint_telemetry.test.ts && node --experimental-strip-types tests/oms.test.ts && node --experimental-strip-types tests/placement.test.ts && node --experimental-strip-types tests/procedures.test.ts && node --experimental-strip-types tests/attitude.test.ts && node --experimental-strip-types tests/golden_trajectory.test.ts && node --experimental-strip-types tests/systems.test.ts",
+    "test": "node --experimental-strip-types tests/architecture.test.ts && node --experimental-strip-types tests/aero.test.ts && node --experimental-strip-types tests/entry.test.ts && node --experimental-strip-types tests/presentation.test.ts && node --experimental-strip-types tests/checkpoint_telemetry.test.ts && node --experimental-strip-types tests/gear_drag.test.ts && node --experimental-strip-types tests/oms.test.ts && node --experimental-strip-types tests/placement.test.ts && node --experimental-strip-types tests/procedures.test.ts && node --experimental-strip-types tests/attitude.test.ts && node --experimental-strip-types tests/golden_trajectory.test.ts && node --experimental-strip-types tests/systems.test.ts",
     "deck:dev": "npm --prefix web/deck run dev",
     "deck:build": "npm --prefix web/deck run build",
     "deck:typecheck": "npm --prefix web/deck run typecheck"

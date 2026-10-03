@@ -8,7 +8,7 @@ import json
 import math
 from pathlib import Path
 import tempfile
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import sync_playwright, expect, TimeoutError
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--base-url', default='http://127.0.0.1:4173')
@@ -41,6 +41,17 @@ with sync_playwright() as p:
             page.evaluate('(n)=>window.__controlsTest.tick(n)',n)
             page.get_by_role('button',name='Pause',exact=True).click()
             return read()
+
+        def dismiss_checkpoint():
+            dismiss = page.get_by_role('button', name='Dismiss checkpoint message', exact=True)
+            if dismiss.count():
+                try:
+                    dismiss.focus(timeout=5000)
+                    page.keyboard.press('Space')
+                except TimeoutError:
+                    # A software-rendered frame can outlive this transient toast.
+                    expect(dismiss).not_to_be_visible(timeout=8000)
+                expect(dismiss).not_to_be_visible(timeout=8000)
 
         def find_pick(target):
             before = read()
@@ -97,7 +108,7 @@ with sync_playwright() as p:
         expect(focus).to_contain_text('Gear moving. Wait for DN.')
         assert not any(g['visible'] for g in partial['assemblies']), 'Cockpit exterior is intentionally hidden'
         page.get_by_role('button',name='Save checkpoint',exact=True).click()
-        page.get_by_role('button',name='Dismiss checkpoint message',exact=True).click()
+        dismiss_checkpoint()
         saved = page.evaluate('localStorage.getItem("shuttle-deck-save")')
         states[f'{label}-partial'] = partial
         page.screenshot(path=str(out/f'{label}-transit.png'))
@@ -110,7 +121,7 @@ with sync_playwright() as p:
         assert again['get']==partial['get'] and pose(again)==pose(partial), 'Pause drift'
         page.reload(wait_until='networkidle')
         page.get_by_role('button',name='Restore checkpoint',exact=True).click()
-        page.get_by_role('button',name='Dismiss checkpoint message',exact=True).click()
+        dismiss_checkpoint()
         recovered = read()
         assert recovered['paused'] and recovered['position']==partial['position'] and recovered['get']==partial['get']
         assert pose(recovered)==pose(partial), 'Cold restore changed actual gear pose'
@@ -138,7 +149,7 @@ with sync_playwright() as p:
         page.get_by_role('button',name='Pause',exact=True).click()
         assert read()['position']==0
         page.get_by_role('button',name='Restore checkpoint',exact=True).click()
-        page.get_by_role('button',name='Dismiss checkpoint message',exact=True).click()
+        dismiss_checkpoint()
         cross = read()
         assert cross['position']==partial['position'] and pose(cross)==pose(partial)
         expect(focus).to_contain_text('Gear down')

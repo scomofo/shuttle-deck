@@ -82,3 +82,12 @@ From the repository root, `npm run deck:dev`, `deck:build`, and
 
 See [visual asset notes](web/deck/VISUAL_ASSETS.md) for sources, the approved
 black tile texture, validation, and the remaining photorealism work.
+
+## Build and mechanism verification
+
+Root generation now stops on compiler errors. The production build includes
+successful root compilation and strict browser TypeScript; all twelve root
+test programs and ten browser-side programs pass. Landing gear drag follows
+the same saved mechanism progress as the rendered gear, including unarmed
+commands and paused recovery. See [gear deployment](web/deck/GEAR_DEPLOYMENT.md)
+for the estimated drag/transit limits and validation scope.

@@ -168,6 +168,7 @@ reset();
   clock.advance(10);
   assert(bus.get_value("mech.gear.state", "?") === "down_locked", "gear reaches down-lock");
   assert(bus.get_value("mech.gear.down_locked", false) === true, "down-lock talkback");
+  assert(rt.dynamics.gear_down === true, "dynamics gear indication follows down-lock even during driven ascent");
   assert(bus.get_value("mech.gear.talkback", "?") === "DN", "talkback DN at down-lock");
   assert(bus.get_value("mech.gear.position", -1) === 1, "down-lock publishes full travel");
   rt.controls.set("Gear", false);

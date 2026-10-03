@@ -7,6 +7,7 @@
 import { bus } from "../src/core/bus.ts";
 import { Dynamics } from "../src/dynamics/dynamics.ts";
 import { Guidance } from "../src/systems/guidance.ts";
+import { Mechanisms } from "../src/systems/mechanisms.ts";
 import { v_rel } from "../src/dynamics/aero.ts";
 import { qmul, type Quat } from "../src/dynamics/attitude.ts";
 import { len, norm, cross, EARTH_ROTATION_RATE } from "../src/core/frames.ts";
@@ -131,6 +132,10 @@ function test_touchdown_rollout_and_wheel_stop() {
   bus.reset_values_only();
   const dyn = new Dynamics();
   const g = new Guidance();
+  const mechanisms = new Mechanisms();
+  bus.set_value("ctl.gear_arm", true);
+  mechanisms.tick(0.02);
+  bus.set_value("ctl.gear_arm", false);
   // Start on the approach energy line: alt = 28 * (v - 95).
   const v0 = 200;
   const alt0 = 28 * (v0 - 95);
@@ -145,8 +150,8 @@ function test_touchdown_rollout_and_wheel_stop() {
   bus.set_value("seq.config", "entry");
   bus.set_value("mission.phase", "approach");
   bus.set_value("ctl.dap.mode", "manual");
-  // Gear stays up for the outer glide (like the real orbiter, which drops
-  // it at ~300 ft); deploy on short final.
+  // This trainer's estimated transit takes eight seconds. Keep the gear
+  // up on the outer glide, then allow that transit before runway contact.
   bus.set_value("ctl.gear", false);
   dyn.publish();
   g.tick(0);
@@ -157,8 +162,9 @@ function test_touchdown_rollout_and_wheel_stop() {
   let steps = 0;
   // Fly to touchdown.
   while (!dyn.landed && steps < 15000) {
-    if (Number(bus.get_value("dyn.alt_m", 1e9)) < 150) bus.set_value("ctl.gear", true);
+    if (Number(bus.get_value("dyn.alt_m", 1e9)) < 500) bus.set_value("ctl.gear", true);
     g.tick(dt);
+    mechanisms.tick(dt);
     dyn.tick(dt);
     steps++;
   }
