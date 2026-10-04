@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "reviewed_utc": "2026-10-04",
+  "candidate": "aaab1431054dd2651529d8fded32482399425610",
+  "report": {
+    "ntrs_id": "19770026309",
+    "report_numbers": [
+      "NASA-CR-151370",
+      "DMS-DR-2361 Volume I"
+    ],
+    "report_date": "1977-07",
+    "url": "https://ntrs.nasa.gov/api/citations/19770026309/downloads/19770026309.pdf",
+    "pdf_bytes": 62968035,
+    "pdf_sha256": "25552f6e3052ef907743df1762e092b603fb1e7c4117cdf710de26d38e33463a",
+    "pdf_pages": 813
+  },
+  "applicability": "0.0405-scale preflight 140C aerodynamic test model; not a flown Columbia/STS-1 dimensional acceptance record",
+  "method": "Direct PDF page rasterization with pdftoppm at 170 DPI; original scan visually inspected; OCR not used as accepted dimensional transcription",
+  "pages": [
+    {
+      "printed_page": 23,
+      "pdf_page": 28,
+      "path": "gear-loads-1977-page23.png",
+      "sha256": "0f7a969f57cb9b7f5784f6b5c196b2b4b480e69581bd1726f7122f5063862868"
+    },
+    {
+      "printed_page": 24,
+      "pdf_page": 29,
+      "path": "gear-loads-1977-page24.png",
+      "sha256": "0e54e11a314ebf4cb978ebf11793910363235337be74e75cb454121f5729c431"
+    },
+    {
+      "printed_page": 34,
+      "pdf_page": 39,
+      "path": "gear-loads-1977-page34.png",
+      "sha256": "df73578576b40741064f79af0e66584d9b9c7a0ed36f1b66666a55699b5a9d21"
+    }
+  ],
+  "observations": {
+    "table_iii_configuration": "G20 updated from G17",
+    "drawing_numbers": [
+      "V070-510001",
+      "V070-510501"
+    ],
+    "figure_1d_full_travel_labels_degrees": {
+      "nose_theta_N": 108,
+      "main_theta_M": 98
+    },
+    "source_angle_zero": "closed",
+    "renderer_angle_zero": "down-lock"
+  },
+  "limits": [
+    "Figure sign convention must be reconciled with applicable drawing/configuration revision",
+    "Source datum not registered to current render frame",
+    "No runtime dimensions, confidence or mechanism timing changed",
+    "Well, door and linkage clearance untested"
+  ]
+}

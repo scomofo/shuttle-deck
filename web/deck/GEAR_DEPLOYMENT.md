@@ -30,9 +30,10 @@ stow containment is not certified. All six down-lock centers, tire detail,
 transverse compensation and the Y=-2.4 contact datum are retained. Tire grooves
 remain within 0.02 model units of that plane.
 
-The flight/contact model is unchanged. In particular, the previously documented
-command-keyed gear drag still leads down-lock. This pass validates presentation
-and walkthrough continuity, not aerodynamic, historical or full-flight fidelity.
+The original presentation pass retained the flight/contact model and its
+command-keyed gear drag. The subsequent mechanism-drag gate below replaces
+that path with continuous root-owned extension. The presentation evidence
+establishes walkthrough continuity, not historical or full-flight fidelity.
 
 ## Reproduce
 
@@ -111,3 +112,6 @@ The next historical gate needs source-supported stow directions and hinge
 stations, then actual wheel-well/TPS-door geometry and articulated links.
 It must preserve this root ownership/recovery behavior while checking clearance
 through the full travel, rather than accepting only the final deployed pose.
+The [engineering source intake](GEAR_SOURCE_INTAKE.md) now retains the 1977
+NASA/Rockwell report's dimension tables and deployment diagram, with explicit
+preflight-model applicability limits and a bounded nose-well implementation.
