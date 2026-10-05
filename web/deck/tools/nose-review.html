@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Nose assembly review</title><link rel="icon" href="data:,">
+<style>html,body{margin:0;background:#b7c1c8}canvas{display:block}</style>
+<script type="module">
+import * as THREE from 'three';
+import { createNoseGear } from '../src/game/nose-gear-model.ts';
+import { ORBITER_SPAN_SCALE, fuselageGeometry } from '../src/game/orbiter-skin.ts';
+import tileUrl from '../src/assets/visuals/tile-color.webp?url';
+import blanketUrl from '../src/assets/visuals/blanket-color.webp?url';
+const loader = new THREE.TextureLoader();
+const [tile, blanket] = await Promise.all([loader.loadAsync(tileUrl), loader.loadAsync(blanketUrl)]);
+for (const map of [tile, blanket]) { map.colorSpace = THREE.SRGBColorSpace; map.wrapS = map.wrapT = THREE.RepeatWrapping; }
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#b7c1c8');
+scene.add(new THREE.HemisphereLight('#eef4ff', '#4c4d44', 1.4));
+const light = new THREE.DirectionalLight('#fff6e7', 3); light.position.set(3, -5, 12); scene.add(light);
+const fill = new THREE.DirectionalLight('#b7cded', 1.2); fill.position.set(-3, 1, 8); scene.add(fill);
+const frame = new THREE.Group(); frame.scale.x = ORBITER_SPAN_SCALE; scene.add(frame);
+const body = new THREE.Mesh(fuselageGeometry(), [
+  new THREE.MeshStandardMaterial({ map: blanket, color: '#e4e2db', roughness: .94 }),
+  new THREE.MeshStandardMaterial({ map: tile, roughness: .91 }),
+]); frame.add(body);
+const assembly = createNoseGear({ map: tile, roughness: .91 }); frame.add(assembly.root);
+const camera = new THREE.PerspectiveCamera(43, innerWidth / innerHeight, .025, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(1);
+renderer.setSize(innerWidth, innerHeight); document.body.appendChild(renderer.domElement);
+window.renderNoseReview = (position, view = 'underside') => {
+  assembly.update(position);
+  const eye = view === 'internal' ? [.55, .27, 9.55] : [3.5, -3.7, 12.4];
+  const target = view === 'internal' ? [0, -1.1, 8.6] : [0, -1.1, 8.9];
+  camera.position.fromArray(eye); camera.up.set(0,1,0); camera.lookAt(...target);
+  scene.updateMatrixWorld(true); renderer.render(scene, camera);
+  return { position, view, eye, target, up: camera.up.toArray(), quaternion: camera.quaternion.toArray(),
+    fov:camera.fov, viewport:[innerWidth,innerHeight],
+    hinge:assembly.hinge.matrix.toArray(), doors:assembly.doors.map(d=>d.matrix.toArray()),
+    renderer:'Three.js WebGL inspection of production meshes; independent fixed inspection lighting' };
+};
+window.renderNoseReview(0); window.noseReviewReady = true;
+</script></html>

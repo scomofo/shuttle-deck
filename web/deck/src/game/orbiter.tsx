@@ -7,75 +7,9 @@ import { Exhaust } from "./exhaust";
 import { PayloadBay } from "./payload-bay";
 import { PAYLOAD_BAY } from "./payload-layout";
 import { GEAR_LAYOUT, GEAR_PIVOT_Y, gearFoldAngle } from "./gear-layout";
-
-// Visual reconstruction in the simulator's existing local coordinates: +Z is the
-// nose and the wheel contact plane is Y=-2.4. NASA three-view overall dimensions
-// constrain span/length; section contours remain estimates. See ORBITER_GEOMETRY.md.
-// Model nose 14.3 to engine lip -11.78 gives 26.08 units over NASA's 37.24 m.
-export const ORBITER_SPAN_SCALE = (23.79 / 37.24 * 26.08) / 21.98;
-const sections = [
-  [-10.5, 1.85, 1.25, -0.85], [-8.6, 2.3, 1.7, -1.05],
-  [-5, 2.25, 1.8, -1.12], [0, 2.2, 1.85, -1.12],
-  [4.7, 2.14, 1.95, -1.08], [6.3, 2.08, 2.0, -1.06],
-  [7.5, 1.99, 2.0, -1.02], [8.65, 1.89, 1.93, -0.94],
-  [9.65, 1.72, 1.55, -0.85], [11.3, 1.23, 0.52, -0.69],
-  [13, 0.79, 0.14, -0.5], [13.85, 0.35, -0.08, -0.4],
-  [14.2, 0.08, -0.23, -0.34], [14.3, 0.002, -0.29, -0.3],
-];
-
-function profile(z: number) {
-  let i = 0;
-  while (i < sections.length - 2 && z > sections[i + 1][0]) i++;
-  const a = sections[i], b = sections[i + 1];
-  const t = THREE.MathUtils.clamp((z - a[0]) / (b[0] - a[0]), 0, 1);
-  // Cubic interpolation keeps the body smooth without changing the endpoints.
-  const at = (k: number) => {
-    const prev = sections[Math.max(0, i - 1)], next = sections[Math.min(sections.length - 1, i + 2)];
-    const m0 = (b[k] - prev[k]) / (b[0] - prev[0]);
-    const m1 = (next[k] - a[k]) / (next[0] - a[0]);
-    return (2 * t ** 3 - 3 * t ** 2 + 1) * a[k] + (t ** 3 - 2 * t ** 2 + t) * m0 * (b[0] - a[0])
-      + (-2 * t ** 3 + 3 * t ** 2) * b[k] + (t ** 3 - t ** 2) * m1 * (b[0] - a[0]);
-  };
-  return { width: Math.max(0.002, at(1)), top: at(2), bottom: at(3) };
-}
-
-function skinPoint(z: number, angle: number, lift = 0) {
-  const { width, top, bottom } = profile(z);
-  const center = (top + bottom) * 0.5;
-  return [Math.cos(angle) * (width + lift), center + Math.sin(angle) * ((top - bottom) * 0.5 + lift), z];
-}
-
-function fuselageGeometry() {
-  const position: number[] = [], uv: number[] = [], white: number[] = [], black: number[] = [];
-  const rows = 96, sides = 48;
-  for (let row = 0; row <= rows; row++) {
-    const z = THREE.MathUtils.lerp(-10.5, 14.3, row / rows);
-    for (let side = 0; side <= sides; side++) {
-      position.push(...skinPoint(z, (side / sides) * Math.PI * 2));
-      uv.push(side / sides * 2, row / rows * 6);
-    }
-  }
-  for (let row = 0; row < rows; row++) {
-    for (let side = 0; side < sides; side++) {
-      const z = THREE.MathUtils.lerp(-10.5, 14.3, (row + 0.5) / rows);
-      const angle = ((side + 0.5) / sides) * Math.PI * 2;
-      // Leave an actual opening beneath the independently animated payload doors.
-      if (row >= 14 && row < 58 && angle > Math.PI / 6 && angle < Math.PI * 5 / 6) continue;
-      const lower = Math.sin(angle) < -0.36;
-      const indices = lower || z > 12.65 ? black : white;
-      const a = row * (sides + 1) + side, b = a + sides + 1;
-      indices.push(a, a + 1, b, b, a + 1, b + 1);
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(position, 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
-  geo.setIndex([...white, ...black]);
-  geo.addGroup(0, white.length, 0);
-  geo.addGroup(white.length, black.length, 1);
-  geo.computeVertexNormals();
-  return geo;
-}
+import { ORBITER_SPAN_SCALE, skinPoint, fuselageGeometry } from "./orbiter-skin";
+import { NoseGear } from "./nose-gear";
+export { ORBITER_SPAN_SCALE } from "./orbiter-skin";
 
 function sweptWing(side: number) {
   const points = [[1.68, 6.5], [3.4, 0.25], [10.9, -6.5], [10.7, -8.25], [2.0, -8.75]];
@@ -195,7 +129,7 @@ function LandingGear({ id, x, z, radius }: { id: string; x: number; z: number; r
   const hinge = useRef<THREE.Group>(null);
   useFrame(() => {
     if (!hinge.current) return;
-    hinge.current.rotation.x = gearFoldAngle(sim.gearPosition);
+    hinge.current.rotation.x = gearFoldAngle(sim.gearPosition, id);
     hinge.current.visible = sim.gearPosition > 0;
   });
   const y = -2.4 + radius;
@@ -338,7 +272,7 @@ export function Orbiter() {
   return (
     <group>
     <group name="orbiter-airframe" scale={[ORBITER_SPAN_SCALE, 1, 1]}>
-      <mesh geometry={geometry.body} castShadow receiveShadow>
+      <mesh name="orbiter-skin" geometry={geometry.body} castShadow receiveShadow>
         <meshStandardMaterial attach="material-0" {...blanket} color="#e4e2db" />
         <meshStandardMaterial attach="material-1" {...tile} />
       </mesh>
@@ -381,7 +315,7 @@ export function Orbiter() {
         <PayloadBay id="exterior" />
       </group>
       <group name="landing-gear">
-        {GEAR_LAYOUT.map(g => <LandingGear key={g.id} {...g} />)}
+        {GEAR_LAYOUT.map(g => g.id === "nose" ? <NoseGear key={g.id} /> : <LandingGear key={g.id} {...g} />)}
       </group>
       {[[0, 0.7], [-0.95, -0.55], [0.95, -0.55]].map(([x, y], i) => (
         <Exhaust key={i} kind="main" position={[x, y, -11.78]} radius={2.1} length={10} />

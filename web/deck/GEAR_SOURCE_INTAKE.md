@@ -1,7 +1,7 @@
 # Gear installation source intake
 
-The next exterior fidelity gate is a visible wheel well and TPS-door assembly,
-starting with the nose gear. The current renderer rotates each complete leg
+The next exterior fidelity gate identified by this intake was a visible wheel
+well and TPS-door assembly, starting with the nose gear. Its baseline rotated each complete leg
 through the same fitted 90-degree travel behind opaque skin. The root-owned
 mechanism, drag, down-lock indication and checkpoint continuity work; that does
 not establish physical clearance or historical installation geometry.
@@ -55,7 +55,7 @@ graduate the existing pivot, radius, travel curve or contact plane to sourced
 historical values. No geometry, mechanism timing or coefficients change in
 this intake.
 
-## Next bounded implementation: nose well and two doors
+## Bounded implementation criteria: nose well and two doors
 
 1. Register the drawing's station axes and origin against the exterior
    reconstruction. Record drawing/configuration applicability and distinguish
@@ -78,4 +78,7 @@ Completion means a reviewed, bounded nose assembly with no demonstrated
 mesh interference and preserved walkthrough recovery. Main wells, real
 actuator linkage, calibrated aerodynamics, full STS-1 reconstruction and
 physical headset acceptance remain separate gates. This source intake is
-complete; that implementation and historical acceptance have not been run.
+complete. The subsequent [nose-well pass](NOSE_WELL.md) implements and validates
+the estimated assembly; its registration residual keeps historical acceptance
+open. The criteria above remain the review contract rather than an unstarted
+task.

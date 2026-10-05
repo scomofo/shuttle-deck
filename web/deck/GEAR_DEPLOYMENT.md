@@ -115,3 +115,7 @@ through the full travel, rather than accepting only the final deployed pose.
 The [engineering source intake](GEAR_SOURCE_INTAKE.md) now retains the 1977
 NASA/Rockwell report's dimension tables and deployment diagram, with explicit
 preflight-model applicability limits and a bounded nose-well implementation.
+The [nose-well gate](NOSE_WELL.md) adds that estimated nose opening and two TPS
+leaves, replaces its whole-assembly braces with a fitted folding support, and
+checks sampled mesh clearance and actual pose recovery. The original common
+90-degree nose fit described above is superseded; the main gear retains it.

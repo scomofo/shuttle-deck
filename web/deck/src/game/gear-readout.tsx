@@ -39,10 +39,21 @@ export function GearReadout() {
       });
       return { id: g.id, angle: hinge.rotation.x, visible: visible(hinge), matrix: hinge.matrix.toArray(), wheels };
     });
+    const nose = gear.getObjectByName("nose-gear-assembly");
+    const noseState = nose ? {
+      doors: [-1, 1].map(side => {
+        const door = nose.getObjectByName(`nose-door-${side}`)!;
+        return { side, quaternion: door.quaternion.toArray(), matrix: door.matrix.toArray() };
+      }),
+      brace: ["nose-brace-0", "nose-brace-1", "nose-brace-knee"].map(name => {
+        const part = nose.getObjectByName(name)!;
+        return { name, matrix: part.matrix.toArray() };
+      }),
+    } : null;
     window.__gearReadout = { sampleTime: clock.elapsedTime, get: sim.get, position: sim.gearPosition,
       talkback: sim.gearTalkback, downLocked: sim.gear, paused: sim.paused, view: sim.view,
       camera: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(),
-        fov: (camera as THREE.PerspectiveCamera).fov }, assemblies };
+        fov: (camera as THREE.PerspectiveCamera).fov }, assemblies, nose: noseState };
   });
   return null;
 }
@@ -52,6 +63,7 @@ declare global {
     __gearReadout?: { sampleTime: number; get: number; position: number; talkback: string; downLocked: boolean;
       paused: boolean; view: string; camera: { position: number[]; quaternion: number[]; fov: number };
       assemblies: { id: string; angle: number; visible: boolean; matrix: number[];
-        wheels: { side: number; center: number[]; lowest: number; screen: number[]; inFrame: boolean }[] }[] };
+        wheels: { side: number; center: number[]; lowest: number; screen: number[]; inFrame: boolean }[] }[];
+      nose: { doors: { side: number; quaternion: number[]; matrix: number[] }[]; brace: { name: string; matrix: number[] }[] } | null };
   }
 }

@@ -65,13 +65,18 @@ with sync_playwright() as p:
             page.mouse.click(point['x'],point['y'])
 
         def pose(s):
-            return [{'angle':g['angle'],'matrix':g['matrix'],'centers':[w['center'] for w in g['wheels']]} for g in s['assemblies']]
+            return {'legs':[{'angle':g['angle'],'matrix':g['matrix'],'centers':[w['center'] for w in g['wheels']]} for g in s['assemblies']], 'nose':s['nose']}
 
         def check(s):
             progress = s['position']
             expected = -(1-progress*progress*(3-2*progress))*math.pi/2
             for g in s['assemblies']:
-                assert abs(g['angle']-expected)<1e-10, s
+                if g['id']=='nose':
+                    leg=max(0,min(1,(progress-.22)/.78))
+                    travel=leg*leg/.32 if leg<.2 else 1-(1-leg)**2/.32 if leg>.8 else (leg-.1)/.8
+                    angle=-(1-travel)*108*math.pi/180
+                else: angle=expected
+                assert abs(g['angle']-angle)<1e-10, s
                 assert all(math.isfinite(v) for v in g['matrix']), s
                 for w in g['wheels']:
                     assert all(math.isfinite(v) for v in w['center']), s
@@ -87,6 +92,7 @@ with sync_playwright() as p:
         page.get_by_role('button',name='Final approach',exact=True).click()
         page.get_by_role('button',name='Pause',exact=True).click()
         initial = read()
+        states[f'{label}-up'] = initial
         assert initial['position']==0 and initial['talkback']=='UP'
         assert not any(g['visible'] for g in initial['assemblies'])
         focus.get_by_role('button',name='Resume flight',exact=True).click()

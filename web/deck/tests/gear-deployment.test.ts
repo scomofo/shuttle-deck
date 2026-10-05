@@ -37,12 +37,12 @@ cold.perform("gear"); tick(10, cold); assert.equal(cold.gearPosition, 1, "One-wa
 // Six unchanged down-lock centers, and a continuous finite rigid transform.
 for (const g of GEAR_LAYOUT) {
   const end = new THREE.Vector3(0, -2.4 + g.radius - GEAR_PIVOT_Y, 0);
-  const deployed = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(1));
+  const deployed = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(1, g.id));
   assert.ok(Math.abs(deployed.y + GEAR_PIVOT_Y - g.radius + 2.4) < 1e-12);
   assert.equal(deployed.z, 0);
-  let last = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(0));
+  let last = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(0, g.id));
   for (let i = 1; i <= 100; i++) {
-    const p = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(i / 100));
+    const p = end.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), gearFoldAngle(i / 100, g.id));
     assert.ok(p.toArray().every(Number.isFinite));
     assert.ok(p.distanceTo(last) < 0.04, "No down-lock geometry jump"); last = p;
   }

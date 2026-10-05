@@ -1,0 +1,68 @@
+{
+  "baseline": "e3054b194cd84ef02d943e06390bac9558c6e449",
+  "fixture_sha256": "ab5cc93efc42234c96ba6c1d7430256f38060802f5c754f45f735ec5080d9180",
+  "views": [
+    {
+      "view": "tower",
+      "get": 55.000000000003,
+      "position": 0.5100000000000001,
+      "talkback": "TRANSIT",
+      "fov": 48,
+      "viewport": [
+        1280,
+        800
+      ],
+      "camera_position_max_delta": 2.035136503764079e-10,
+      "camera_quaternion_max_delta": 1.7069679003611782e-13,
+      "assets": [
+        {
+          "path": "before-tower.png",
+          "sha256": "fadc04fbabb48641ff85017ab05c482dc153cb74e31947320b65273fcce836dd"
+        },
+        {
+          "path": "before-tower.json",
+          "sha256": "fe606316dfe7ab809d1a1bb2cafa76cdebe9e68e634af7c823b071a21410cd46"
+        },
+        {
+          "path": "after-tower.png",
+          "sha256": "939b78c70ecb50fcb9d31fe8a2c013640a61106b0e0ccf9222048754c839c16c"
+        },
+        {
+          "path": "after-tower.json",
+          "sha256": "41cde5d0af259755c6c3f2d5a6cd739bb887c1ecc08d6649dfce2962104c3f68"
+        }
+      ]
+    },
+    {
+      "view": "chase",
+      "get": 55.000000000003,
+      "position": 0.5100000000000001,
+      "talkback": "TRANSIT",
+      "fov": 48,
+      "viewport": [
+        1280,
+        800
+      ],
+      "camera_position_max_delta": 1.86456183826067e-10,
+      "camera_quaternion_max_delta": 6.766809335090329e-13,
+      "assets": [
+        {
+          "path": "before-chase.png",
+          "sha256": "bfe8765c0a8e7d0de3de879d8332912079c14d67890818ad53ada3a64fc2e97b"
+        },
+        {
+          "path": "before-chase.json",
+          "sha256": "5ed70fe0a81f7b47f9592bcdf9671b3afdbc3643f103e59e39050cd42855013e"
+        },
+        {
+          "path": "after-chase.png",
+          "sha256": "bfe8765c0a8e7d0de3de879d8332912079c14d67890818ad53ada3a64fc2e97b"
+        },
+        {
+          "path": "after-chase.json",
+          "sha256": "f9ae23b7a9cc5c318f781092279c5b33ba9d04743b93b46aada83c8ad5a954ed"
+        }
+      ]
+    }
+  ]
+}

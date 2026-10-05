@@ -87,7 +87,10 @@ black tile texture, validation, and the remaining photorealism work.
 
 Root generation now stops on compiler errors. The production build includes
 successful root compilation and strict browser TypeScript; all twelve root
-test programs and ten browser-side programs pass. Landing gear drag follows
+test programs and eleven browser-side programs pass. Landing gear drag follows
 the same saved mechanism progress as the rendered gear, including unarmed
 commands and paused recovery. See [gear deployment](web/deck/GEAR_DEPLOYMENT.md)
-for the estimated drag/transit limits and validation scope.
+for the estimated drag/transit limits and validation scope. The
+[nose well and TPS-door review](web/deck/NOSE_WELL.md) records the actual skin
+opening, fitted articulation, sampled clearance and real checklist recovery;
+historical installation and main wells/doors remain open.

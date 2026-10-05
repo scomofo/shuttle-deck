@@ -50,8 +50,11 @@ actual-glazing/phone/recovery checks are in `web/deck/PAYLOAD_BAY.md`.
 Exterior landing gear now follows root-owned transit progress through pause
 and checkpoint recovery instead of appearing only at down-lock. The six wheel
 centers and contact datum are retained. Folding motion remains an estimated
-presentation fit; historical stow geometry, wheel wells and sequenced TPS doors
-are still open. See `web/deck/GEAR_DEPLOYMENT.md` for source limits and real
+presentation fit. The nose now has a real skin opening, lined well and two
+root-position TPS doors, with contained stow and sampled mesh-clearance checks;
+its dimension/sequence fit is still estimated. Main wells/doors and historical
+installation/actuator calibration remain open. See `web/deck/NOSE_WELL.md` and
+`web/deck/GEAR_DEPLOYMENT.md` for source limits and real
 desktop/phone F6 and recovery checks.
 
 The selected reconstruction target is Columbia on STS-1 (1981). The landing
