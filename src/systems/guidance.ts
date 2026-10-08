@@ -16,7 +16,7 @@ import { v_rel } from "../dynamics/aero.ts";
 import { nose_eci, ORBITER_INERTIA, q_body_x_along, qconj, qmul, type Quat } from "../dynamics/attitude.ts";
 import guide from "../../assets/data/spacecraft/entry_guidance.json" with { type: "json" };
 
-export type DapMode = "manual" | "lvlh" | "retrograde" | "entry" | "taem" | "approach";
+export type DapMode = "manual" | "lvlh" | "prograde" | "retrograde" | "entry" | "taem" | "approach";
 
 type Vec3n = { x: number; y: number; z: number };
 
@@ -63,6 +63,7 @@ export class Guidance {
     if (
       requested === "manual" ||
       requested === "lvlh" ||
+      requested === "prograde" ||
       requested === "retrograde" ||
       requested === "entry" ||
       requested === "taem" ||
@@ -81,10 +82,11 @@ export class Guidance {
 
     this.att_hold = false;
     const v = bus.get_value("dyn.v_eci_mps") as number[] | null;
-    if (this.mode === "retrograde" && v && v.length === 3) {
+    if ((this.mode === "prograde" || this.mode === "retrograde") && v && v.length === 3) {
       const vel: Vec3 = { x: v[0], y: v[1], z: v[2] };
       const n = len(vel) || 1;
-      this.q_cmd = q_body_x_along(mul(vel, -1 / n));
+      const dirScale = this.mode === "prograde" ? 1 / n : -1 / n;
+      this.q_cmd = q_body_x_along(mul(vel, dirScale));
       this.att_hold = true;
     }
 

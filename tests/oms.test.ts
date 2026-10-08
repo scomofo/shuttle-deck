@@ -44,7 +44,21 @@ function test_oms_retrograde_drops_periapsis() {
   assert(p1 < 110_000, `periapsis after OMS ${p1} (was ${p0})`);
 }
 
-const tests = [test_q_points_body_x, test_oms_retrograde_drops_periapsis];
+function test_oms_prograde_raises_periapsis() {
+  reset();
+  const rt = new SimRuntime();
+  rt.start("orbit");
+  bus.set_value("ctl.dap.mode", "prograde");
+  rt.controls.set("OmsBurn", true);
+  clock.advance(100);
+  const v = bus.get_value("dyn.v_eci_mps") as number[];
+  const q = rt.dynamics.attitude.q;
+  const nose = nose_eci(q);
+  const align = dot(nose, { x: v[0], y: v[1], z: v[2] }) / (len({ x: v[0], y: v[1], z: v[2] }) || 1);
+  assert(align > 0.9, `nose should be prograde, align ${align}`);
+}
+
+const tests = [test_q_points_body_x, test_oms_retrograde_drops_periapsis, test_oms_prograde_raises_periapsis];
 
 let failed = 0;
 for (const t of tests) {
