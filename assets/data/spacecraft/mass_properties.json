@@ -15,16 +15,16 @@
       "note": "orbiter + ET + two SRB at SRB ignition"
     },
     "orbit": {
-      "mass_kg": 104000,
-      "tag": "estimated",
+      "mass_kg": 94000,
+      "tag": "sts1-deorbit-mass",
       "inertia_kgm2": [1.07e6, 7.9e6, 8.2e6],
-      "note": "orbiter after ET sep, mid-mission propellant"
+      "note": "orbiter after ET sep, STS-1 deorbit mass (~94 t)"
     },
     "entry": {
-      "mass_kg": 85000,
-      "tag": "estimated",
+      "mass_kg": 88662,
+      "tag": "sourced-sts1-landing",
       "inertia_kgm2": [9.5e5, 7.1e6, 7.4e6],
-      "note": "orbiter after OMS deorbit, gear up"
+      "note": "STS-1 orbiter landing mass per press kit/astronautix"
     }
   }
 }
