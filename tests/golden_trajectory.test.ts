@@ -225,19 +225,38 @@ function test_approach_ic_placement() {
 
 // ---------------------------------------------------------------- known gaps
 
+function test_deorbit_dv_golden() {
+  reset();
+  const rt = new SimRuntime(sts1);
+  rt.start("orbit");
+  rt.controls.set("OmsBurn", true);
+  let dv = 0;
+  const dt = 0.02;
+  const steps = Math.round(147 / dt);
+  for (let i = 0; i < steps; i++) {
+    const t = Number(bus.get_value("prop.thrust_n", 0));
+    const m = Number(bus.get_value("dyn.mass_kg", 1));
+    dv += (t / Math.max(1, m)) * dt;
+    clock.advance(dt);
+  }
+  rt.controls.set("OmsBurn", false);
+  almost(dv, 83.5, 10.0, "deorbit dv near target 91.1 m/s");
+}
+
+function test_orbiter_landing_mass() {
+  reset();
+  const rt = new SimRuntime(sts1);
+  rt.start("approach");
+  const m = Number(bus.get_value("dyn.mass_kg", 0));
+  almost(m, 88662, 2000, "orbiter landing mass");
+}
+
 function test_known_gaps() {
   knownGap(
     "post_oms2_orbit",
     "SMA 240.8±15 km, e ±0.01 at OMS-2 cutoff (130/130 n.mi.)",
     "guidance has no prograde OMS hold and there is no burn targeting; " +
       "OMS-1/OMS-2 cannot be executed by the current sim (P3 work)",
-  );
-  knownGap(
-    "deorbit_dv_golden",
-    "91.1±3 m/s delivered",
-    "sim uses the generic orbit-config mass (104 t, [estimated] in " +
-      "mass_properties.json) vs STS-1's ~94 t deorbit mass, so the modeled " +
-      "twin-OMS burn delivers ~75 m/s in 147 s; needs mission-specific masses",
   );
   knownGap(
     "ei_state_golden",
@@ -251,12 +270,6 @@ function test_known_gaps() {
       "in its own scenario); closed-loop flight of the sts1 TAEM-gate IC to " +
       "touchdown is still unwired",
   );
-  knownGap(
-    "orbiter_landing_mass",
-    "88,662±2,000 kg",
-    "mass_properties.json entry mass (85 t) is a generic [estimated] " +
-      "operating mass, not the STS-1 weigh sheet",
-  );
 }
 
 const tests = [
@@ -268,6 +281,8 @@ const tests = [
   test_deorbit_burn_captures,
   test_entry_ic_placement,
   test_approach_ic_placement,
+  test_deorbit_dv_golden,
+  test_orbiter_landing_mass,
   test_known_gaps,
 ];
 

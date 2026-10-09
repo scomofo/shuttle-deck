@@ -118,8 +118,8 @@ function World() {
   const fieldMaterial = useMemo(() => dryLakeMaterial(), []);
   useEffect(() => () => fieldMaterial.dispose(), [fieldMaterial]);
   const space = useMemo(() => new THREE.Color("#07090d"), []);
-  const sky = useMemo(() => new THREE.Color().setRGB(0.60, 0.70, 0.77), []);
-  const haze = useMemo(() => new THREE.Fog(sky, 2200, 26000), [sky]);
+  const sky = useMemo(() => new THREE.Color().setRGB(0.55, 0.65, 0.75), []);
+  const haze = useMemo(() => new THREE.Fog(sky, 5000, 45000), [sky]);
 
   useFrame((_, delta) => {
     const wall = Math.min(delta, 0.05);
