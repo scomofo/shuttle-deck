@@ -150,6 +150,7 @@ export class Guidance {
     const alpha_meas = Number(bus.get_value("aero.alpha_deg", 0));
     const beta_meas = Number(bus.get_value("aero.beta_deg", 0));
     const bank_meas = Number(bus.get_value("aero.bank_deg", 0));
+    const q_dyn = Number(bus.get_value("aero.q_dyn_pa", 10000));
     const p_rate = Number(bus.get_value("guid.rate.roll", 0));
     const q_rate = Number(bus.get_value("guid.rate.pitch", 0));
     const r_rate = Number(bus.get_value("guid.rate.yaw", 0));
@@ -191,16 +192,19 @@ export class Guidance {
     };
     this.alpha_cmd_deg = alpha_schedule(vrel);
 
+    // Dynamic pressure gain scaling normalized around 10 kPa.
+    const q_scale = Math.min(2.5, Math.max(0.4, Math.sqrt(10000 / Math.max(500, q_dyn))));
+
     if (law === "entry") {
       // Hypersonic: hold alpha schedule, bank to the crew bank command.
       this.fd_bank_deg = this.bank_deg;
       this.fd_pitch_deg = gamma_deg + this.alpha_cmd_deg;
       this.fd_alt_err_m = 0; // no reference profile yet; P2 golden trajectory
-      const elevon = clamp(-1.2 * (this.alpha_cmd_deg - alpha_meas) + 4.0 * q_rate, -25, 25);
-      const de_diff = clamp(0.3 * (this.bank_deg - bank_meas) - 3.0 * p_rate, -10, 10);
+      const elevon = clamp((-1.2 * (this.alpha_cmd_deg - alpha_meas) + 4.0 * q_rate) * q_scale, -25, 25);
+      const de_diff = clamp((0.3 * (this.bank_deg - bank_meas) - 3.0 * p_rate) * q_scale, -10, 10);
       this.eff_cmd.elevon_l_deg = clamp(elevon + de_diff, -25, 25);
       this.eff_cmd.elevon_r_deg = clamp(elevon - de_diff, -25, 25);
-      this.eff_cmd.rudder_deg = clamp(1.0 * beta_meas - 1.0 * r_rate, -27, 27);
+      this.eff_cmd.rudder_deg = clamp((1.0 * beta_meas - 1.0 * r_rate) * q_scale, -27, 27);
       this.eff_cmd.speedbrake_deg = 0;
       this.eff_cmd.bodyflap_deg = clamp(0.6 * elevon, -20, 15);
       this.brake_cmd = 0;
@@ -220,11 +224,11 @@ export class Guidance {
     const pitch_cmd = gamma_cmd + this.alpha_cmd_deg;
     this.fd_pitch_deg = pitch_cmd;
     this.fd_bank_deg = law === "taem" ? this.bank_deg : 0;
-    const elevon = clamp(-2.0 * (pitch_cmd - pitch_meas) + 3.0 * q_rate, -25, 25);
-    const de_diff = clamp(0.6 * (this.fd_bank_deg - bank_meas) - 1.5 * p_rate, -10, 10);
+    const elevon = clamp((-2.0 * (pitch_cmd - pitch_meas) + 3.0 * q_rate) * q_scale, -25, 25);
+    const de_diff = clamp((0.6 * (this.fd_bank_deg - bank_meas) - 1.5 * p_rate) * q_scale, -10, 10);
     this.eff_cmd.elevon_l_deg = clamp(elevon + de_diff, -25, 25);
     this.eff_cmd.elevon_r_deg = clamp(elevon - de_diff, -25, 25);
-    this.eff_cmd.rudder_deg = clamp(1.0 * beta_meas - 1.0 * r_rate, -27, 27);
+    this.eff_cmd.rudder_deg = clamp((1.0 * beta_meas - 1.0 * r_rate) * q_scale, -27, 27);
     const v_tgt = law === "taem" ? 240 : 135;
     this.eff_cmd.speedbrake_deg = clamp(2.5 * (vrel - v_tgt), 0, 60);
     this.eff_cmd.bodyflap_deg = clamp(0.6 * elevon, -20, 15);

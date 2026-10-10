@@ -5,25 +5,29 @@
     {
       "cl_beta_per_rad": -0.08,
       "cn_beta_per_rad": 0.12,
+      "cy_beta_per_rad": -0.85,
       "mach": 0.3,
-      "note": "stable weathervane (+Cn) and dihedral (-Cl); beta = atan2(v_y_body, v_x_body), positive = velocity right of nose (wind from right)",
+      "note": "stable weathervane (+Cn), dihedral (-Cl) and side force (-Cy); beta = atan2(v_y_body, v_x_body), positive = velocity right of nose",
       "tag": "estimated"
     },
     {
       "cl_beta_per_rad": -0.05,
       "cn_beta_per_rad": 0.08,
+      "cy_beta_per_rad": -0.70,
       "mach": 1.5,
       "tag": "estimated"
     },
     {
       "cl_beta_per_rad": -0.03,
       "cn_beta_per_rad": 0.05,
+      "cy_beta_per_rad": -0.50,
       "mach": 5.0,
       "tag": "estimated"
     },
     {
       "cl_beta_per_rad": -0.02,
       "cn_beta_per_rad": 0.04,
+      "cy_beta_per_rad": -0.35,
       "mach": 25.0,
       "tag": "estimated"
     }
@@ -98,134 +102,105 @@
   ],
   "mac_m": 12.0602,
   "moment_table": [
-    {
-      "alpha_deg": 0,
-      "cm": 0.02,
-      "mach": 0.3,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 8,
-      "cm": 0.01,
-      "mach": 0.3,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 14,
-      "cm": 0.0,
-      "mach": 0.3,
-      "note": "subsonic trim near final-approach alpha with elevons near neutral",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cm": -0.03,
-      "mach": 0.3,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 0,
-      "cm": 0.02,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cm": 0.0,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 15,
-      "cm": -0.015,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cm": -0.04,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cm": 0.01,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cm": 0.0,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cm": -0.03,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 25,
-      "cm": 0.015,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cm": 0.008,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cm": 0.0,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 50,
-      "cm": -0.03,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 25,
-      "cm": 0.02,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cm": 0.0,
-      "mach": 10.0,
-      "note": "hypersonic trim near the ATP design alpha with elevons near neutral",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cm": -0.005,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 50,
-      "cm": -0.035,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cm": 0.005,
-      "mach": 25.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cm": 0.0,
-      "mach": 25.0,
-      "tag": "estimated"
-    }
+    { "mach": 0.3, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 8, "cm": 0.01, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 14, "cm": 0.0, "note": "subsonic trim near final-approach alpha with elevons near neutral", "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 20, "cm": -0.03, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 30, "cm": -0.06, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 40, "cm": -0.09, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 50, "cm": -0.12, "tag": "estimated" },
+
+    { "mach": 0.6, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 10, "cm": 0.0, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 15, "cm": -0.015, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 20, "cm": -0.04, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 30, "cm": -0.07, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 40, "cm": -0.10, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 50, "cm": -0.13, "tag": "estimated" },
+
+    { "mach": 0.9, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 10, "cm": 0.01, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 16, "cm": -0.005, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 30, "cm": -0.05, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 40, "cm": -0.08, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 50, "cm": -0.11, "tag": "estimated" },
+
+    { "mach": 1.2, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 10, "cm": 0.01, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 20, "cm": -0.005, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 30, "cm": -0.03, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 40, "cm": -0.06, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 50, "cm": -0.09, "tag": "estimated" },
+
+    { "mach": 1.5, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 10, "cm": 0.01, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 20, "cm": 0.0, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 30, "cm": -0.03, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 40, "cm": -0.05, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 50, "cm": -0.08, "tag": "estimated" },
+
+    { "mach": 2.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 10, "cm": 0.01, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 20, "cm": 0.0, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 30, "cm": -0.025, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 40, "cm": -0.05, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 50, "cm": -0.075, "tag": "estimated" },
+
+    { "mach": 3.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 10, "cm": 0.012, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 20, "cm": 0.005, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 30, "cm": -0.015, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 40, "cm": -0.04, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 50, "cm": -0.065, "tag": "estimated" },
+
+    { "mach": 5.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 25, "cm": 0.015, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 30, "cm": 0.008, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 40, "cm": 0.0, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 50, "cm": -0.03, "tag": "estimated" },
+
+    { "mach": 6.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 25, "cm": 0.015, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 30, "cm": 0.008, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 40, "cm": 0.0, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 50, "cm": -0.03, "tag": "estimated" },
+
+    { "mach": 8.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 25, "cm": 0.015, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 30, "cm": 0.008, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 40, "cm": -0.002, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 50, "cm": -0.032, "tag": "estimated" },
+
+    { "mach": 10.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 25, "cm": 0.02, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 34, "cm": 0.0, "note": "hypersonic trim near the ATP design alpha with elevons near neutral", "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 40, "cm": -0.005, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 50, "cm": -0.035, "tag": "estimated" },
+
+    { "mach": 15.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 25, "cm": 0.015, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 34, "cm": 0.0, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 40, "cm": -0.005, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 50, "cm": -0.035, "tag": "estimated" },
+
+    { "mach": 20.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 25, "cm": 0.012, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 34, "cm": 0.003, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 40, "cm": -0.003, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 50, "cm": -0.035, "tag": "estimated" },
+
+    { "mach": 25.0, "alpha_deg": 0, "cm": 0.02, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 10, "cm": 0.018, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 25, "cm": 0.01, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 34, "cm": 0.005, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 40, "cm": 0.0, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 50, "cm": -0.035, "tag": "estimated" }
   ],
   "reference_area_ft2": 2690,
   "reference_area_m2": 249.909,
@@ -253,308 +228,105 @@
     }
   ],
   "table": [
-    {
-      "alpha_deg": 0,
-      "cd": 0.045,
-      "cl": 0.05,
-      "mach": 0.3,
-      "note": "subsonic approach build-up; max L/D kept near the ATP 5.7 upper bound",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 8,
-      "cd": 0.1,
-      "cl": 0.55,
-      "mach": 0.3,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 14,
-      "cd": 0.16,
-      "cl": 0.85,
-      "mach": 0.3,
-      "note": "final-approach alpha region",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cd": 0.28,
-      "cl": 1.02,
-      "mach": 0.3,
-      "note": "near stall; L/D falls off",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 0,
-      "cd": 0.04,
-      "cl": 0.03,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cd": 0.08,
-      "cl": 0.45,
-      "mach": 0.6,
-      "note": "subsonic approach; ATP max L/D 5.7 is an upper bound, not this row",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 15,
-      "cd": 0.14,
-      "cl": 0.62,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cd": 0.24,
-      "cl": 0.76,
-      "mach": 0.6,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 0,
-      "cd": 0.045,
-      "cl": 0.03,
-      "mach": 0.9,
-      "note": "high-subsonic drag rise beginning",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cd": 0.11,
-      "cl": 0.48,
-      "mach": 0.9,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 16,
-      "cd": 0.19,
-      "cl": 0.68,
-      "mach": 0.9,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 0,
-      "cd": 0.055,
-      "cl": 0.02,
-      "mach": 1.2,
-      "note": "supersonic wave drag present at all alphas",
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cd": 0.15,
-      "cl": 0.34,
-      "mach": 1.2,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 16,
-      "cd": 0.24,
-      "cl": 0.5,
-      "mach": 1.2,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 0,
-      "cd": 0.08,
-      "cl": 0.01,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cd": 0.16,
-      "cl": 0.28,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cd": 0.24,
-      "cl": 0.4,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.37,
-      "cl": 0.5,
-      "mach": 1.5,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 10,
-      "cd": 0.12,
-      "cl": 0.22,
-      "mach": 2.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cd": 0.2,
-      "cl": 0.38,
-      "mach": 2.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.31,
-      "cl": 0.5,
-      "mach": 2.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 20,
-      "cd": 0.22,
-      "cl": 0.4,
-      "mach": 3.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.34,
-      "cl": 0.55,
-      "mach": 3.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.49,
-      "cl": 0.66,
-      "mach": 3.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 25,
-      "cd": 0.38,
-      "cl": 0.55,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.46,
-      "cl": 0.62,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.58,
-      "cl": 0.72,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 50,
-      "cd": 0.73,
-      "cl": 0.78,
-      "mach": 5.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.47,
-      "cl": 0.64,
-      "mach": 6.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.6,
-      "cl": 0.74,
-      "mach": 6.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 30,
-      "cd": 0.49,
-      "cl": 0.66,
-      "mach": 8.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.63,
-      "cl": 0.76,
-      "mach": 8.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 25,
-      "cd": 0.42,
-      "cl": 0.58,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cd": 0.54,
-      "cl": 0.7,
-      "mach": 10.0,
-      "note": "ATP published L/D 1.3 at 34 deg; cl/cd split [estimated] to match that ratio",
-      "tag": "sourced-anchor"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.68,
-      "cl": 0.78,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 50,
-      "cd": 0.79,
-      "cl": 0.82,
-      "mach": 10.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cd": 0.56,
-      "cl": 0.72,
-      "mach": 15.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.7,
-      "cl": 0.8,
-      "mach": 15.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cd": 0.58,
-      "cl": 0.74,
-      "mach": 20.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.72,
-      "cl": 0.81,
-      "mach": 20.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 34,
-      "cd": 0.6,
-      "cl": 0.74,
-      "mach": 25.0,
-      "tag": "estimated"
-    },
-    {
-      "alpha_deg": 40,
-      "cd": 0.73,
-      "cl": 0.8,
-      "mach": 25.0,
-      "note": "typical entry alpha ~40 deg; L/D ~1.1",
-      "tag": "estimated"
-    }
+    { "mach": 0.3, "alpha_deg": 0, "cl": 0.05, "cd": 0.045, "note": "subsonic approach build-up", "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 8, "cl": 0.55, "cd": 0.10, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 14, "cl": 0.85, "cd": 0.16, "note": "final-approach alpha region", "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 20, "cl": 1.02, "cd": 0.28, "note": "near stall; L/D falls off", "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 30, "cl": 0.90, "cd": 0.50, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 40, "cl": 0.70, "cd": 0.70, "tag": "estimated" },
+    { "mach": 0.3, "alpha_deg": 50, "cl": 0.50, "cd": 0.88, "tag": "estimated" },
+
+    { "mach": 0.6, "alpha_deg": 0, "cl": 0.04, "cd": 0.040, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 10, "cl": 0.45, "cd": 0.08, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 15, "cl": 0.62, "cd": 0.14, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 20, "cl": 0.76, "cd": 0.24, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 30, "cl": 0.82, "cd": 0.48, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 40, "cl": 0.68, "cd": 0.68, "tag": "estimated" },
+    { "mach": 0.6, "alpha_deg": 50, "cl": 0.48, "cd": 0.86, "tag": "estimated" },
+
+    { "mach": 0.9, "alpha_deg": 0, "cl": 0.03, "cd": 0.045, "note": "high-subsonic drag rise beginning", "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 10, "cl": 0.48, "cd": 0.11, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 16, "cl": 0.68, "cd": 0.19, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 30, "cl": 0.78, "cd": 0.46, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 40, "cl": 0.66, "cd": 0.66, "tag": "estimated" },
+    { "mach": 0.9, "alpha_deg": 50, "cl": 0.46, "cd": 0.85, "tag": "estimated" },
+
+    { "mach": 1.2, "alpha_deg": 0, "cl": 0.02, "cd": 0.055, "note": "supersonic wave drag present", "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 10, "cl": 0.34, "cd": 0.15, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 16, "cl": 0.50, "cd": 0.24, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 30, "cl": 0.62, "cd": 0.42, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 40, "cl": 0.68, "cd": 0.62, "tag": "estimated" },
+    { "mach": 1.2, "alpha_deg": 50, "cl": 0.52, "cd": 0.82, "tag": "estimated" },
+
+    { "mach": 1.5, "alpha_deg": 0, "cl": 0.02, "cd": 0.060, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 10, "cl": 0.28, "cd": 0.16, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 20, "cl": 0.40, "cd": 0.24, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 30, "cl": 0.50, "cd": 0.37, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 40, "cl": 0.66, "cd": 0.58, "tag": "estimated" },
+    { "mach": 1.5, "alpha_deg": 50, "cl": 0.55, "cd": 0.80, "tag": "estimated" },
+
+    { "mach": 2.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.060, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 10, "cl": 0.22, "cd": 0.12, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 20, "cl": 0.38, "cd": 0.20, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 30, "cl": 0.50, "cd": 0.31, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 40, "cl": 0.65, "cd": 0.55, "tag": "estimated" },
+    { "mach": 2.0, "alpha_deg": 50, "cl": 0.58, "cd": 0.78, "tag": "estimated" },
+
+    { "mach": 3.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.065, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.12, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 20, "cl": 0.40, "cd": 0.22, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 30, "cl": 0.55, "cd": 0.34, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 40, "cl": 0.66, "cd": 0.49, "tag": "estimated" },
+    { "mach": 3.0, "alpha_deg": 50, "cl": 0.60, "cd": 0.75, "tag": "estimated" },
+
+    { "mach": 5.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.070, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.13, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 25, "cl": 0.55, "cd": 0.38, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 30, "cl": 0.62, "cd": 0.46, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 40, "cl": 0.72, "cd": 0.58, "tag": "estimated" },
+    { "mach": 5.0, "alpha_deg": 50, "cl": 0.78, "cd": 0.73, "tag": "estimated" },
+
+    { "mach": 6.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.072, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.13, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 25, "cl": 0.56, "cd": 0.39, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 30, "cl": 0.64, "cd": 0.47, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 40, "cl": 0.74, "cd": 0.60, "tag": "estimated" },
+    { "mach": 6.0, "alpha_deg": 50, "cl": 0.79, "cd": 0.75, "tag": "estimated" },
+
+    { "mach": 8.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.075, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.14, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 25, "cl": 0.57, "cd": 0.40, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 30, "cl": 0.66, "cd": 0.49, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 40, "cl": 0.76, "cd": 0.63, "tag": "estimated" },
+    { "mach": 8.0, "alpha_deg": 50, "cl": 0.80, "cd": 0.77, "tag": "estimated" },
+
+    { "mach": 10.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.075, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.14, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 25, "cl": 0.58, "cd": 0.42, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 34, "cl": 0.70, "cd": 0.54, "note": "ATP published L/D 1.3 at 34 deg; cl/cd split [estimated] to match that ratio", "tag": "sourced-anchor" },
+    { "mach": 10.0, "alpha_deg": 40, "cl": 0.78, "cd": 0.68, "tag": "estimated" },
+    { "mach": 10.0, "alpha_deg": 50, "cl": 0.82, "cd": 0.79, "tag": "estimated" },
+
+    { "mach": 15.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.075, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.14, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 25, "cl": 0.58, "cd": 0.43, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 34, "cl": 0.72, "cd": 0.56, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 40, "cl": 0.80, "cd": 0.70, "tag": "estimated" },
+    { "mach": 15.0, "alpha_deg": 50, "cl": 0.83, "cd": 0.81, "tag": "estimated" },
+
+    { "mach": 20.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.078, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.15, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 25, "cl": 0.58, "cd": 0.44, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 34, "cl": 0.74, "cd": 0.58, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 40, "cl": 0.81, "cd": 0.72, "tag": "estimated" },
+    { "mach": 20.0, "alpha_deg": 50, "cl": 0.84, "cd": 0.83, "tag": "estimated" },
+
+    { "mach": 25.0, "alpha_deg": 0, "cl": 0.02, "cd": 0.080, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 10, "cl": 0.20, "cd": 0.15, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 25, "cl": 0.58, "cd": 0.45, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 34, "cl": 0.74, "cd": 0.60, "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 40, "cl": 0.80, "cd": 0.73, "note": "typical entry alpha ~40 deg; L/D ~1.1", "tag": "estimated" },
+    { "mach": 25.0, "alpha_deg": 50, "cl": 0.84, "cd": 0.85, "tag": "estimated" }
   ],
   "vertical_tail_area_m2": 38.392
 }

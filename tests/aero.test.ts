@@ -1,5 +1,5 @@
 import { lerp_coeff, Aero, EFFECTOR_NEUTRAL } from "../src/dynamics/aero.ts";
-import { q_body_x_along } from "../src/dynamics/attitude.ts";
+import { q_body_x_along, qmul } from "../src/dynamics/attitude.ts";
 import { v_rel } from "../src/dynamics/aero.ts";
 import { density, sound_speed } from "../src/dynamics/atmosphere.ts";
 import table from "../assets/data/spacecraft/aero.json" with { type: "json" };
@@ -41,6 +41,44 @@ function test_aero_publishes_sample_shape() {
   almost(s.alpha_deg, 0, 2, `nose into wind, alpha ${s.alpha_deg}`);
   almost(s.beta_deg, 0, 2, `beta ${s.beta_deg}`);
   assert(s.mach > 15 && s.mach < 30, `mach ${s.mach}`);
+}
+
+function test_hypersonic_low_alpha_drag_and_lift() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 70_000, y: 0, z: 0 };
+  const v = { x: 0, y: 7500, z: 0 }; // ~Mach 25
+  const q = q_body_x_along(v_rel(r, v)); // alpha = 0
+  const s = aero.accelerations(r, v, 85_000, q, { x: 0, y: 0, z: 0 }, EFFECTOR_NEUTRAL, false);
+  assert(s.cd <= 0.09, `Mach 25 low-alpha drag coefficient should be low C_D0, got ${s.cd}`);
+  assert(s.cl <= 0.05, `Mach 25 low-alpha lift coefficient should be low C_L0, got ${s.cl}`);
+}
+
+function test_3d_force_directions_bank_and_sideslip() {
+  const aero = new Aero();
+  const r = { x: 6_378_137 + 60_000, y: 0, z: 0 }; // radial along +x
+  const v = { x: 0, y: 5000, z: 0 }; // velocity along +y
+  const q_base = q_body_x_along(v_rel(r, v));
+
+  // Pitch up 34 deg for entry L/D.
+  const h_pitch = (17 * Math.PI) / 180;
+  const q_pitch = qmul(q_base, { x: 0, y: Math.sin(h_pitch), z: 0, w: Math.cos(h_pitch) });
+
+  // 1) Wings level: lift points radially outward (+x)
+  const s_level = aero.accelerations(r, v, 85_000, q_pitch, { x: 0, y: 0, z: 0 }, EFFECTOR_NEUTRAL, false);
+  assert(s_level.a_eci.x > 0, `wings level lift accelerates outward (+x), got ${s_level.a_eci.x}`);
+
+  // 2) Banked 90 deg right: lift accelerates laterally (+z)
+  const h_roll = (45 * Math.PI) / 180;
+  const q_bank90 = qmul(q_pitch, { x: Math.sin(h_roll), y: 0, z: 0, w: Math.cos(h_roll) });
+  const s_bank90 = aero.accelerations(r, v, 85_000, q_bank90, { x: 0, y: 0, z: 0 }, EFFECTOR_NEUTRAL, false);
+  assert(Math.abs(s_bank90.a_eci.z) > 1.0, `90 deg bank generates lateral acceleration, got ${s_bank90.a_eci.z}`);
+
+  // 3) Yaw / sideslip generates side force
+  const h_yaw = (2.5 * Math.PI) / 180;
+  const q_beta = qmul(q_pitch, { x: 0, y: 0, z: Math.sin(h_yaw), w: Math.cos(h_yaw) });
+  const s_beta = aero.accelerations(r, v, 85_000, q_beta, { x: 0, y: 0, z: 0 }, EFFECTOR_NEUTRAL, false);
+  assert(Math.abs(s_beta.beta_deg) > 1.5, `measured beta present: ${s_beta.beta_deg}`);
+  assert(Math.abs(s_beta.a_eci.z) > 0.01, `sideslip generates side acceleration, got ${s_beta.a_eci.z}`);
 }
 
 function test_standard_atmosphere() {
@@ -135,6 +173,8 @@ const tests = [
   test_atp_anchor_ld,
   test_lerp_between_mach,
   test_aero_publishes_sample_shape,
+  test_hypersonic_low_alpha_drag_and_lift,
+  test_3d_force_directions_bank_and_sideslip,
   test_standard_atmosphere,
   test_elevon_pitch_sign,
   test_differential_elevon_rolls,

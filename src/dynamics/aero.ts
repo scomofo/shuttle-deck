@@ -124,24 +124,37 @@ function lerp_moment(mach: number, alpha_deg: number, rows: MomentRow[]): number
 /** 1-D Mach interpolation over a derivative schedule. */
 function lerp_beta_deriv(
   mach: number,
-  rows: Array<{ mach: number; cl_beta_per_rad: number; cn_beta_per_rad: number }>,
-): { cl_beta: number; cn_beta: number } {
-  if (!rows.length) return { cl_beta: 0, cn_beta: 0 };
+  rows: Array<{ mach: number; cl_beta_per_rad: number; cn_beta_per_rad: number; cy_beta_per_rad?: number }>,
+): { cl_beta: number; cn_beta: number; cy_beta: number } {
+  if (!rows.length) return { cl_beta: 0, cn_beta: 0, cy_beta: 0 };
   const at = [...rows].sort((a, b) => a.mach - b.mach);
-  if (mach <= at[0].mach) return { cl_beta: at[0].cl_beta_per_rad, cn_beta: at[0].cn_beta_per_rad };
+  if (mach <= at[0].mach) {
+    return {
+      cl_beta: at[0].cl_beta_per_rad,
+      cn_beta: at[0].cn_beta_per_rad,
+      cy_beta: at[0].cy_beta_per_rad ?? -0.7,
+    };
+  }
   for (let i = 1; i < at.length; i++) {
     if (mach <= at[i].mach) {
       const a = at[i - 1];
       const b = at[i];
       const f = (mach - a.mach) / (b.mach - a.mach || 1);
+      const cy_a = a.cy_beta_per_rad ?? -0.7;
+      const cy_b = b.cy_beta_per_rad ?? -0.7;
       return {
         cl_beta: a.cl_beta_per_rad + (b.cl_beta_per_rad - a.cl_beta_per_rad) * f,
         cn_beta: a.cn_beta_per_rad + (b.cn_beta_per_rad - a.cn_beta_per_rad) * f,
+        cy_beta: cy_a + (cy_b - cy_a) * f,
       };
     }
   }
   const last = at[at.length - 1];
-  return { cl_beta: last.cl_beta_per_rad, cn_beta: last.cn_beta_per_rad };
+  return {
+    cl_beta: last.cl_beta_per_rad,
+    cn_beta: last.cn_beta_per_rad,
+    cy_beta: last.cy_beta_per_rad ?? -0.7,
+  };
 }
 
 const D2R = Math.PI / 180;
@@ -155,7 +168,12 @@ export class Aero {
   eff_cfg = table.effectors;
   rows = table.table as AeroRow[];
   moment_rows = table.moment_table as MomentRow[];
-  beta_rows = table.beta_derivatives as Array<{ mach: number; cl_beta_per_rad: number; cn_beta_per_rad: number }>;
+  beta_rows = table.beta_derivatives as Array<{
+    mach: number;
+    cl_beta_per_rad: number;
+    cn_beta_per_rad: number;
+    cy_beta_per_rad?: number;
+  }>;
   damping = table.damping_derivatives as { cmq_per_rad: number; clp_per_rad: number; cnr_per_rad: number };
 
   accelerations(
@@ -193,18 +211,19 @@ export class Aero {
     const vhat = norm(vr);
     const mach = spd / sound_speed(alt);
 
-    // Attitude-relative airflow, measured from the quaternion: no commanded
-    // bank is assumed. Body axes: x nose, y right wing, z down. Positive
-    // alpha = nose above the velocity vector (velocity appears from below,
-    // +z); positive beta = velocity to the right of the nose (+y).
+    // Body relative velocity vector (body axes: x nose, y right wing, z down).
     const vr_body = body_from_eci(q, vr);
-    const alpha = Math.atan2(vr_body.z, Math.max(vr_body.x, 0.05 * spd));
-    const beta = Math.atan2(vr_body.y, Math.max(vr_body.x, 0.05 * spd));
+    const v_x = vr_body.x;
+    const v_y = vr_body.y;
+    const v_z = vr_body.z;
+    const v_xz = Math.sqrt(v_x * v_x + v_z * v_z);
+
+    const alpha = Math.atan2(v_z, Math.max(v_x, 0.01 * spd));
+    const beta = Math.atan2(v_y, Math.max(v_xz, 0.01 * spd));
     const alpha_deg = alpha / D2R;
     const beta_deg = beta / D2R;
 
-    // Measured bank about the velocity vector: rotation of the right wing
-    // out of the plane spanned by velocity and local up.
+    // Bank angle relative to local vertical and velocity vector for telemetry.
     const rhat = norm(r);
     let up = sub(rhat, mul(vhat, dot(rhat, vhat)));
     if (len(up) < 1e-6) up = { x: 0, y: 0, z: 1 };
@@ -219,6 +238,8 @@ export class Aero {
     const de_avg = (eff.elevon_l_deg + eff.elevon_r_deg) / 2;
     const sb = eff.speedbrake_deg;
     const bf = eff.bodyflap_deg;
+    const { cl_beta, cn_beta, cy_beta } = lerp_beta_deriv(mach, this.beta_rows);
+
     const cl = tab.cl + this.eff_cfg.speedbrake.dcl_per_deg * sb;
     let cd =
       tab.cd +
@@ -227,14 +248,41 @@ export class Aero {
       this.eff_cfg.bodyflap.dcd_per_deg_abs * Math.abs(bf) +
       this.eff_cfg.rudder.dcd_per_deg_abs * Math.abs(eff.rudder_deg);
     if (gear_down) cd += this.eff_cfg.gear.dcd;
-    const drag = qbar * cd * this.S;
-    const lift = qbar * cl * this.S;
-    const lift_dir = add(mul(up, Math.cos(bank)), mul(side, Math.sin(bank)));
-    const f = add(mul(vhat, -drag), mul(lift_dir, lift));
+    const cy = cy_beta * beta;
+
+    const drag_mag = qbar * cd * this.S;
+    const lift_mag = qbar * cl * this.S;
+    const side_mag = qbar * cy * this.S;
+
+    // Exact 3D Force Directions in ECI:
+    // Drag vector opposes relative velocity vhat.
+    const f_drag = mul(vhat, -drag_mag);
+
+    // Canopy normal vector in ECI (-z_body axis).
+    const n_canopy = eci_from_body(q, { x: 0, y: 0, z: -1 });
+
+    // Lift direction in ECI: component of canopy normal perpendicular to relative wind vhat.
+    let lift_dir = sub(n_canopy, mul(vhat, dot(n_canopy, vhat)));
+    if (len(lift_dir) < 1e-6) {
+      lift_dir = up;
+    } else {
+      lift_dir = norm(lift_dir);
+    }
+    const f_lift = mul(lift_dir, lift_mag);
+
+    // Side force direction in ECI: perpendicular to relative wind and canopy normal.
+    let side_dir = cross(vhat, n_canopy);
+    if (len(side_dir) < 1e-6) {
+      side_dir = side;
+    } else {
+      side_dir = norm(side_dir);
+    }
+    const f_side = mul(side_dir, side_mag);
+
+    const f = add(add(f_drag, f_lift), f_side);
 
     // Moments.
     const cm_tab = lerp_moment(mach, alpha_deg, this.moment_rows);
-    const { cl_beta, cn_beta } = lerp_beta_deriv(mach, this.beta_rows);
     const de_diff = (eff.elevon_l_deg - eff.elevon_r_deg) / 2;
     const qrate_nd = spd > 1 ? (omega_body.y * this.mac_m) / (2 * spd) : 0;
     const prate_nd = spd > 1 ? (omega_body.x * this.span_m) / (2 * spd) : 0;
