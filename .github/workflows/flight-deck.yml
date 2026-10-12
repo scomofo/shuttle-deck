@@ -8,9 +8,13 @@ on:
     paths:
       - "web/deck/**"
       - ".github/workflows/flight-deck.yml"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: web/deck
